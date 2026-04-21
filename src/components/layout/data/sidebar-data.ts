@@ -22,6 +22,7 @@ import {
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
+  FolderGitIcon,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -63,12 +64,12 @@ export const sidebarData: SidebarData = {
           icon: ListTodo,
         },
         {
-          title: 'Apps',
+          title: 'Applications',
           url: '/apps',
           icon: Package,
         },
         {
-          title: 'Servers',
+          title: 'Serveurs',
           url: '/servers',
           icon: Server,
         },
@@ -148,31 +149,26 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: 'Other',
+      title: 'Autre',
       items: [
         {
-          title: 'Settings',
+          title: 'Paramètres',
           icon: Settings,
           items: [
             {
-              title: 'Account',
+              title: 'Mon Compte',
               url: '/settings/account',
               icon: Wrench,
             },
             {
-              title: 'Appearance',
-              url: '/settings/appearance',
-              icon: Palette,
-            },
-            {
-              title: 'Notifications',
-              url: '/settings/notifications',
-              icon: Bell,
+              title: 'Intégrations',
+              url: '/settings/integrations',
+              icon: FolderGitIcon,
             },
           ],
         },
         {
-          title: 'Help Center',
+          title: "Centre d'aide",
           url: '/help-center',
           icon: HelpCircle,
         },
