@@ -16,7 +16,8 @@ export function AppSidebar() {
   const { collapsible, variant } = useLayout()
   const { auth } = useAuthStore()
 
-  const user = auth.user || sidebarData.user
+  // Use the authenticated user directly. If null (shouldn't happen due to route guard), we show empty data.
+  const user = auth.user || { name: '', email: '', avatar: '' }
 
   return (
     <Sidebar collapsible={collapsible} variant={variant}>
