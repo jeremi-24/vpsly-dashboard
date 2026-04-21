@@ -29,10 +29,10 @@ export interface ServerInfo {
 }
 
 const statusText = new Map([
-  ['all', 'All Statuses'],
-  ['connected', 'Connected'],
-  ['pending', 'Pending'],
-  ['failed', 'Failed'],
+  ['all', 'Tous les statuts'],
+  ['connected', 'Connecté'],
+  ['pending', 'En attente'],
+  ['failed', 'Échec'],
 ])
 
 export function Servers() {
@@ -48,8 +48,8 @@ export function Servers() {
       const data = await apiFetch<ServerInfo[]>('/servers')
       setServers(data)
     } catch (error: any) {
-      toast.error('Error', {
-        description: error.message || 'Failed to fetch servers',
+      toast.error('Erreur', {
+        description: error.message || 'Échec de la récupération des serveurs',
       })
     } finally {
       setLoading(false)
@@ -81,21 +81,21 @@ export function Servers() {
       <Main fixed>
         <div className='flex items-center justify-between mb-2'>
           <div>
-            <h1 className='text-2xl font-bold tracking-tight'>Servers</h1>
+            <h1 className='text-2xl font-bold tracking-tight'>Serveurs</h1>
             <p className='text-muted-foreground'>
-              Connect and manage your VPS instances for deployment.
+              Connectez et gérez vos instances VPS pour le déploiement.
             </p>
           </div>
           <Button onClick={() => setDrawerOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            <span>Connect Server</span>
+            <span>Connecter un serveur</span>
           </Button>
         </div>
 
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
           <div className='flex flex-col gap-4 sm:my-4 sm:flex-row'>
             <Input
-              placeholder='Filter servers...'
+              placeholder='Filtrer les serveurs...'
               className='h-9 w-40 lg:w-[250px]'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -105,10 +105,10 @@ export function Servers() {
                 <SelectValue>{statusText.get(statusFilter)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value='all'>All Statuses</SelectItem>
-                <SelectItem value='connected'>Connected</SelectItem>
-                <SelectItem value='pending'>Pending</SelectItem>
-                <SelectItem value='failed'>Failed</SelectItem>
+                <SelectItem value='all'>Tous les statuts</SelectItem>
+                <SelectItem value='connected'>Connecté</SelectItem>
+                <SelectItem value='pending'>En attente</SelectItem>
+                <SelectItem value='failed'>Échec</SelectItem>
               </SelectContent>
             </Select>
           </div>
