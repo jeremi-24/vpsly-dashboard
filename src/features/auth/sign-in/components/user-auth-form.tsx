@@ -137,11 +137,24 @@ export function UserAuthForm({
         </div>
 
         <div className='grid grid-cols-2 gap-2'>
-          <Button variant='outline' type='button' disabled={isLoading}>
+          <Button 
+            variant='outline' 
+            type='button' 
+            disabled={isLoading}
+            onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/github`}
+          >
             <IconGithub className='h-4 w-4' /> GitHub
           </Button>
-          <Button variant='outline' type='button' disabled={isLoading}>
-            <IconFacebook className='h-4 w-4' /> Facebook
+          <Button 
+            variant='outline' 
+            type='button' 
+            disabled={isLoading}
+            onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`}
+          >
+            {/* Google Icon can be imported or used from a library, keeping it simple for now */}
+            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className='h-4 w-4 fill-current'>
+              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.9 3.47-1.92 4.64-1.2 1.2-3.08 2.5-6.64 2.5-6.39 0-11.39-4.82-11.39-11.22s5-11.22 11.39-11.22c3.81 0 6.64 1.44 8.74 3.39l2.45-2.45C20.44 1.44 16.92 0 12.48 0 5.61 0 0 5.61 0 12.48s5.61 12.48 12.48 12.48c3.75 0 6.6-1.23 9.12-3.78 2.61-2.61 3.45-6.27 3.45-9.15 0-.87-.06-1.71-.21-2.49h-12.36z"/>
+            </svg> Google
           </Button>
         </div>
       </form>
