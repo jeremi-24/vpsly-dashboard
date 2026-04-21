@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL
 
-export async function apiFetch(path: string, options: RequestInit = {}) {
+export async function apiFetch<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('vpsly_auth_token')
 
   const res = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {

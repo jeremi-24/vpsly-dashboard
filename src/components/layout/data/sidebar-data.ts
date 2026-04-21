@@ -10,6 +10,7 @@ import {
   Bell,
   Package,
   Palette,
+  Server,
   ServerOff,
   Settings,
   Wrench,
@@ -65,6 +66,11 @@ export const sidebarData: SidebarData = {
           title: 'Apps',
           url: '/apps',
           icon: Package,
+        },
+        {
+          title: 'Servers',
+          url: '/servers',
+          icon: Server,
         },
         {
           title: 'Chats',
