@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge'
 import { echo } from '@/lib/echo'
 import { EnvVarCard } from './env-vars-card'
 import { toast } from 'sonner'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { RuntimeLogsTerminal } from './runtime-logs-terminal'
 
 
 export function AppDetail() {
@@ -153,24 +155,40 @@ export function AppDetail() {
                     </Button>
                 </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
                 <div className="md:col-span-2 flex flex-col min-h-0 h-full">
-                    <div className="flex items-center justify-between mb-2 flex-none">
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground/60">Console de déploiement</h3>
-                    </div>
-                    <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5">
-                        {latestDeployment ? (
-                            <DeploymentTerminal 
-                                deploymentId={latestDeployment.id} 
-                                initialLogs={latestDeployment.logs || []} 
-                            />
-                        ) : (
-                            <div className="h-full flex items-center justify-center border border-dashed rounded-lg bg-muted/30">
-                                <p className="text-sm text-muted-foreground">Aucun déploiement en cours.</p>
+                    <Tabs defaultValue="build" className="flex-1 flex flex-col min-h-0">
+                        <div className="flex items-center justify-between mb-2 flex-none">
+                            <TabsList className="bg-white/5 border-white/5">
+                                <TabsTrigger value="build" className="text-xs uppercase font-bold tracking-wider">Build Console</TabsTrigger>
+                                <TabsTrigger value="runtime" className="text-xs uppercase font-bold tracking-wider">Logs de l'app</TabsTrigger>
+                            </TabsList>
+                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px]">
+                                LIVE
+                            </Badge>
+                        </div>
+
+                        <TabsContent value="build" className="flex-1 min-h-0 mt-0 data-[state=inactive]:hidden flex flex-col">
+                            <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5">
+                                {latestDeployment ? (
+                                    <DeploymentTerminal 
+                                        deploymentId={latestDeployment.id} 
+                                        initialLogs={latestDeployment.logs || []} 
+                                    />
+                                ) : (
+                                    <div className="h-full flex items-center justify-center border border-dashed rounded-lg bg-muted/30 text-muted-foreground p-8 text-center">
+                                        <p className="text-sm">Aucun déploiement récent trouvé sur ce serveur.</p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </TabsContent>
+
+                        <TabsContent value="runtime" className="flex-1 min-h-0 mt-0 data-[state=inactive]:hidden flex flex-col">
+                            <div className="flex-1 min-h-0">
+                                <RuntimeLogsTerminal appId={appId} />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
                 </div>
 
 
