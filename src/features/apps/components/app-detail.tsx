@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from '@tanstack/react-router'
-import { Globe, Server as ServerIcon, FolderGitIcon, Loader2, ChevronLeft, ExternalLink, RefreshCw, ChevronDown } from 'lucide-react'
+import { Globe, Server as ServerIcon, FolderGitIcon, Loader2, ChevronLeft, ExternalLink, RefreshCw, ChevronDown, Trash2 } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -20,6 +20,7 @@ export function AppDetail() {
   const { appId } = useParams({ from: '/_authenticated/apps/$appId' })
   const [app, setApp] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [isDeployingLocal, setIsDeployingLocal] = useState(false)
 
   const fetchApp = async () => {
     try {
@@ -38,8 +39,12 @@ export function AppDetail() {
 
     // Écoute du canal WebSocket pour les mises à jour de statut
     const channel = echo.channel(`application.${appId}`)
-      .listen('DeploymentStatusUpdatedEvent', (e: { status: string }) => {
-        setApp((prev: any) => prev ? { ...prev, status: e.status } : prev)
+      .listen('DeploymentStatusUpdatedEvent', (e: { status: string, isDeploying: boolean }) => {
+        setApp((prev: any) => prev ? { 
+          ...prev, 
+          status: e.status,
+          is_deploying: e.isDeploying 
+        } : prev)
       })
 
     return () => {
@@ -137,9 +142,10 @@ export function AppDetail() {
                     <Button 
                         variant="default" 
                         size="sm" 
-                        disabled={app.is_deploying}
+                        disabled={app.is_deploying || isDeployingLocal}
                         onClick={async () => {
                             try {
+                                setIsDeployingLocal(true);
                                 await apiFetch('/deployments', {
                                     method: 'POST',
                                     body: JSON.stringify({ application_id: app.id })
@@ -148,11 +154,17 @@ export function AppDetail() {
                                 fetchApp();
                             } catch (error) {
                                 toast.error('Échec du lancement du déploiement');
+                            } finally {
+                                setIsDeployingLocal(false);
                             }
                         }}
                     >
-                        {app.is_deploying ? <Loader2 size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2" />}
-                        Déployer
+                        {(app.is_deploying || isDeployingLocal) ? (
+                            <Loader2 size={14} className="mr-2 animate-spin" />
+                        ) : (
+                            <RefreshCw size={14} className="mr-2" />
+                        )}
+                        {(app.is_deploying || isDeployingLocal) ? 'Déploiement en cours...' : 'Redéployer'}
                     </Button>
                 </div>
             </div>
@@ -239,6 +251,29 @@ export function AppDetail() {
                     </Collapsible>
 
                     <EnvVarCard appId={appId} />
+
+                    <Collapsible className="rounded-xl border border-red-500/20 bg-red-500/5 overflow-hidden mt-8">
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-red-500/10 transition-colors group">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-red-500">Zone de Danger</h3>
+                            <ChevronDown className="h-4 w-4 text-red-500/50 group-data-[state=open]:rotate-180 transition-transform" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="px-4 pb-4 space-y-4 pt-1 border-t border-red-500/10">
+                            <div className="space-y-2">
+                                <p className="text-[11px] text-red-400/80 leading-relaxed">
+                                    Une fois supprimée, l'application et toutes ses données associées (variables, historiques, logs) seront définitivement perdues.
+                                </p>
+                                <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    className="w-full h-8 text-xs font-bold uppercase"
+                                    onClick={() => alert("Action de suppression à venir !")}
+                                >
+                                    <Trash2 size={14} className="mr-2" />
+                                    Supprimer l'application
+                                </Button>
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </div>
             </div>
         </div>
