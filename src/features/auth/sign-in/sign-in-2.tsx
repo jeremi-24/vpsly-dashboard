@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
 import { Logo } from '@/assets/logo'
 import { cn } from '@/lib/utils'
 import dashboardDark from './assets/dashboard-dark.png'
@@ -6,31 +6,32 @@ import dashboardLight from './assets/dashboard-light.png'
 import { UserAuthForm } from './components/user-auth-form'
 
 export function SignIn2() {
+  const { redirect } = useSearch({ from: '/(auth)/sign-in' })
+
   return (
     <div className='relative container grid h-svh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0'>
       <div className='lg:p-8'>
         <div className='mx-auto flex w-full flex-col justify-center space-y-2 py-8 sm:w-[480px] sm:p-8'>
           <div className='mb-4 flex items-center justify-center'>
             <Logo className='me-2' />
-            <h1 className='text-xl font-medium'>Shadcn Admin</h1>
+            <h1 className='text-3xl font-bold text-primary tracking-tighter'>VPSLY</h1>
           </div>
         </div>
         <div className='mx-auto flex w-full max-w-sm flex-col justify-center space-y-2'>
           <div className='flex flex-col space-y-2 text-start'>
-            <h2 className='text-lg font-semibold tracking-tight'>Sign in</h2>
+            <h2 className='text-lg font-semibold tracking-tight'>Connexion</h2>
             <p className='text-sm text-muted-foreground'>
-              Enter your email and password below to log into{' '}
-              <br className='max-sm:hidden' /> your account. Don't have an
-              account?{' '}
+              Entrez votre email et mot de passe pour accéder à{" "}
+              <br className='max-sm:hidden' /> votre compte. Pas encore de compte ?{" "}
               <Link
                 to='/sign-up'
                 className='text-nowrap underline underline-offset-4 hover:text-primary'
               >
-                Sign Up
+                S'inscrire
               </Link>
             </p>
           </div>
-          <UserAuthForm />
+          <UserAuthForm redirectTo={redirect} />
           <p className='px-8 text-center text-sm text-muted-foreground'>
             By clicking sign in, you agree to our{' '}
             <a
