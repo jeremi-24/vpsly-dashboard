@@ -7,10 +7,12 @@ export async function apiFetch<T = any>(path: string, options: RequestInit = {})
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       'Authorization': token ? `Bearer ${token}` : '',
       'ngrok-skip-browser-warning': 'true',
       ...(options.headers || {}),
     },
+
   })
 
   if (res.status === 401) {

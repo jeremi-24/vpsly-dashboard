@@ -36,6 +36,7 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedAppsAppIdRouteImport } from './routes/_authenticated/apps/$appId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -181,6 +182,11 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAppsAppIdRoute = AuthenticatedAppsAppIdRouteImport.update({
+  id: '/apps/$appId',
+  path: '/apps/$appId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/500': typeof errors500Route
   '/503': typeof errors503Route
   '/auth/callback': typeof AuthCallbackRoute
+  '/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/auth/callback': typeof AuthCallbackRoute
   '/': typeof AuthenticatedIndexRoute
+  '/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503Route
   '/auth/callback': typeof AuthCallbackRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/500'
     | '/503'
     | '/auth/callback'
+    | '/apps/$appId'
     | '/errors/$error'
     | '/settings/account'
     | '/settings/appearance'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/auth/callback'
     | '/'
+    | '/apps/$appId'
     | '/errors/$error'
     | '/settings/account'
     | '/settings/appearance'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/auth/callback'
     | '/_authenticated/'
+    | '/_authenticated/apps/$appId'
     | '/_authenticated/errors/$error'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
@@ -560,6 +572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/apps/$appId': {
+      id: '/_authenticated/apps/$appId'
+      path: '/apps/$appId'
+      fullPath: '/apps/$appId'
+      preLoaderRoute: typeof AuthenticatedAppsAppIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -592,6 +611,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAppsAppIdRoute: typeof AuthenticatedAppsAppIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
@@ -604,6 +624,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAppsAppIdRoute: AuthenticatedAppsAppIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,

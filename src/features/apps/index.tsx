@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Plus, Search as SearchIcon, SlidersHorizontal, Globe, FolderGitIcon, Server as ServerIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,7 +24,7 @@ export interface ApplicationInfo {
   name: string
   repo_url: string
   branch: string
-  status: 'pending' | 'cloning' | 'building' | 'running' | 'success' | 'failed'
+  status: 'pending' | 'preparing' | 'cloning' | 'building' | 'deploying' | 'running' | 'success' | 'failed'
   server: {
     id: number
     name: string
@@ -146,14 +147,18 @@ export function Apps() {
                     <Button
                       variant='outline'
                       size='sm'
-                      className={`h-7 px-2 text-[10px] uppercase font-bold
-                        ${app.status === 'running' || app.status === 'success' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/50 dark:text-green-400' : ''}
-                        ${app.status === 'failed' ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-400' : ''}
-                        ${['cloning', 'building', 'pending'].includes(app.status) ? 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/50 dark:text-yellow-400' : ''}
+                      className={`h-8 px-3 text-xs uppercase font-bold border
+                        ${app.status === 'running' || app.status === 'success' ? 'bg-green-500/10 text-green-500 border-green-500/20' : ''}
+                        ${app.status === 'failed' ? 'bg-red-500/10 text-red-500 border-red-500/20' : ''}
+                        ${['cloning', 'building', 'preparing'].includes(app.status) ? 'bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse' : ''}
+                        ${app.status === 'pending' ? 'bg-slate-500/10 text-slate-500 border-slate-500/20' : ''}
+                        ${app.status === 'deploying' ? 'bg-orange-500/10 text-orange-500 border-orange-500/20 animate-pulse' : ''}
                       `}
                     >
-                      {app.status}
+                      {app.status === 'running' ? 'En ligne' : app.status}
                     </Button>
+
+
                   </div>
 
                   <div className='p-4 pt-4'>
@@ -171,12 +176,20 @@ export function Apps() {
                   </div>
 
                   <div className='flex border-t bg-muted/5'>
-                    <button className='flex-1 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r'>
+                    <Link 
+                      to='/apps/$appId' 
+                      params={{ appId: app.id.toString() }}
+                      className='flex-1 py-3 text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r'
+                    >
                       Logs
-                    </button>
-                    <button className='flex-1 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'>
-                      Paramètres
-                    </button>
+                    </Link>
+                    <Link 
+                      to='/apps/$appId' 
+                      params={{ appId: app.id.toString() }}
+                      className='flex-1 py-3 text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+                    >
+                      Détails
+                    </Link>
                   </div>
                 </li>
               ))}

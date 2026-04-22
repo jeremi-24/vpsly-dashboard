@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
-import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader2, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle } from 'lucide-react'
+import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader2, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X } from 'lucide-react'
+
+
 import {
   Sheet,
   SheetContent,
@@ -13,6 +15,9 @@ import { Label } from '@/components/ui/label'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useNavigate, Link } from '@tanstack/react-router'
+import { ExternalLink } from 'lucide-react'
+
 
 interface CreateAppDrawerProps {
   open: boolean
@@ -23,6 +28,7 @@ interface CreateAppDrawerProps {
 export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDrawerProps) {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
   
   // Data for selection
   const [repos, setRepos] = useState<any[]>([])
@@ -36,6 +42,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
   const [appName, setAppName] = useState('')
   const [domain, setDomain] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+
 
   // Filter repos with useMemo for performance
   const filteredRepos = useMemo(() => {
@@ -109,12 +116,26 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
           repo_url: selectedRepo.html_url,
           branch: selectedBranch,
           server_id: selectedServer.id,
-          domain: domain || `${appName.toLowerCase()}.sslip.io`
+          domain: domain || null
         })
+
       })
 
-      toast.success('Application créée', { description: 'Le déploiement va commencer.' })
-      onSuccess()
+      toast.success('Déploiement lancé', { description: 'Redirection vers votre dashboard...' })
+
+      // Redirection immédiate
+      if (result.application?.id) {
+          navigate({ 
+            to: '/apps/$appId',
+            params: { appId: result.application.id.toString() }
+          })
+          onSuccess()
+          onOpenChange(false)
+      }
+
+
+
+
     } catch (error: any) {
       toast.error('Erreur', { description: error.message })
     } finally {
@@ -124,31 +145,37 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
+
       <SheetContent className='sm:max-w-2xl px-6 py-4 flex flex-col h-full'>
         <div className='w-full flex flex-col h-full min-h-0'>
           <SheetHeader className='px-0 flex-none'>
-            <div className='flex items-center gap-2 text-primary mb-4'>
+            <SheetTitle className='flex items-center gap-2 text-primary mb-1'>
               <div className='h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center'>
                  <Plus size={18} />
               </div>
-              <span className='text-sm font-bold uppercase tracking-wider'>Déployer une application</span>
-            </div>
+              <span className='text-sm font-bold uppercase tracking-wider'>
+                Déployer une application
+              </span>
+
+            </SheetTitle>
           </SheetHeader>
 
           {/* Stepper Visual */}
-          <div className='flex items-center justify-between my-6 px-4 flex-none'>
+          <div className='flex items-center justify-between mb-4 mt-2 px-4 flex-none'>
+
             {[1, 2, 3].map((s) => (
               <div key={s} className='flex items-center gap-2'>
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
                    {step > s ? <Check className='h-4 w-4' /> : s}
                 </div>
                 <span className={`text-xs font-medium ${step === s ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {s === 1 ? 'Source' : s === 2 ? 'Serveur' : 'Configuration'}
+                    {s === 1 ? 'Source' : s === 2 ? 'Serveur' : 'Config'}
                 </span>
-                {s < 3 && <div className='h-px w-12 bg-muted mx-2 hidden sm:block' />}
+                {s < 3 && <div className='h-px w-8 bg-muted mx-2 hidden sm:block' />}
               </div>
             ))}
           </div>
+
 
           <div className='flex-1 min-h-0 relative'>
             {/* STEP 1: SOURCE */}
@@ -290,8 +317,9 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                         />
                     </div>
                     <p className='text-xs text-muted-foreground'>
-                        Par défaut : <span className='font-mono'>{appName.toLowerCase() || 'app'}.sslip.io</span>
+                        Par défaut : <span className='font-mono'>{appName.toLowerCase() || 'app'}.{selectedServer?.ip || 'IP'}.sslip.io</span>
                     </p>
+
                  </div>
 
                  <Card className='bg-muted/30 border-dashed'>
@@ -304,12 +332,15 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                     <CardContent className='p-4 pt-0 text-sm space-y-1.5'>
                         <div className='flex justify-between'><span className='opacity-60'>Source :</span> <span>{selectedRepo?.full_name} ({selectedBranch})</span></div>
                         <div className='flex justify-between'><span className='opacity-60'>Serveur :</span> <span>{selectedServer?.name} ({selectedServer?.ip})</span></div>
-                        <div className='flex justify-between'><span className='opacity-60'>Domaine :</span> <span>{domain || `${appName.toLowerCase()}.sslip.io`}</span></div>
+                        <div className='flex justify-between'><span className='opacity-60'>Domaine :</span> <span>{domain || `${appName.toLowerCase()}.${selectedServer?.ip}.sslip.io`}</span></div>
+
                     </CardContent>
                  </Card>
               </div>
             )}
+
           </div>
+
 
           {/* Footer Actions */}
           <div className='flex-none pt-6 mt-6 flex items-center justify-between border-t'>
@@ -340,6 +371,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                 </Button>
             )}
           </div>
+
         </div>
       </SheetContent>
     </Sheet>
