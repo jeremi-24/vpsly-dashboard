@@ -9,6 +9,8 @@ import { Separator } from '@/components/ui/separator'
 import { DeploymentTerminal } from './deployment-terminal'
 import { Badge } from '@/components/ui/badge'
 import { echo } from '@/lib/echo'
+import { EnvVarCard } from './env-vars-card'
+import { toast } from 'sonner'
 
 
 export function AppDetail() {
@@ -129,6 +131,26 @@ export function AppDetail() {
                     <Button variant="outline" size="sm" onClick={fetchApp}>
                         <RefreshCw size={14} className="mr-2" /> Actualiser
                     </Button>
+                    <Button 
+                        variant="default" 
+                        size="sm" 
+                        disabled={app.is_deploying}
+                        onClick={async () => {
+                            try {
+                                await apiFetch('/deployments', {
+                                    method: 'POST',
+                                    body: JSON.stringify({ application_id: app.id })
+                                });
+                                toast.success('Déploiement lancé !');
+                                fetchApp();
+                            } catch (error) {
+                                toast.error('Échec du lancement du déploiement');
+                            }
+                        }}
+                    >
+                        {app.is_deploying ? <Loader2 size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2" />}
+                        Déployer
+                    </Button>
                 </div>
             </div>
 
@@ -152,7 +174,7 @@ export function AppDetail() {
                 </div>
 
 
-                <div className="space-y-6">
+                <div className="space-y-6 h-full overflow-y-auto pr-2 pb-8 custom-scrollbar">
                     <div className="p-4 rounded-xl border bg-card/50">
                         <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Dépôt Source</h3>
                         <div className="space-y-4">
@@ -190,6 +212,8 @@ export function AppDetail() {
                             </div>
                         </div>
                     </div>
+
+                    <EnvVarCard appId={appId} />
                 </div>
             </div>
         </div>
