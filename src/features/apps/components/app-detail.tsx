@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from '@tanstack/react-router'
-import { Globe, Server as ServerIcon, FolderGitIcon, Loader2, ChevronLeft, ExternalLink, RefreshCw } from 'lucide-react'
+import { Globe, Server as ServerIcon, FolderGitIcon, Loader2, ChevronLeft, ExternalLink, RefreshCw, ChevronDown } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -13,6 +13,7 @@ import { EnvVarCard } from './env-vars-card'
 import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RuntimeLogsTerminal } from './runtime-logs-terminal'
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 
 
 export function AppDetail() {
@@ -193,9 +194,12 @@ export function AppDetail() {
 
 
                 <div className="space-y-6 h-full overflow-y-auto pr-2 pb-8 custom-scrollbar">
-                    <div className="p-4 rounded-xl border bg-card/50">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Dépôt Source</h3>
-                        <div className="space-y-4">
+                    <Collapsible className="rounded-xl border bg-card/50 overflow-hidden">
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-white/5 transition-colors group">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dépôt Source</h3>
+                            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="px-4 pb-4 space-y-4 pt-1 border-t border-white/5">
                             <div className="flex items-start gap-3">
                                 <FolderGitIcon className="h-5 w-5 text-primary mt-0.5" />
                                 <div>
@@ -207,12 +211,15 @@ export function AppDetail() {
                                 <span className="text-muted-foreground">Branche</span>
                                 <Badge variant="outline" className="font-mono">{app.branch}</Badge>
                             </div>
-                        </div>
-                    </div>
+                        </CollapsibleContent>
+                    </Collapsible>
 
-                    <div className="p-4 rounded-xl border bg-card/50">
-                        <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Informations Serveur</h3>
-                        <div className="space-y-3">
+                    <Collapsible className="rounded-xl border bg-card/50 overflow-hidden">
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-white/5 transition-colors group">
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Informations Serveur</h3>
+                            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="px-4 pb-4 space-y-3 pt-1 border-t border-white/5">
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Nom</span>
                                 <span className="font-medium">{app.server?.name}</span>
@@ -228,8 +235,8 @@ export function AppDetail() {
                                     <span>Connecté</span>
                                 </span>
                             </div>
-                        </div>
-                    </div>
+                        </CollapsibleContent>
+                    </Collapsible>
 
                     <EnvVarCard appId={appId} />
                 </div>

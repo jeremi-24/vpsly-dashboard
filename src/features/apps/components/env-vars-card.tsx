@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 
 interface EnvVar {
     id: number
@@ -212,24 +213,36 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
     }
 
     return (
-        <div className="p-4 rounded-xl border bg-card/50">
-            <div className="flex items-center justify-between mb-6">
+        <Collapsible className="rounded-xl border bg-card/50 overflow-hidden">
+            <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-white/5 transition-colors group">
                 <div className="flex items-center gap-2">
                     <ShieldCheck className="h-4 w-4 text-primary" />
                     <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Environnement</h3>
                 </div>
-                <div className='flex items-center gap-2'>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-7 text-[10px] font-bold uppercase tracking-tight"
-                        onClick={() => setBulkMode(!bulkMode)}
-                    >
-                        {bulkMode ? <ChevronUp className="h-3 w-3 mr-1" /> : <FileUp className="h-3 w-3 mr-1" />}
-                        {bulkMode ? 'Annuler' : 'Import .env'}
-                    </Button>
+                <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-[10px] h-4 opacity-50">{vars.length} vars</Badge>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform" />
                 </div>
-            </div>
+            </CollapsibleTrigger>
+
+            <CollapsibleContent className="p-4 pt-0">
+                <div className="flex items-center justify-between mb-6 pt-4 border-t border-white/5">
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground/60 tracking-wider">Gestion des variables</div>
+                    <div className='flex items-center gap-2'>
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-7 text-[10px] font-bold uppercase tracking-tight"
+                            onClick={(e) => {
+                                e.stopPropagation(); // Éviter de fermer le collapsible
+                                setBulkMode(!bulkMode);
+                            }}
+                        >
+                            {bulkMode ? <ChevronUp className="h-3 w-3 mr-1" /> : <FileUp className="h-3 w-3 mr-1" />}
+                            {bulkMode ? 'Annuler' : 'Import .env'}
+                        </Button>
+                    </div>
+                </div>
 
             {bulkMode && (
                 <div className="mb-6 space-y-3 p-3 rounded-lg bg-primary/5 border border-primary/20 animate-in fade-in slide-in-from-top-2">
@@ -387,6 +400,7 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
                     Modifications effectives au prochain déploiement.
                 </p>
             </div>
-        </div>
+          </CollapsibleContent>
+        </Collapsible>
     )
 }
