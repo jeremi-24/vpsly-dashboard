@@ -89,6 +89,22 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
         }
     }
 
+    const handleReveal = async (id: number) => {
+        // Si déjà révélé, on cache
+        if (showValues[id]) {
+            setShowValues(prev => ({ ...prev, [id]: false }))
+            return
+        }
+
+        try {
+            const data = await apiFetch(`/applications/${appId}/env-vars/${id}/reveal`)
+            setVars(prev => prev.map(v => v.id === id ? { ...v, value: data.value } : v))
+            setShowValues(prev => ({ ...prev, [id]: true }))
+        } catch (error) {
+            toast.error('Erreur lors de la récupération de la valeur')
+        }
+    }
+
     return (
         <div className="p-4 rounded-xl border bg-card/50">
             <div className="flex items-center justify-between mb-6">
@@ -113,7 +129,9 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <Label htmlFor="value" className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Valeur</Label>
+                        <div className='flex items-center justify-between'>
+                            <Label htmlFor="value" className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Valeur</Label>
+                        </div>
                         <Input 
                             id="value"
                             type="password"
@@ -148,19 +166,29 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
                                 <span className="text-xs font-mono font-bold">{v.key}</span>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <span className="text-[10px] font-mono text-muted-foreground opacity-60">
-                                        {v.value}
+                                        {showValues[v.id] ? v.value : '••••••••'}
                                     </span>
                                     <Badge variant="secondary" className="text-[8px] h-3 px-1 leading-none">v{v.version}</Badge>
                                 </div>
                             </div>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={() => handleDelete(v.id)}
-                                className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
+                            <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={() => handleReveal(v.id)}
+                                    className="h-7 w-7 text-muted-foreground hover:text-primary"
+                                >
+                                    {showValues[v.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={() => handleDelete(v.id)}
+                                    className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
                         </div>
                     ))
                 )}
