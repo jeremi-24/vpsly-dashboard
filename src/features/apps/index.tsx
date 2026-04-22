@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch, useNavigate } from '@tanstack/react-router'
 import { Plus, Search as SearchIcon, SlidersHorizontal, Globe, FolderGitIcon, Server as ServerIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -45,6 +45,8 @@ export function Apps() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const search = useSearch({ from: '/_authenticated/apps/' }) as any
+  const navigate = useNavigate()
 
   const fetchApps = async () => {
     try {
@@ -60,7 +62,14 @@ export function Apps() {
 
   useEffect(() => {
     fetchApps()
-  }, [])
+    
+    // Auto-open drawer if requested
+    if (search.action === 'create-app') {
+       setDrawerOpen(true)
+       // Nettoyer l'URL
+       navigate({ to: '/apps', search: {}, replace: true })
+    }
+  }, [search.action])
 
   const filteredApps = apps.filter((app) => {
     const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase())

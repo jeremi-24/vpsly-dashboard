@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { FolderGitIcon, CheckCircle2, XCircle, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,6 +9,7 @@ import { toast } from 'sonner'
 export function SettingsIntegrations() {
   const [githubUser, setGithubUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   const fetchStatus = async () => {
     try {
@@ -27,6 +29,17 @@ export function SettingsIntegrations() {
     const params = new URLSearchParams(window.location.search)
     if (params.get('success') === 'github') {
       toast.success('GitHub connecté avec succès !')
+      
+      // Gestion du retour vers le flux de création d'app
+      const pendingAction = localStorage.getItem('vpsly_pending_action')
+      if (pendingAction === 'create_app') {
+        localStorage.removeItem('vpsly_pending_action')
+        // Redirection différée pour laisser le temps au toast d'être lu
+        setTimeout(() => {
+            navigate({ to: '/apps', search: { action: 'create-app' } })
+        }, 1500)
+      }
+
       // Nettoyer l'URL
       window.history.replaceState({}, document.title, window.location.pathname)
     } else if (params.get('error')) {

@@ -22,9 +22,11 @@ export async function apiFetch<T = any>(path: string, options: RequestInit = {})
   }
 
   if (!res.ok) {
-    const text = await res.text()
-    console.error('API ERROR:', text)
-    throw new Error('API error')
+    const data = await res.json().catch(() => ({ message: 'API error' }))
+    const error = new Error(data.error || data.message || 'API error') as any
+    error.status = res.status
+    console.error('API ERROR:', data)
+    throw error
   }
 
   return res.json()

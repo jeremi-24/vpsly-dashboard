@@ -32,6 +32,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
   
   // Data for selection
   const [repos, setRepos] = useState<any[]>([])
+  const [githubConnected, setGithubConnected] = useState<boolean | null>(null)
   const [branches, setBranches] = useState<any[]>([])
   const [servers, setServers] = useState<any[]>([])
 
@@ -56,18 +57,26 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
 
   // Fetch repositories
   useEffect(() => {
-    if (open && step === 1 && repos.length === 0) {
+    if (open && step === 1 && (repos.length === 0 || githubConnected === false)) {
       const fetchRepos = async () => {
         try {
+          setLoading(true)
           const data = await apiFetch<any[]>('/github/repositories')
           setRepos(data)
-        } catch (error) {
-          console.error(error)
+          setGithubConnected(true)
+        } catch (error: any) {
+          if (error.status === 428) {
+            setGithubConnected(false)
+          } else {
+            console.error(error)
+          }
+        } finally {
+          setLoading(false)
         }
       }
       fetchRepos()
     }
-  }, [open, step, repos.length])
+  }, [open, step, repos.length, githubConnected])
 
   // Fetch branches when repo is selected
   useEffect(() => {
@@ -193,7 +202,30 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                 </div>
                 
                 <ScrollArea className='flex-1 border rounded-lg min-h-0 bg-muted/5'>
-                  {repos.length === 0 ? (
+                  {githubConnected === false ? (
+                     <div className='p-8 h-full flex flex-col items-center justify-center text-center space-y-4'>
+                        <div className='h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary'>
+                           <FolderGitIcon size={32} />
+                        </div>
+                        <div className='space-y-1'>
+                           <p className='text-sm font-bold uppercase tracking-wider'>Compte GitHub non lié</p>
+                           <p className='text-xs text-muted-foreground'>
+                              Connectez votre compte GitHub pour importer vos dépôts et lancer vos déploiements en quelques secondes.
+                           </p>
+                        </div>
+                        <Button 
+                           size='sm' 
+                           className='gap-2'
+                           onClick={() => {
+                              localStorage.setItem('vpsly_pending_action', 'create_app')
+                              navigate({ to: '/settings/integrations' })
+                           }}
+                        >
+                           <ExternalLink size={14} />
+                           Lier mon compte GitHub
+                        </Button>
+                     </div>
+                  ) : repos.length === 0 ? (
                     <div className='p-12 text-center text-muted-foreground'>
                         <Loader2 className='h-8 w-8 animate-spin mx-auto mb-3 opacity-20' />
                         <p className='text-sm'>Chargement de vos dépôts GitHub...</p>
