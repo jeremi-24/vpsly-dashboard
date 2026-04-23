@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from '@tanstack/react-router'
-import { Globe, Server as ServerIcon, FolderGitIcon, Loader2, ChevronLeft, ExternalLink, RefreshCw, ChevronDown, Trash2 } from 'lucide-react'
+import { Globe, Server as ServerIcon, FolderGitIcon, Loader2, ChevronLeft, ExternalLink, RefreshCw, ChevronDown, Trash2, Activity, Lock, HardDrive } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { apiFetch } from '@/lib/api'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -21,6 +22,7 @@ export function AppDetail() {
   const [app, setApp] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isDeployingLocal, setIsDeployingLocal] = useState(false)
+  const [activeTab, setActiveTab] = useState('build')
 
   const fetchApp = async () => {
     try {
@@ -87,6 +89,15 @@ export function AppDetail() {
 
   const currentStatus = statusConfig[app.status] || { label: app.status, color: 'bg-muted text-muted-foreground' }
 
+  const navItems = [
+    { id: 'build', title: 'Console de Build', icon: <RefreshCw size={16} /> },
+    { id: 'runtime', title: 'Logs de l\'app', icon: <Activity size={16} /> },
+    { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
+    { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
+    { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
+    { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
+  ]
+
   return (
     <>
       <Header>
@@ -97,48 +108,48 @@ export function AppDetail() {
                 </Link>
             </Button>
             <Separator orientation="vertical" className="h-4" />
-            <span className="text-sm font-medium">{app.name}</span>
+            <div className="flex items-center gap-2">
+               <span className="text-sm font-medium">{app.name}</span>
+            </div>
         </div>
       </Header>
 
       <Main fixed>
-        <div className="flex flex-col h-full space-y-6">
-            <div className="flex items-start justify-between flex-none">
+        <div className="flex flex-col h-full">
+            {/* HEADER SIMPLIFIÉ */}
+            <div className="flex items-start justify-between mb-6 flex-none">
                 <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-3xl font-bold tracking-tight">{app.name}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">{app.name}</h1>
                         <Badge 
                             variant="outline" 
-                            className={`uppercase px-3 py-1 text-xs font-bold border ${currentStatus.color} ${currentStatus.pulse ? 'animate-pulse' : ''}`}
+                            className={`uppercase px-2 py-0.5 text-[10px] font-bold border ${currentStatus.color} ${currentStatus.pulse ? 'animate-pulse' : ''}`}
                         >
                             {currentStatus.label}
                         </Badge>
-
                     </div>
-
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1.5">
-                            <Globe size={14} />
-                            <a 
-                                href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`} 
-                                target="_blank" 
-                                className="hover:underline flex items-center gap-1"
-                            >
-                                {app.domain || `${app.name}.${app.server?.ip}.sslip.io`} <ExternalLink size={12} />
-                            </a>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                            <ServerIcon size={14} />
-                            <span>{app.server?.name} ({app.server?.ip})</span>
-                        </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1"><ServerIcon size={12} /> {app.server?.name}</span>
+                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
+                        <a href={app.repo_url} target="_blank" className="flex items-center gap-1 hover:text-indigo-400 transition-colors">
+                            <FolderGitIcon size={12} /> {app.repo_url}
+                        </a>
+                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
+                        <Badge variant="outline" className="text-[10px] h-4 font-mono px-1.5">{app.branch}</Badge>
+                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
+                        <span className="text-[10px] opacity-70 italic">Dernier build il y a 2h</span>
+                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
+                         <a 
+                            href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`} 
+                            target="_blank" 
+                            className="hover:underline flex items-center gap-1 text-indigo-400 font-medium"
+                        >
+                           <Globe size={12} /> {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
+                        </a>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={fetchApp}>
-                        <RefreshCw size={14} className="mr-2" /> Actualiser
-                    </Button>
                     <Button 
                         variant="default" 
                         size="sm" 
@@ -158,31 +169,56 @@ export function AppDetail() {
                                 setIsDeployingLocal(false);
                             }
                         }}
+                        className="bg-indigo-600 hover:bg-indigo-700 h-8 text-xs font-bold"
                     >
-                        {(app.is_deploying || isDeployingLocal) ? (
-                            <Loader2 size={14} className="mr-2 animate-spin" />
-                        ) : (
-                            <RefreshCw size={14} className="mr-2" />
-                        )}
-                        {(app.is_deploying || isDeployingLocal) ? 'Déploiement en cours...' : 'Redéployer'}
+                        {(app.is_deploying || isDeployingLocal) ? <Loader2 size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2" />}
+                        Redéployer
                     </Button>
                 </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 min-h-0">
-                <div className="md:col-span-2 flex flex-col min-h-0 h-full">
-                    <Tabs defaultValue="build" className="flex-1 flex flex-col min-h-0">
-                        <div className="flex items-center justify-between mb-2 flex-none">
-                            <TabsList className="bg-white/5 border-white/5">
-                                <TabsTrigger value="build" className="text-xs uppercase font-bold tracking-wider">Build Console</TabsTrigger>
-                                <TabsTrigger value="runtime" className="text-xs uppercase font-bold tracking-wider">Logs de l'app</TabsTrigger>
-                            </TabsList>
-                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                                LIVE
-                            </Badge>
-                        </div>
 
-                        <TabsContent value="build" className="flex-1 min-h-0 mt-0 data-[state=inactive]:hidden flex flex-col">
-                            <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5">
+            <Separator className="mb-6" />
+
+            <div className="flex flex-1 gap-12 overflow-hidden">
+                {/* SIDEBAR NAVIGATION */}
+                <aside className="w-64 flex-none">
+                    <nav className="flex flex-col space-y-1">
+                        {navItems.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => setActiveTab(item.id)}
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                                    activeTab === item.id 
+                                        ? "bg-muted text-foreground" 
+                                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                                    item.className
+                                )}
+                            >
+                                {item.icon}
+                                {item.title}
+                                {(item.id === 'build' && app.is_deploying) && (
+                                    <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                )}
+                            </button>
+                        ))}
+                    </nav>
+                </aside>
+
+                {/* CONTENT AREA */}
+                <div className={cn(
+                    "flex-1 pr-4 custom-scrollbar",
+                    activeTab === 'build' || activeTab === 'runtime' ? "overflow-hidden" : "overflow-y-auto"
+                )}>
+                    {activeTab === 'build' && (
+                        <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
+                             <div className="flex items-center justify-between mb-4 flex-none">
+                                <h2 className="text-lg font-bold">Console de déploiement</h2>
+                                <Badge variant="outline" className="bg-indigo-500/10 text-indigo-500 border-indigo-500/20 text-[10px]">
+                                    {app.is_deploying ? 'BUILDING' : 'IDLE'}
+                                </Badge>
+                            </div>
+                            <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]">
                                 {latestDeployment ? (
                                     <DeploymentTerminal 
                                         deploymentId={latestDeployment.id} 
@@ -194,86 +230,96 @@ export function AppDetail() {
                                     </div>
                                 )}
                             </div>
-                        </TabsContent>
+                        </div>
+                    )}
 
-                        <TabsContent value="runtime" className="flex-1 min-h-0 mt-0 data-[state=inactive]:hidden flex flex-col">
+                    {activeTab === 'runtime' && (
+                        <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="flex items-center justify-between mb-4 flex-none">
+                                <h2 className="text-lg font-bold">Logs de l'application</h2>
+                                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 text-[10px]">
+                                    CONNECTED
+                                </Badge>
+                            </div>
                             <div className="flex-1 min-h-0">
                                 <RuntimeLogsTerminal appId={appId} />
                             </div>
-                        </TabsContent>
-                    </Tabs>
-                </div>
+                        </div>
+                    )}
 
+                    {activeTab === 'env' && (
+                        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="mb-6">
+                                <h2 className="text-lg font-bold">Variables d'environnement</h2>
+                                <p className="text-sm text-muted-foreground">Définissez vos secrets et configurations (API Keys, URLs, etc.)</p>
+                            </div>
+                            <EnvVarCard appId={appId} />
+                        </div>
+                    )}
 
-                <div className="space-y-6 h-full overflow-y-auto pr-2 pb-8 custom-scrollbar">
-                    <Collapsible className="rounded-xl border bg-card/50 overflow-hidden">
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-white/5 transition-colors group">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dépôt Source</h3>
-                            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform" />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="px-4 pb-4 space-y-4 pt-1 border-t border-white/5">
-                            <div className="flex items-start gap-3">
-                                <FolderGitIcon className="h-5 w-5 text-primary mt-0.5" />
-                                <div>
-                                    <p className="text-sm font-medium leading-none">{app.repo_url.split('/').pop()?.replace('.git', '')}</p>
-                                    <p className="text-xs text-muted-foreground mt-1 truncate max-w-[200px]">{app.repo_url}</p>
+                    {activeTab === 'networking' && (
+                        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div>
+                                <h2 className="text-lg font-bold">Configuration Réseau</h2>
+                                <p className="text-sm text-muted-foreground">Gérez le domaine de votre application.</p>
+                            </div>
+                            
+                            <div className="space-y-6">
+                                <div className="p-6 rounded-xl border bg-card/30 space-y-4">
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-bold">Domaine Principal</h4>
+                                        <p className="text-xs text-muted-foreground">L'URL via laquelle votre application est accessible.</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1 h-9 bg-muted/50 rounded-lg border border-white/5 flex items-center px-3 font-mono text-xs">
+                                            {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
+                                        </div>
+                                        <Button variant="outline" size="sm" disabled>Modifier</Button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex items-center justify-between text-sm py-2 border-t">
-                                <span className="text-muted-foreground">Branche</span>
-                                <Badge variant="outline" className="font-mono">{app.branch}</Badge>
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
+                        </div>
+                    )}
 
-                    <Collapsible className="rounded-xl border bg-card/50 overflow-hidden">
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-white/5 transition-colors group">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Informations Serveur</h3>
-                            <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform" />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="px-4 pb-4 space-y-3 pt-1 border-t border-white/5">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Nom</span>
-                                <span className="font-medium">{app.server?.name}</span>
+                    {activeTab === 'storage' && (
+                        <div className="max-w-2xl space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div>
+                                <h2 className="text-lg font-bold">Stockage & Volumes</h2>
+                                <p className="text-sm text-muted-foreground">Volumes persistants pour ne jamais perdre vos fichiers téléchargés ou SQLite.</p>
                             </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">IP</span>
-                                <span className="font-mono">{app.server?.ip}</span>
+                            
+                            <div className="p-12 border border-dashed rounded-xl text-center bg-muted/5">
+                                <HardDrive size={32} className="mx-auto text-muted-foreground mb-4 opacity-20" />
+                                <p className="text-sm text-muted-foreground italic">Le support multi-volumes arrive prochainement.</p>
                             </div>
-                             <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Status</span>
-                                <span className="flex items-center gap-1.5">
-                                    <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                                    <span>Connecté</span>
-                                </span>
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
+                        </div>
+                    )}
 
-                    <EnvVarCard appId={appId} />
+                    {activeTab === 'danger' && (
+                        <div className="max-w-2xl space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div>
+                                <h2 className="text-lg font-bold text-red-500">Zone de Danger</h2>
+                                <p className="text-sm text-muted-foreground">Actions irréversibles sur cette application.</p>
+                            </div>
 
-                    <Collapsible className="rounded-xl border border-red-500/20 bg-red-500/5 overflow-hidden mt-8">
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 hover:bg-red-500/10 transition-colors group">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-red-500">Zone de Danger</h3>
-                            <ChevronDown className="h-4 w-4 text-red-500/50 group-data-[state=open]:rotate-180 transition-transform" />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="px-4 pb-4 space-y-4 pt-1 border-t border-red-500/10">
-                            <div className="space-y-2">
-                                <p className="text-[11px] text-red-400/80 leading-relaxed">
-                                    Une fois supprimée, l'application et toutes ses données associées (variables, historiques, logs) seront définitivement perdues.
-                                </p>
+                            <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6 space-y-4">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-bold">Détruire l'application</h4>
+                                    <p className="text-xs text-muted-foreground">
+                                        Cela stoppera les conteneurs, supprimera l'image docker et toutes les variables.
+                                    </p>
+                                </div>
                                 <Button 
                                     variant="destructive" 
-                                    size="sm" 
-                                    className="w-full h-8 text-xs font-bold uppercase"
+                                    className="font-bold gap-2"
                                     onClick={() => alert("Action de suppression à venir !")}
                                 >
-                                    <Trash2 size={14} className="mr-2" />
-                                    Supprimer l'application
+                                    <Trash2 size={16} />
+                                    Supprimer définitivement
                                 </Button>
                             </div>
-                        </CollapsibleContent>
-                    </Collapsible>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

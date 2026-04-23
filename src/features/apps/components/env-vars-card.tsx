@@ -22,6 +22,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
+import { cn } from '@/lib/utils'
 
 interface EnvVar {
     id: number
@@ -147,12 +148,27 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
         setEditValue(showValues[v.id] ? v.value : '')
     }
 
+    const [saveErrorId, setSaveErrorId] = useState<number | null>(null)
+    const [savingId, setSavingId] = useState<number | null>(null)
+
     const saveEdit = async (id: number) => {
-        if (!editValue && !confirm('La valeur est vide. Continuer ?')) return
+        // Si la valeur est vide, on demande une attention particulière
+        if (!editValue.trim()) {
+            setSaveErrorId(id)
+            toast.error('La valeur ne peut pas être vide par défaut')
+            return
+        }
         
         try {
+            setSavingId(id)
             const v = vars.find(x => x.id === id)
             if (!v) return
+
+            // Si la valeur n'a pas changé, on annule simplement l'édition
+            if (editValue === v.value) {
+                setEditingId(null)
+                return
+            }
 
             await apiFetch(`/applications/${appId}/env-vars`, {
                 method: 'POST',
@@ -160,9 +176,12 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
             })
             toast.success('Valeur mise à jour')
             setEditingId(null)
+            setSaveErrorId(null)
             fetchVars()
         } catch (error) {
             toast.error('Erreur lors de la mise à jour')
+        } finally {
+            setSavingId(null)
         }
     }
 
@@ -319,15 +338,40 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
                                 <div className="flex items-center gap-2 mt-1">
                                     {editingId === v.id ? (
                                         <div className='flex items-center gap-1 w-full'>
-                                            <Input 
-                                                autoFocus
-                                                value={editValue}
-                                                onChange={e => setEditValue(e.target.value)}
-                                                onBlur={() => editingId === v.id && saveEdit(v.id)}
-                                                onKeyDown={e => e.key === 'Enter' && saveEdit(v.id)}
-                                                placeholder={showValues[v.id] ? '' : '••••••••'}
-                                                className="h-6 text-[10px] font-mono py-0 px-2"
-                                            />
+                                            <div className="relative flex-1">
+                                                <Input 
+                                                    autoFocus
+                                                    value={editValue}
+                                                    onChange={e => {
+                                                        setEditValue(e.target.value)
+                                                        if (saveErrorId === v.id) setSaveErrorId(null)
+                                                    }}
+                                                    onBlur={() => {
+                                                        // On ne sauvegarde au blur que si la valeur n'est pas vide
+                                                        if (editValue.trim()) saveEdit(v.id)
+                                                        else setEditingId(null)
+                                                    }}
+                                                    onKeyDown={e => {
+                                                        if (e.key === 'Enter') saveEdit(v.id)
+                                                        if (e.key === 'Escape') setEditingId(null)
+                                                    }}
+                                                    placeholder={showValues[v.id] ? '' : '••••••••'}
+                                                    className={cn(
+                                                        "h-7 text-[10px] font-mono py-0 px-2 pr-8 transition-all",
+                                                        saveErrorId === v.id ? "border-red-500 bg-red-500/5 ring-red-500/20" : ""
+                                                    )}
+                                                    disabled={savingId === v.id}
+                                                />
+                                                {savingId === v.id && (
+                                                    <Loader2 className="absolute right-2 top-2 h-3 w-3 animate-spin text-muted-foreground" />
+                                                )}
+                                                {saveErrorId === v.id && (
+                                                    <X 
+                                                        className="absolute right-2 top-2 h-3 w-3 text-red-500 cursor-pointer" 
+                                                        onClick={() => setEditingId(null)}
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
                                     ) : (
                                         <span 
