@@ -66,7 +66,6 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
                     <div className='w-2.5 h-2.5 rounded-full bg-yellow-500/50' />
                     <div className='w-2.5 h-2.5 rounded-full bg-green-500/50' />
                 </div>
-                <span className='ml-2 text-[10px] text-white/30 uppercase tracking-widest font-bold'>Build Console</span>
             </div>
             <div className='flex items-center gap-4'>
                 <div className='flex items-center gap-2'>

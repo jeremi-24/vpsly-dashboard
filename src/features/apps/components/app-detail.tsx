@@ -237,27 +237,18 @@ export function AppDetail() {
 
                     {activeTab === 'env' && (
                         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="mb-6">
-                                <h2 className="text-lg font-bold">Variables d'environnement</h2>
-                                <p className="text-sm text-muted-foreground">Définissez vos secrets et configurations (API Keys, URLs, etc.)</p>
-                            </div>
+                            <h2 className="text-lg font-bold mb-6">Variables d'environnement</h2>
                             <EnvVarCard appId={appId} />
                         </div>
                     )}
 
                     {activeTab === 'networking' && (
                         <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div>
-                                <h2 className="text-lg font-bold">Configuration Réseau</h2>
-                                <p className="text-sm text-muted-foreground">Gérez le domaine de votre application.</p>
-                            </div>
+                            <h2 className="text-lg font-bold">Domaine</h2>
                             
                             <div className="space-y-6">
                                 <div className="p-6 rounded-xl border bg-card/30 space-y-4">
-                                    <div className="space-y-1">
-                                        <h4 className="text-sm font-bold">Domaine Principal</h4>
-                                        <p className="text-xs text-muted-foreground">L'URL via laquelle votre application est accessible.</p>
-                                    </div>
+                                    <h4 className="text-sm font-bold">URL active</h4>
                                     <div className="flex gap-2">
                                         <div className="flex-1 h-9 bg-muted/50 rounded-lg border border-white/5 flex items-center px-3 font-mono text-xs">
                                             {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
@@ -270,41 +261,39 @@ export function AppDetail() {
                     )}
 
                     {activeTab === 'storage' && (
-                        <div className="max-w-2xl space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div>
-                                <h2 className="text-lg font-bold">Stockage & Volumes</h2>
-                                <p className="text-sm text-muted-foreground">Volumes persistants pour ne jamais perdre vos fichiers téléchargés ou SQLite.</p>
-                            </div>
+                        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <h2 className="text-lg font-bold">Volumes</h2>
                             
-                            <div className="p-12 border border-dashed rounded-xl text-center bg-muted/5">
-                                <HardDrive size={32} className="mx-auto text-muted-foreground mb-4 opacity-20" />
-                                <p className="text-sm text-muted-foreground italic">Le support multi-volumes arrive prochainement.</p>
+                            <div className="p-12 border border-dashed rounded-xl flex flex-col items-center justify-center text-center bg-muted/10 opacity-60">
+                                <HardDrive className="h-8 w-8 mb-4 text-muted-foreground/40" />
+                                <p className="text-sm font-medium">Aucun volume configuré</p>
+                                <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-widest">Le support multi-volumes arrive prochainement</p>
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'danger' && (
-                        <div className="max-w-2xl space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div>
-                                <h2 className="text-lg font-bold text-red-500">Zone de Danger</h2>
-                                <p className="text-sm text-muted-foreground">Actions irréversibles sur cette application.</p>
-                            </div>
-
-                            <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6 space-y-4">
-                                <div className="space-y-1">
-                                    <h4 className="text-sm font-bold">Détruire l'application</h4>
-                                    <p className="text-xs text-muted-foreground">
-                                        Cela stoppera les conteneurs, supprimera l'image docker et toutes les variables.
-                                    </p>
+                        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <h2 className="text-lg font-bold text-red-500">Danger</h2>
+                            
+                            <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-bold">Supprimer l'application</h4>
+                                        <p className="text-xs text-muted-foreground">Stoppe les containers et supprime toutes les données.</p>
+                                    </div>
+                                    <Button 
+                                        variant="destructive" 
+                                        size="sm"
+                                        onClick={() => {
+                                            if (confirm('Êtes-vous sûr de vouloir supprimer cette application ? Cette action est irréversible.')) {
+                                                alert('Action de suppression à implémenter');
+                                            }
+                                        }}
+                                    >
+                                        Supprimer
+                                    </Button>
                                 </div>
-                                <Button 
-                                    variant="destructive" 
-                                    className="font-bold gap-2"
-                                    onClick={() => alert("Action de suppression à venir !")}
-                                >
-                                    <Trash2 size={16} />
-                                    Supprimer définitivement
-                                </Button>
                             </div>
                         </div>
                     )}

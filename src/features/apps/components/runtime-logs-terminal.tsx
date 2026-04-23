@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
-import { Terminal, Loader2, PlayCircle, StopCircle, Trash2 } from 'lucide-react'
+import { Terminal as TerminalIcon, Loader2, Trash2 } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { echo } from '@/lib/echo'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button } from '@/components/ui/button'
 
 interface RuntimeLogsTerminalProps {
   appId: string | number
@@ -14,10 +13,9 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
   const [logs, setLogs] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [isStreaming, setIsStreaming] = useState(false)
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
 
-  // 1. Charger l'historique initial
   const fetchHistory = async () => {
     try {
       setLoading(true)
@@ -30,7 +28,6 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
     }
   }
 
-  // 2. Lancer le stream sur le backend
   const startStream = async () => {
     try {
       setIsStreaming(true)
@@ -45,10 +42,9 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
     fetchHistory()
     startStream()
 
-    // 3. Écoute WebSocket via Reverb
     const channel = echo.channel(`application.${appId}.runtime-logs`)
       .listen('.runtime.log', (e: { message: string }) => {
-        setLogs((prev) => [...prev.slice(-499), e.message]) // Garde les 500 dernières lignes
+        setLogs((prev) => [...prev.slice(-499), e.message])
       })
 
     return () => {
@@ -56,64 +52,77 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
     }
   }, [appId])
 
-  // Auto-scroll
   useEffect(() => {
-    if (autoScroll && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    if (autoScroll && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'auto', block: 'nearest' })
     }
   }, [logs, autoScroll])
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a] rounded-lg border border-white/5 overflow-hidden">
-      {/* Header du Terminal */}
-      <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
-        <div className="flex items-center gap-2">
-        </div>
-        <div className="flex items-center gap-2">
-            <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6 text-muted-foreground hover:text-white"
-                onClick={() => setLogs([])}
-                title="Effacer la console"
-            >
-                <Trash2 size={12} />
-            </Button>
-            <div className="flex items-center gap-2 ml-2">
-                <span className="text-[10px] text-muted-foreground uppercase font-bold">Autoscroll</span>
-                <button 
-                   onClick={() => setAutoScroll(!autoScroll)}
-                   className={`w-8 h-4 rounded-full transition-colors relative ${autoScroll ? 'bg-primary' : 'bg-white/10'}`}
-                >
-                    <div className={`absolute top-0.5 left-0.5 w-3 h-3 rounded-full bg-white transition-transform ${autoScroll ? 'translate-x-4' : ''}`} />
-                </button>
+    <div className='flex flex-col h-full bg-[#0a0a0a] rounded-lg border border-white/10 shadow-2xl overflow-hidden font-mono text-[11px] leading-relaxed'>
+        {/* Header Terminal style SaaS */}
+        <div className='flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10 flex-none'>
+            <div className='flex items-center gap-2'>
+                <div className='flex gap-1.5'>
+                    <div className='w-2.5 h-2.5 rounded-full bg-red-500/50' />
+                    <div className='w-2.5 h-2.5 rounded-full bg-yellow-500/50' />
+                    <div className='w-2.5 h-2.5 rounded-full bg-green-500/50' />
+                </div>
+            </div>
+            <div className='flex items-center gap-4'>
+                <div className='flex items-center gap-2'>
+                    {autoScroll && <div className='h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse' />}
+                    <span className='text-[10px] text-white/40'>{autoScroll ? 'LIVE' : 'PAUSED'}</span>
+                </div>
+                
+                <div className='flex items-center gap-2'>
+                    <button 
+                        onClick={() => setAutoScroll(!autoScroll)}
+                        className={`text-[10px] transition-colors font-bold ${autoScroll ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
+                    >
+                        {autoScroll ? 'AUTOSCROLL ON' : 'AUTOSCROLL OFF'}
+                    </button>
+                    
+                    <button 
+                        onClick={() => setLogs([])}
+                        className="text-white/20 hover:text-red-400 transition-colors ml-2"
+                        title="Effacer la console"
+                    >
+                        <Trash2 size={12} />
+                    </button>
+                </div>
             </div>
         </div>
-      </div>
-
-      {/* Zone des Logs */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-4 font-mono text-[13px] leading-relaxed custom-scrollbar"
-      >
-        {loading && logs.length === 0 ? (
-          <div className="flex items-center gap-2 text-muted-foreground italic">
-            <Loader2 size={14} className="animate-spin" /> Chargement de l'historique...
-          </div>
-        ) : (
-          <div className="space-y-0.5">
-            {logs.length === 0 && (
-                <div className="text-muted-foreground italic opacity-50">En attente de logs en provenance du conteneur...</div>
-            )}
-            {logs.map((log, i) => (
-              <div key={i} className="flex gap-4 group hover:bg-white/5 px-2 -mx-2 rounded transition-colors">
-                <span className="text-white/20 select-none w-8 text-right shrink-0">{i + 1}</span>
-                <span className="text-slate-300 break-all whitespace-pre-wrap">{log}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        
+        {/* Zone de logs */}
+        <ScrollArea className='flex-1 min-h-0 bg-transparent'>
+            <div className='p-4 space-y-1'>
+                {loading && logs.length === 0 ? (
+                    <div className="flex items-center gap-2 text-white/20 italic">
+                        <Loader2 size={12} className="animate-spin" /> Initialisation du flux runtime...
+                    </div>
+                ) : logs.length === 0 ? (
+                    <div className='text-white/10 italic'>En attente de logs en provenance du conteneur...</div>
+                ) : (
+                    logs.map((log, i) => (
+                        <div key={i} className='flex items-start gap-3 group animate-in fade-in slide-in-from-bottom-1 duration-300'>
+                            <span className='text-white/5 select-none w-6 text-right shrink-0 mt-0.5'>{i + 1}</span>
+                            <div className='shrink-0'><TerminalIcon size={12} className="text-blue-500 mt-0.5 opacity-50" /></div>
+                            <span className="text-slate-300 break-all whitespace-pre-wrap">
+                                {log}
+                            </span>
+                        </div>
+                    ))
+                )}
+                <div ref={bottomRef} className="h-4 w-full" />
+            </div>
+        </ScrollArea>
+        
+        {/* Footer info tactile */}
+        <div className='px-4 py-1.5 bg-white/5 border-t border-white/10 flex items-center justify-between flex-none'>
+           <span className='text-[9px] text-white/20 uppercase tracking-tight'>Vpsly Runtime v1.0</span>
+           <span className='text-[9px] text-white/20'>AppID: {appId} | Buffer: {logs.length} lines</span>
+        </div>
     </div>
   )
 }
