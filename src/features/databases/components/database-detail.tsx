@@ -56,6 +56,24 @@ export function DatabaseDetail() {
   const [activeTab, setActiveTab] = useState('logs')
   const [showPassword, setShowPassword] = useState(false)
   const [isActionInProgress, setIsActionInProgress] = useState(false)
+  const [integrityStatus, setIntegrityStatus] = useState<'idle' | 'checking' | 'intact' | 'missing'>('idle')
+
+  const handleVerifyIntegrity = async () => {
+    try {
+      setIntegrityStatus('checking')
+      const res = await apiFetch(`/databases/${databaseId}/verify`, { method: 'POST' })
+      if (res.is_intact) {
+        setIntegrityStatus('intact')
+        toast.success(res.message)
+      } else {
+        setIntegrityStatus('missing')
+        toast.error(res.message)
+      }
+    } catch (error) {
+      setIntegrityStatus('idle')
+      toast.error('Échec de la vérification')
+    }
+  }
 
   const fetchDatabase = async () => {
     try {
@@ -372,6 +390,37 @@ export function DatabaseDetail() {
                                     <p className="text-sm italic">Aucun volume configuré</p>
                                 </div>
                             )}
+
+                            <div className="mt-8 p-6 rounded-xl border border-indigo-500/10 bg-indigo-500/5 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-bold flex items-center gap-2">
+                                            <Shield className="h-4 w-4 text-indigo-400" />
+                                            Intégrité des données
+                                        </h4>
+                                        <p className="text-xs text-muted-foreground">Vérifie physiquement la présence du volume sur le VPS.</p>
+                                    </div>
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        disabled={integrityStatus === 'checking'}
+                                        onClick={handleVerifyIntegrity}
+                                        className="h-8 font-bold"
+                                    >
+                                        {integrityStatus === 'checking' ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Check className="h-3 w-3 mr-2" />}
+                                        Vérifier
+                                    </Button>
+                                </div>
+                                {integrityStatus !== 'idle' && (
+                                    <div className={cn(
+                                        "p-3 rounded-lg text-xs font-medium flex items-center gap-2 animate-in fade-in zoom-in duration-300",
+                                        integrityStatus === 'intact' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                                    )}>
+                                        <Activity className="h-3 w-3" />
+                                        {integrityStatus === 'intact' ? "Système de fichiers intègre et monté" : "ALERTE : Volume manquant sur l'hôte"}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}

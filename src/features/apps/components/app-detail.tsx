@@ -15,6 +15,9 @@ import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RuntimeLogsTerminal } from './runtime-logs-terminal'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
+import { Database } from 'lucide-react'
+import { LinkedDatabasesCard } from './linked-databases-card'
+import { AppVolumesCard } from './app-volumes-card'
 
 
 export function AppDetail() {
@@ -92,7 +95,9 @@ export function AppDetail() {
   const navItems = [
     { id: 'build', title: 'Console de Build', icon: <RefreshCw size={16} /> },
     { id: 'runtime', title: 'Logs de l\'app', icon: <Activity size={16} /> },
+    { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
     { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
+    { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
     { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
     { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
   ]
@@ -238,6 +243,24 @@ export function AppDetail() {
                         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <h2 className="text-lg font-bold mb-6">Variables d'environnement</h2>
                             <EnvVarCard appId={appId} />
+                        </div>
+                    )}
+
+                    {activeTab === 'resources' && (
+                        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <h2 className="text-lg font-bold mb-6">Bases de données liées</h2>
+                            <LinkedDatabasesCard 
+                                appId={appId} 
+                                serverId={app.server_id} 
+                                onUpdate={fetchApp}
+                            />
+                        </div>
+                    )}
+
+                    {activeTab === 'storage' && (
+                        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <h2 className="text-lg font-bold mb-6">Stockage persistant (Volumes)</h2>
+                            <AppVolumesCard appId={appId} />
                         </div>
                     )}
 

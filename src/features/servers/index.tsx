@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { ServerMetricsCard } from './components/server-metrics-card'
 import { Server, Search as SearchIcon, SlidersHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -168,12 +169,18 @@ export function Servers() {
 
                   {/* Part 2: Body */}
                   <div className='p-4 pt-4'>
-                    <h2 className='text-lg font-bold tracking-tight text-foreground'>{server.name}</h2>
-                    <div className='mt-1 flex items-center gap-2 text-sm text-muted-foreground'>
-                      <span className='rounded bg-muted/50 px-1.5 py-0.5 font-mono text-xs'>
-                        {server.ip}
-                      </span>
+                    <div className="flex items-start justify-between mb-4">
+                        <div>
+                            <h2 className='text-lg font-bold tracking-tight text-foreground'>{server.name}</h2>
+                            <span className='font-mono text-[10px] text-muted-foreground opacity-60'>{server.ip}</span>
+                        </div>
                     </div>
+                    
+                    {server.status === 'connected' && (
+                        <div className="mt-4 pt-4 border-t border-white/5">
+                            <ServerMetricsCard serverId={server.id} />
+                        </div>
+                    )}
                   </div>
 
                   {/* Part 3: Footer */}
