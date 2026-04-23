@@ -292,17 +292,17 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
                         
                         <div className='grid grid-cols-2 gap-4'>
                             <div className='space-y-2'>
-                                <Label htmlFor='dbUser'>DB_USERNAME</Label>
-                                <Input id='dbUser' value={dbUser} onChange={(e) => setDbUser(e.target.value)} className='h-9 text-xs' />
+                                <Label htmlFor='dbUser' className='text-[10px] font-bold uppercase opacity-70'>Utilisateur (Admin)</Label>
+                                <Input id='dbUser' value={dbUser} onChange={(e) => setDbUser(e.target.value)} placeholder="ex: admin" className='h-9 text-xs' />
                             </div>
                             <div className='space-y-2'>
-                                <Label htmlFor='dbDatabase'>DB_DATABASE</Label>
-                                <Input id='dbDatabase' value={dbDatabase} onChange={(e) => setDbDatabase(e.target.value)} className='h-9 text-xs' />
+                                <Label htmlFor='dbDatabase' className='text-[10px] font-bold uppercase opacity-70'>Nom de la Base</Label>
+                                <Input id='dbDatabase' value={dbDatabase} onChange={(e) => setDbDatabase(e.target.value)} placeholder="ex: my_app_db" className='h-9 text-xs' />
                             </div>
                         </div>
 
                         <div className='space-y-2'>
-                            <Label htmlFor='dbPassword'>DB_PASSWORD</Label>
+                            <Label htmlFor='dbPassword' className='text-[10px] font-bold uppercase opacity-70'>Mot de passe</Label>
                             <div className='relative'>
                                 <Key className='absolute left-3 top-2.5 h-4 w-4 text-muted-foreground' />
                                 <Input id='dbPassword' value={dbPassword} onChange={(e) => setDbPassword(e.target.value)} className='pl-9 h-9 font-mono text-xs' />
