@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Plus, Database, Server as ServerIcon, ExternalLink, Shield, Link as LinkIcon, LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,25 @@ export interface DatabaseInfo {
     name: string
     ip: string
   }
+}
+
+function EngineLogo({ image, size = 24 }: { image: string, size?: number }) {
+  const img = image.toLowerCase()
+  let logoUrl = ''
+  
+  if (img.includes('postgres')) {
+    logoUrl = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg'
+  } else if (img.includes('mysql')) {
+    logoUrl = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg'
+  } else if (img.includes('redis')) {
+    logoUrl = 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg'
+  }
+
+  if (logoUrl) {
+    return <img src={logoUrl} alt={image} style={{ width: size, height: size }} className="object-contain" />
+  }
+
+  return <Database size={size} />
 }
 
 export function Databases() {
@@ -78,14 +98,19 @@ export function Databases() {
           </Button>
         </div>
 
-        <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
-          <div className='flex flex-col gap-4 sm:my-4 sm:flex-row'>
+        <div className='my-4 flex items-center justify-between'>
+          <div className='flex items-center gap-4'>
             <Input
               placeholder='Filtrer les bases de données...'
               className='h-9 w-40 lg:w-[250px]'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className='flex items-center gap-2 text-sm font-medium'>
+             <span className='flex h-2 w-2 rounded-full bg-green-500 animate-pulse' />
+             <span className='text-foreground'>{databases.filter(db => db.status === 'running' || db.status === 'success').length}</span>
+             <span className='text-muted-foreground uppercase text-[10px] tracking-wider'>En ligne</span>
           </div>
         </div>
 
@@ -114,8 +139,8 @@ export function Databases() {
               {filteredDatabases.map((db) => (
                 <li key={db.id} className='overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md flex flex-col'>
                   <div className='flex items-center justify-between p-4 pb-0'>
-                    <div className='flex size-10 items-center justify-center rounded-lg bg-indigo-500/10 p-2 text-indigo-500'>
-                        <Database className='h-6 w-6' />
+                    <div className='flex size-10 items-center justify-center rounded-lg bg-muted p-2 border border-2 border-border/50 shadow-sm'>
+                        <EngineLogo image={db.image} size={24} />
                     </div>
                     <div className='flex items-center gap-2'>
                        {db.is_public && (
@@ -153,7 +178,7 @@ export function Databases() {
                   <div className='flex border-t bg-muted/5'>
                     <Button 
                       variant='ghost'
-                      className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r rounded-none'
+                      className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground rounded-none border-r'
                       onClick={() => {
                         setSelectedDb(db)
                         setConnectionModalOpen(true)
@@ -162,14 +187,16 @@ export function Databases() {
                       <LinkIcon className='mr-2 h-3.5 w-3.5' />
                       Connexion
                     </Button>
-                    <Button 
-                      variant='ghost'
-                      className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground rounded-none'
-                      onClick={() => alert(`Détails pour ${db.name} bientôt disponible`)}
+                    <Link 
+                        to="/databases/$databaseId" 
+                        params={{ databaseId: db.id.toString() }}
+                        className='flex-1 py-3 text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
                     >
-                      <LayoutDashboard className='mr-2 h-3.5 w-3.5' />
-                      Détails
-                    </Button>
+                        <div className="flex items-center justify-center gap-2">
+                           <LayoutDashboard className='h-3.5 w-3.5' />
+                           Détails
+                        </div>
+                    </Link>
                   </div>
                 </li>
               ))}
