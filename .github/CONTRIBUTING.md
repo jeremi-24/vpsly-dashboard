@@ -96,6 +96,6 @@ pnpm lint && pnpm format && pnpm knip && pnpm build
 
 ---
 
-Thank you for helping make **shadcn-admin** better! 🚀
+Thank you for helping make **shadcn-admin** better! 
 
 If you have any questions, feel free to reach out via [Discussions](https://github.com/satnaing/shadcn-admin/discussions).
