@@ -68,11 +68,6 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
       {/* Header du Terminal */}
       <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/5">
         <div className="flex items-center gap-2">
-            <Terminal size={14} className="text-muted-foreground" />
-            <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Flux d'activité de l'application</span>
-            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 text-[10px] h-4">
-                LIVE
-            </Badge>
         </div>
         <div className="flex items-center gap-2">
             <Button 

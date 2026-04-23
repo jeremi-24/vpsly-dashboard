@@ -212,12 +212,6 @@ export function AppDetail() {
                 )}>
                     {activeTab === 'build' && (
                         <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-                             <div className="flex items-center justify-between mb-4 flex-none">
-                                <h2 className="text-lg font-bold">Console de déploiement</h2>
-                                <Badge variant="outline" className="bg-indigo-500/10 text-indigo-500 border-indigo-500/20 text-[10px]">
-                                    {app.is_deploying ? 'BUILDING' : 'IDLE'}
-                                </Badge>
-                            </div>
                             <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]">
                                 {latestDeployment ? (
                                     <DeploymentTerminal 
@@ -235,12 +229,6 @@ export function AppDetail() {
 
                     {activeTab === 'runtime' && (
                         <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="flex items-center justify-between mb-4 flex-none">
-                                <h2 className="text-lg font-bold">Logs de l'application</h2>
-                                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 text-[10px]">
-                                    CONNECTED
-                                </Badge>
-                            </div>
                             <div className="flex-1 min-h-0">
                                 <RuntimeLogsTerminal appId={appId} />
                             </div>
