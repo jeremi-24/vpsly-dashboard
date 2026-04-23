@@ -94,7 +94,6 @@ export function AppDetail() {
     { id: 'runtime', title: 'Logs de l\'app', icon: <Activity size={16} /> },
     { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
     { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
-    { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
     { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
   ]
 
@@ -260,17 +259,6 @@ export function AppDetail() {
                         </div>
                     )}
 
-                    {activeTab === 'storage' && (
-                        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <h2 className="text-lg font-bold">Volumes</h2>
-                            
-                            <div className="p-12 border border-dashed rounded-xl flex flex-col items-center justify-center text-center bg-muted/10 opacity-60">
-                                <HardDrive className="h-8 w-8 mb-4 text-muted-foreground/40" />
-                                <p className="text-sm font-medium">Aucun volume configuré</p>
-                                <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-widest">Le support multi-volumes arrive prochainement</p>
-                            </div>
-                        </div>
-                    )}
 
                     {activeTab === 'danger' && (
                         <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
