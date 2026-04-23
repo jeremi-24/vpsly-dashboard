@@ -23,6 +23,7 @@ import {
   Command,
   GalleryVerticalEnd,
   FolderGitIcon,
+  Database,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -72,6 +73,11 @@ export const sidebarData: SidebarData = {
           title: 'Serveurs',
           url: '/servers',
           icon: Server,
+        },
+        {
+          title: 'Bases de données',
+          url: '/databases',
+          icon: Database,
         },
         {
           title: 'Chats',
