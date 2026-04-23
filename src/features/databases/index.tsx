@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from '@tanstack/react-router'
-import { Plus, Database, Server as ServerIcon, ExternalLink, Shield } from 'lucide-react'
+import { Plus, Database, Server as ServerIcon, ExternalLink, Shield, Link as LinkIcon, LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -10,6 +9,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { apiFetch } from '@/lib/api'
 import { CreateDatabaseDrawer } from '@/features/databases/components/create-database-drawer'
+import { DatabaseConnectionModal } from '@/features/databases/components/database-connection-modal'
 
 export interface DatabaseInfo {
   id: number
@@ -33,6 +33,8 @@ export function Databases() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [selectedDb, setSelectedDb] = useState<DatabaseInfo | null>(null)
+  const [connectionModalOpen, setConnectionModalOpen] = useState(false)
 
   const fetchDatabases = async () => {
     try {
@@ -57,9 +59,7 @@ export function Databases() {
   return (
     <>
       <Header>
-        <div className='me-auto'>
-           {/* Search component placeholder */}
-        </div>
+        <div className='me-auto' />
         <ThemeSwitch />
         <ProfileDropdown />
       </Header>
@@ -67,8 +67,8 @@ export function Databases() {
       <Main fixed>
         <div className='flex items-center justify-between mb-2'>
           <div>
-            <h1 className='text-2xl font-bold tracking-tight'>Bases de données</h1>
-            <p className='text-muted-foreground'>
+            <h1 className='text-2xl font-bold tracking-tight text-foreground'>Bases de données</h1>
+            <p className='text-sm text-muted-foreground'>
               Gérez vos instances PostgreSQL, MySQL et Redis.
             </p>
           </div>
@@ -112,10 +112,10 @@ export function Databases() {
           ) : (
             <ul className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
               {filteredDatabases.map((db) => (
-                <li key={db.id} className='overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md'>
+                <li key={db.id} className='overflow-hidden rounded-xl border bg-card shadow-sm transition-all hover:shadow-md flex flex-col'>
                   <div className='flex items-center justify-between p-4 pb-0'>
-                    <div className='flex size-10 items-center justify-center rounded-lg bg-indigo-500/10 p-2'>
-                        <Database className='h-6 w-6 text-indigo-500' />
+                    <div className='flex size-10 items-center justify-center rounded-lg bg-indigo-500/10 p-2 text-indigo-500'>
+                        <Database className='h-6 w-6' />
                     </div>
                     <div className='flex items-center gap-2'>
                        {db.is_public && (
@@ -123,34 +123,27 @@ export function Databases() {
                              <ExternalLink size={14} />
                           </div>
                        )}
-                       <Button
-                        variant='outline'
-                        size='sm'
-                        className={`h-7 px-2 text-[10px] uppercase font-bold border
-                          ${db.status === 'running' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-500/20'}
-                        `}
-                      >
-                        {db.status === 'running' ? 'En ligne' : db.status}
-                      </Button>
+                       <BadgeStatus status={db.status} />
                     </div>
                   </div>
 
-                  <div className='p-4 pt-4'>
-                    <h2 className='text-lg font-bold tracking-tight text-foreground'>{db.name}</h2>
+                  <div className='p-4 pt-4 flex-1'>
+                    <h2 className='text-lg font-bold tracking-tight text-foreground truncate'>{db.name}</h2>
                     <div className='mt-2 space-y-1.5'>
                       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                         <Shield size={14} className='text-indigo-400' />
-                        <span>{db.image}</span>
+                        <span className='truncate'>{db.image}</span>
                       </div>
                       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                         <ServerIcon size={14} />
-                        <span>{db.server.name} ({db.server.ip})</span>
+                        <span className='truncate'>{db.server.name} ({db.server.ip})</span>
                       </div>
+                      
                       <div className='mt-3 flex flex-wrap gap-2'>
-                          <code className='px-2 py-1 bg-muted rounded text-[10px] text-muted-foreground'>
+                          <code className='px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground border'>
                              db: {db.postgres_db}
                           </code>
-                          <code className='px-2 py-1 bg-muted rounded text-[10px] text-muted-foreground'>
+                          <code className='px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground border'>
                              user: {db.postgres_user}
                           </code>
                       </div>
@@ -161,13 +154,20 @@ export function Databases() {
                     <Button 
                       variant='ghost'
                       className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r rounded-none'
+                      onClick={() => {
+                        setSelectedDb(db)
+                        setConnectionModalOpen(true)
+                      }}
                     >
+                      <LinkIcon className='mr-2 h-3.5 w-3.5' />
                       Connexion
                     </Button>
                     <Button 
                       variant='ghost'
                       className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground rounded-none'
+                      onClick={() => alert(`Détails pour ${db.name} bientôt disponible`)}
                     >
+                      <LayoutDashboard className='mr-2 h-3.5 w-3.5' />
                       Détails
                     </Button>
                   </div>
@@ -184,7 +184,30 @@ export function Databases() {
             fetchDatabases()
           }}
         />
+
+        <DatabaseConnectionModal
+          database={selectedDb}
+          open={connectionModalOpen}
+          onOpenChange={setConnectionModalOpen}
+        />
       </Main>
     </>
   )
+}
+
+function BadgeStatus({ status }: { status: string }) {
+    const isRunning = status === 'running' || status === 'success'
+    const isFailed = status === 'failed' || status === 'error'
+    const isDeploying = status === 'deploying'
+    
+    return (
+        <div className={`h-7 px-2 flex items-center rounded text-[10px] uppercase font-bold border
+            ${isRunning ? 'bg-green-500/10 text-green-500 border-green-500/20' : 
+              isFailed ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+              isDeploying ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+              'bg-slate-500/10 text-slate-500 border-slate-500/20'}
+        `}>
+            {isRunning ? 'En ligne' : isDeploying ? 'Installation...' : status}
+        </div>
+    )
 }
