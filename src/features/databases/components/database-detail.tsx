@@ -239,7 +239,7 @@ export function DatabaseDetail() {
                 {activeTab === 'logs' && (
                     <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="flex-1 min-h-0">
-                            <DatabaseLogsTerminal databaseId={databaseId} />
+                            <DatabaseLogsTerminal databaseId={databaseId} status={database.status} />
                         </div>
                     </div>
                 )}

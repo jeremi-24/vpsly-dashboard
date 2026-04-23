@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge'
 
 interface DatabaseLogsTerminalProps {
   databaseId: string | number
+  status?: string
 }
 
-export function DatabaseLogsTerminal({ databaseId }: DatabaseLogsTerminalProps) {
+export function DatabaseLogsTerminal({ databaseId, status }: DatabaseLogsTerminalProps) {
   const [logs, setLogs] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const lastStatusRef = useRef<string | undefined>(status)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
 
@@ -52,6 +54,19 @@ export function DatabaseLogsTerminal({ databaseId }: DatabaseLogsTerminalProps) 
       echo.leaveChannel(channelName)
     }
   }, [databaseId])
+
+  // Relancer si le statut change (ex: après un redeploy)
+  useEffect(() => {
+    if (status && lastStatusRef.current !== status) {
+        if (status === 'deploying' || status === 'running') {
+            console.log('Status change detected, restarting log stream...', status)
+            startStream()
+            // On attend un tout petit peu pour laisser le temps au container de démarrer avant de fetch history
+            setTimeout(fetchHistory, 1000)
+        }
+        lastStatusRef.current = status
+    }
+  }, [status])
 
   // Auto-scroll
   useEffect(() => {
