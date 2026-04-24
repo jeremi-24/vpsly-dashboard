@@ -16,8 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RuntimeLogsTerminal } from './runtime-logs-terminal'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import { Database } from 'lucide-react'
-import { LinkedDatabasesCard } from './linked-databases-card'
 import { AppVolumesCard } from './app-volumes-card'
+import { AppCronCard } from './app-cron-card'
+import { Zap } from 'lucide-react'
+import { LinkedDatabasesCard } from './linked-databases-card'
 
 
 export function AppDetail() {
@@ -98,6 +100,7 @@ export function AppDetail() {
     { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
     { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
     { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
+    { id: 'automations', title: 'Crons', icon: <Zap size={16} /> },
     { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
     { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
   ]
@@ -261,6 +264,13 @@ export function AppDetail() {
                         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <h2 className="text-lg font-bold mb-6">Stockage persistant (Volumes)</h2>
                             <AppVolumesCard appId={appId} />
+                        </div>
+                    )}
+
+                    {activeTab === 'automations' && (
+                        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <h2 className="text-lg font-bold mb-6">Tâches Planifiées</h2>
+                            <AppCronCard appId={Number(appId)} />
                         </div>
                     )}
 
