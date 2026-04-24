@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNavigate, Link } from '@tanstack/react-router'
 import { ExternalLink } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 
 
 interface CreateAppDrawerProps {
@@ -46,10 +47,48 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
   const [searchQuery, setSearchQuery] = useState('')
 
   const presets = [
-    { id: 'generic', name: 'Web Application', icon: <Globe size={24} />, desc: 'Détection automatique ' },
-    { id: 'laravel', name: 'Laravel', icon: <img src="https://laravel.com/img/logomark.min.svg" className="h-6 w-6" />, desc: 'Optimisé avec MySQL' },
-    { id: 'nestjs', name: 'NestJS', icon: <img src="https://nestjs.com/img/logo-small.svg" className="h-6 w-6" />, desc: 'Optimisé avec Postgres' },
+    { 
+      id: 'generic', 
+      name: 'Web Application', 
+      isRecommended: true,
+      icon: <div className="flex items-center justify-center h-10 w-10 bg-primary/10 rounded-xl text-primary shadow-inner"><Globe size={22} /></div>, 
+      desc: 'Tout framework, détection automatique' 
+    },
+    { 
+      id: 'laravel', 
+      name: 'Laravel + MySQL', 
+      icon: (
+        <div className="flex items-center gap-1.5">
+            <div className="h-10 w-10 rounded-xl bg-white p-2 shadow-sm border border-border flex items-center justify-center">
+                <img src="https://laravel.com/img/logomark.min.svg" className="h-6 w-6" alt="Laravel" />
+            </div>
+            <span className="text-muted-foreground font-bold text-xs">+</span>
+            <div className="h-10 w-10 rounded-xl bg-[#00758f] p-1.5 shadow-sm border border-border flex items-center justify-center">
+                <img src="https://www.mysql.com/common/logos/logo-mysql-170x115.png" className="h-6 w-6 invert brightness-0" alt="MySQL" />
+            </div>
+        </div>
+      ), 
+      desc: '' 
+    },
+    { 
+      id: 'nestjs', 
+      name: 'NestJS + Postgres', 
+      icon: (
+        <div className="flex items-center gap-1.5">
+            <div className="h-10 w-10 rounded-xl bg-white p-2 shadow-sm border border-border flex items-center justify-center">
+                <img src="https://nestjs.com/img/logo-small.svg" className="h-6 w-6" alt="NestJS" />
+            </div>
+            <span className="text-muted-foreground font-bold text-xs">+</span>
+            <div className="h-10 w-10 rounded-xl bg-[#336791] p-1.5 shadow-sm border border-border flex items-center justify-center">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg" className="h-6 w-6" alt="Postgres" />
+            </div>
+        </div>
+      ), 
+      desc: '' 
+    },
+
   ]
+
 
   // Filter repos with useMemo for performance
   const filteredRepos = useMemo(() => {
@@ -188,9 +227,8 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
             {/* STEP 0: PRESET SELECTION */}
             {step === 0 && (
                 <div className='space-y-4 animate-in slide-in-from-right-4 duration-300'>
-                    <div className='space-y-1'>
-                        <h3 className='text-sm font-bold'>Choisissez votre stack</h3>
-                        <p className='text-xs text-muted-foreground'>VPSly configure automatiquement les variables d'environnement et la base de données.</p>
+                    <div className='space-y-1 mb-6'>
+                        <h3 className='text-sm font-bold'>Quel type d'application voulez-vous déployer ?</h3>
                     </div>
                     
                     <div className='grid grid-cols-1 gap-3'>
@@ -201,18 +239,24 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                                     setSelectedPreset(p.id)
                                     setStep(1)
                                 }}
-                                className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all hover:border-primary group ${selectedPreset === p.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border'}`}
+                                className={`flex items-center gap-6 p-4 rounded-2xl border text-left transition-all hover:border-primary group relative overflow-hidden ${selectedPreset === p.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border bg-card/50 hover:bg-card'}`}
                             >
-                                <div className='h-12 w-12 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors'>
+                                <div className='transition-transform group-hover:scale-105 duration-300'>
                                     {p.icon}
                                 </div>
                                 <div>
-                                    <h4 className='font-bold text-sm'>{p.name}</h4>
-                                    <p className='text-xs text-muted-foreground'>{p.desc}</p>
+                                    <div className='flex items-center gap-2'>
+                                        <h4 className='font-bold text-sm'>{p.name}</h4>
+                                        {p.isRecommended && (
+                                            <Badge variant="outline" className="text-[9px] h-4 bg-primary/10 text-primary border-primary/20 uppercase font-bold tracking-tighter">Universel</Badge>
+                                        )}
+                                    </div>
+                                    <p className='text-xs text-muted-foreground mt-0.5'>{p.desc}</p>
                                 </div>
-                                <ChevronRight className='ml-auto h-4 w-4 opacity-30' />
+                                <ChevronRight className='ml-auto h-4 w-4 opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all' />
                             </button>
                         ))}
+
                     </div>
                 </div>
             )}
