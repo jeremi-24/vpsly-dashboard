@@ -15,15 +15,17 @@ interface DeploymentTerminalProps {
 }
 
 export function DeploymentTerminal({ deploymentId, initialLogs = [] }: DeploymentTerminalProps) {
-  const [logs, setLogs] = useState<LogEntry[]>(initialLogs)
+  // On s'assure que initialLogs est bien un tableau dès le départ
+  const [logs, setLogs] = useState<LogEntry[]>(Array.isArray(initialLogs) ? initialLogs : [])
   const bottomRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
 
   useEffect(() => {
     // Écoute du canal Reverb PRIVÉ (Streaming v2 Sécurisé)
     const channel = echo.private(`deployment.${deploymentId}`)
-      .listen('DeploymentLogEvent', (e: { logs: LogEntry[] }) => {
-        setLogs((prev) => [...prev, ...e.logs])
+      .listen('DeploymentLogEvent', (e: any) => {
+        const newLogs = Array.isArray(e.logs) ? e.logs : (e.message ? [e] : [])
+        setLogs((prev) => [...(Array.isArray(prev) ? prev : []), ...newLogs])
       })
 
     return () => {
@@ -57,6 +59,9 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
     }
   }
 
+  // Sécurité supplémentaire avant le rendu
+  const safeLogs = Array.isArray(logs) ? logs : []
+
   return (
     <div className='flex flex-col h-full bg-[#0a0a0a] rounded-lg border border-white/10 shadow-2xl overflow-hidden font-mono text-[11px] leading-relaxed'>
         {/* Header Terminal style SaaS */}
@@ -86,10 +91,10 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
         <ScrollArea className='flex-1 min-h-0 bg-transparent'>
             <div className='p-4 space-y-1'>
 
-                {logs.length === 0 && (
+                {safeLogs.length === 0 && (
                     <div className='text-white/10 italic'>Initialisation de la session de log...</div>
                 )}
-                {logs.map((log, i) => (
+                {safeLogs.map((log, i) => (
                     <div key={i} className='flex items-start gap-3 group animate-in fade-in slide-in-from-bottom-1 duration-300'>
                         <span className='text-white/5 select-none w-6 text-right shrink-0 mt-0.5'>{i + 1}</span>
                         <div className='shrink-0'>{getLogIcon(log.type)}</div>
@@ -106,9 +111,8 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
         {/* Footer info tactile */}
         <div className='px-4 py-1.5 bg-white/5 border-t border-white/10 flex items-center justify-between flex-none'>
            <span className='text-[9px] text-white/20 uppercase tracking-tight'>Vpsly Orchestrator v1.0</span>
-           <span className='text-[9px] text-white/20'>ID: {deploymentId} | Logs: {logs.length}</span>
+           <span className='text-[9px] text-white/20'>ID: {deploymentId} | Logs: {safeLogs.length}</span>
         </div>
     </div>
   )
 }
-

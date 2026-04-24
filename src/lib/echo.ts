@@ -1,6 +1,12 @@
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
 
+declare global {
+  interface Window {
+    Pusher: typeof Pusher
+  }
+}
+
 window.Pusher = Pusher
 
 export const echo = new Echo({
@@ -11,4 +17,12 @@ export const echo = new Echo({
   wssPort: import.meta.env.VITE_REVERB_PORT,
   forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
   enabledTransports: ['ws', 'wss'],
+  authEndpoint: import.meta.env.VITE_API_URL + '/broadcasting/auth',
+  auth: {
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem('vpsly_auth_token')}`,
+        Accept: 'application/json',
+    },
+  },
 })
+

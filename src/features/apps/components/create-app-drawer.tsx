@@ -193,32 +193,42 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
     }
   }
 
+  const getStepTitle = () => {
+    switch (step) {
+      case 0: return "Quel type d'application voulez-vous déployer ?"
+      case 1: return "Sélectionnez votre dépôt GitHub"
+      case 2: return "Choisissez un serveur de destination"
+      case 3: return "Configuration de votre stack"
+      default: return "Déployer une application"
+    }
+  }
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='sm:max-w-2xl px-6 py-4 flex flex-col h-full'>
         <div className='w-full flex flex-col h-full min-h-0'>
-          <SheetHeader className='px-0 flex-none'>
-            <SheetTitle className='flex items-center gap-2 text-primary mb-1'>
-              <div className='h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center'>
-                 <Plus size={18} />
+          <SheetHeader className='px-0 flex-none mb-4'>
+            <SheetTitle className='flex items-center gap-3 text-foreground mb-1'>
+              <div className='h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0'>
+                 {step === 0 ? <Plus size={20} /> : step === 1 ? <FolderGitIcon size={20} /> : step === 2 ? <ServerIcon size={20} /> : <Settings size={20} />}
               </div>
-              <span className='text-sm font-bold uppercase tracking-wider'>
-                Déployer une application
+              <span className='text-lg font-medium   tracking-tight'>
+                {getStepTitle()}
               </span>
             </SheetTitle>
           </SheetHeader>
 
           {/* Stepper Visual */}
-          <div className='flex items-center justify-between mb-4 mt-2 px-4 flex-none'>
+          <div className='flex items-center justify-between mb-8 px-4 flex-none'>
             {[0, 1, 2, 3].map((s) => (
               <div key={s} className='flex items-center gap-2'>
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
-                   {step > s ? <Check className='h-4 w-4' /> : s + 1}
+                <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-medium transition-all ${step === s ? 'bg-primary text-white ring-4 ring-primary/10' : step > s ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                   {step > s ? <Check className='h-3.5 w-3.5' /> : s + 1}
                 </div>
-                <span className={`text-[10px] font-bold uppercase tracking-tighter ${step === s ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <span className={`text-[10px] font-medium uppercase tracking-wider ${step === s ? 'text-foreground' : 'text-muted-foreground opacity-50'}`}>
                     {s === 0 ? 'Type' : s === 1 ? 'Source' : s === 2 ? 'Serveur' : 'Config'}
                 </span>
-                {s < 3 && <div className='h-px w-4 bg-muted mx-1 hidden sm:block' />}
+                {s < 3 && <div className='h-px w-6 bg-muted mx-1 hidden sm:block' />}
               </div>
             ))}
           </div>
@@ -227,10 +237,6 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
             {/* STEP 0: PRESET SELECTION */}
             {step === 0 && (
                 <div className='space-y-4 animate-in slide-in-from-right-4 duration-300'>
-                    <div className='space-y-1 mb-6'>
-                        <h3 className='text-sm font-bold'>Quel type d'application voulez-vous déployer ?</h3>
-                    </div>
-                    
                     <div className='grid grid-cols-1 gap-3'>
                         {presets.map((p) => (
                             <button
@@ -239,16 +245,16 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                                     setSelectedPreset(p.id)
                                     setStep(1)
                                 }}
-                                className={`flex items-center gap-6 p-4 rounded-2xl border text-left transition-all hover:border-primary group relative overflow-hidden ${selectedPreset === p.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border bg-card/50 hover:bg-card'}`}
+                                className={`flex items-center gap-6 p-5 rounded-2xl border text-left transition-all hover:border-primary group relative overflow-hidden ${selectedPreset === p.id ? 'border-primary bg-primary/5 ring-1 ring-primary shadow-sm' : 'border-border bg-card/40 hover:bg-card'}`}
                             >
                                 <div className='transition-transform group-hover:scale-105 duration-300'>
                                     {p.icon}
                                 </div>
                                 <div>
                                     <div className='flex items-center gap-2'>
-                                        <h4 className='font-bold text-sm'>{p.name}</h4>
+                                        <h4 className='font-medium text-sm'>{p.name}</h4>
                                         {p.isRecommended && (
-                                            <Badge variant="outline" className="text-[9px] h-4 bg-primary/10 text-primary border-primary/20 uppercase font-bold tracking-tighter">Universel</Badge>
+                                            <Badge variant="outline" className="text-[9px] h-4 bg-primary/10 text-primary border-primary/20 uppercase font-medium tracking-tighter">Universel</Badge>
                                         )}
                                     </div>
                                     <p className='text-xs text-muted-foreground mt-0.5'>{p.desc}</p>
@@ -435,7 +441,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                         </CardTitle>
                     </CardHeader>
                     <CardContent className='p-4 pt-0 text-sm space-y-1.5'>
-                        <div className='flex justify-between'><span className='opacity-60'>Stack :</span> <span className='capitalize font-bold text-primary'>{selectedPreset}</span></div>
+                        <div className='flex justify-between'><span className='opacity-60'>Stack :</span> <span className='capitalize font-medium text-primary'>{selectedPreset}</span></div>
                         <div className='flex justify-between'><span className='opacity-60'>Source :</span> <span>{selectedRepo?.full_name} ({selectedBranch})</span></div>
                         <div className='flex justify-between'><span className='opacity-60'>Serveur :</span> <span>{selectedServer?.name}</span></div>
                         {selectedPreset !== 'generic' && (
@@ -477,7 +483,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                     className='gap-2 bg-primary hover:bg-primary/90 text-white font-bold'
                 >
                     {loading ? <Loader2 className='h-4 w-4 animate-spin' /> : <Globe className='h-4 w-4' />}
-                    Lancer la stack atomique
+                    Lancer le déploiement
                 </Button>
             )}
           </div>
