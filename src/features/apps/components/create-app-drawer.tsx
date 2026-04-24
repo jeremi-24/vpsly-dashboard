@@ -26,7 +26,7 @@ interface CreateAppDrawerProps {
 }
 
 export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDrawerProps) {
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(0) // Start at step 0 for presets
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   
@@ -37,6 +37,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
   const [servers, setServers] = useState<any[]>([])
 
   // Selection state
+  const [selectedPreset, setSelectedPreset] = useState('generic')
   const [selectedRepo, setSelectedRepo] = useState<any>(null)
   const [selectedBranch, setSelectedBranch] = useState('main')
   const [selectedServer, setSelectedServer] = useState<any>(null)
@@ -44,6 +45,11 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
   const [domain, setDomain] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
+  const presets = [
+    { id: 'generic', name: 'Web Application', icon: <Globe size={24} />, desc: 'Détection automatique ' },
+    { id: 'laravel', name: 'Laravel', icon: <img src="https://laravel.com/img/logomark.min.svg" className="h-6 w-6" />, desc: 'Optimisé avec MySQL' },
+    { id: 'nestjs', name: 'NestJS', icon: <img src="https://nestjs.com/img/logo-small.svg" className="h-6 w-6" />, desc: 'Optimisé avec Postgres' },
+  ]
 
   // Filter repos with useMemo for performance
   const filteredRepos = useMemo(() => {
@@ -125,12 +131,12 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
           repo_url: selectedRepo.html_url,
           branch: selectedBranch,
           server_id: selectedServer.id,
-          domain: domain || null
+          domain: domain || null,
+          preset: selectedPreset // On envoie le preset choisi !
         })
-
       })
 
-      toast.success('Déploiement lancé', { description: 'Redirection vers votre dashboard...' })
+      toast.success('Stack atomique créée', { description: 'Redirection vers votre dashboard...' })
 
       // Redirection immédiate
       if (result.application?.id) {
@@ -141,10 +147,6 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
           onSuccess()
           onOpenChange(false)
       }
-
-
-
-
     } catch (error: any) {
       toast.error('Erreur', { description: error.message })
     } finally {
@@ -154,7 +156,6 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-
       <SheetContent className='sm:max-w-2xl px-6 py-4 flex flex-col h-full'>
         <div className='w-full flex flex-col h-full min-h-0'>
           <SheetHeader className='px-0 flex-none'>
@@ -165,28 +166,57 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
               <span className='text-sm font-bold uppercase tracking-wider'>
                 Déployer une application
               </span>
-
             </SheetTitle>
           </SheetHeader>
 
           {/* Stepper Visual */}
           <div className='flex items-center justify-between mb-4 mt-2 px-4 flex-none'>
-
-            {[1, 2, 3].map((s) => (
+            {[0, 1, 2, 3].map((s) => (
               <div key={s} className='flex items-center gap-2'>
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${step >= s ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'}`}>
-                   {step > s ? <Check className='h-4 w-4' /> : s}
+                   {step > s ? <Check className='h-4 w-4' /> : s + 1}
                 </div>
-                <span className={`text-xs font-medium ${step === s ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {s === 1 ? 'Source' : s === 2 ? 'Serveur' : 'Config'}
+                <span className={`text-[10px] font-bold uppercase tracking-tighter ${step === s ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {s === 0 ? 'Type' : s === 1 ? 'Source' : s === 2 ? 'Serveur' : 'Config'}
                 </span>
-                {s < 3 && <div className='h-px w-8 bg-muted mx-2 hidden sm:block' />}
+                {s < 3 && <div className='h-px w-4 bg-muted mx-1 hidden sm:block' />}
               </div>
             ))}
           </div>
 
-
           <div className='flex-1 min-h-0 relative'>
+            {/* STEP 0: PRESET SELECTION */}
+            {step === 0 && (
+                <div className='space-y-4 animate-in slide-in-from-right-4 duration-300'>
+                    <div className='space-y-1'>
+                        <h3 className='text-sm font-bold'>Choisissez votre stack</h3>
+                        <p className='text-xs text-muted-foreground'>VPSly configure automatiquement les variables d'environnement et la base de données.</p>
+                    </div>
+                    
+                    <div className='grid grid-cols-1 gap-3'>
+                        {presets.map((p) => (
+                            <button
+                                key={p.id}
+                                onClick={() => {
+                                    setSelectedPreset(p.id)
+                                    setStep(1)
+                                }}
+                                className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all hover:border-primary group ${selectedPreset === p.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border'}`}
+                            >
+                                <div className='h-12 w-12 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/10 transition-colors'>
+                                    {p.icon}
+                                </div>
+                                <div>
+                                    <h4 className='font-bold text-sm'>{p.name}</h4>
+                                    <p className='text-xs text-muted-foreground'>{p.desc}</p>
+                                </div>
+                                <ChevronRight className='ml-auto h-4 w-4 opacity-30' />
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* STEP 1: SOURCE */}
             {step === 1 && (
               <div className='space-y-4 animate-in slide-in-from-right-4 duration-300 h-full flex flex-col min-h-0'>
@@ -210,7 +240,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                         <div className='space-y-1'>
                            <p className='text-sm font-bold uppercase tracking-wider'>Compte GitHub non lié</p>
                            <p className='text-xs text-muted-foreground'>
-                              Connectez votre compte GitHub pour importer vos dépôts et lancer vos déploiements en quelques secondes.
+                               Connectez votre compte GitHub pour importer vos dépôts et lancer vos déploiements en quelques secondes.
                            </p>
                         </div>
                         <Button 
@@ -351,39 +381,42 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                     <p className='text-xs text-muted-foreground'>
                         Par défaut : <span className='font-mono'>{appName.toLowerCase() || 'app'}.{selectedServer?.ip || 'IP'}.sslip.io</span>
                     </p>
-
                  </div>
 
                  <Card className='bg-muted/30 border-dashed'>
                     <CardHeader className='p-4 pb-2'>
                         <CardTitle className='text-sm flex items-center gap-2'>
                             <Check className='h-4 w-4 text-green-500' />
-                            Résumé du déploiement
+                            Résumé du déploiement atomique
                         </CardTitle>
                     </CardHeader>
                     <CardContent className='p-4 pt-0 text-sm space-y-1.5'>
+                        <div className='flex justify-between'><span className='opacity-60'>Stack :</span> <span className='capitalize font-bold text-primary'>{selectedPreset}</span></div>
                         <div className='flex justify-between'><span className='opacity-60'>Source :</span> <span>{selectedRepo?.full_name} ({selectedBranch})</span></div>
-                        <div className='flex justify-between'><span className='opacity-60'>Serveur :</span> <span>{selectedServer?.name} ({selectedServer?.ip})</span></div>
-                        <div className='flex justify-between'><span className='opacity-60'>Domaine :</span> <span>{domain || `${appName.toLowerCase()}.${selectedServer?.ip}.sslip.io`}</span></div>
-
+                        <div className='flex justify-between'><span className='opacity-60'>Serveur :</span> <span>{selectedServer?.name}</span></div>
+                        {selectedPreset !== 'generic' && (
+                            <div className='flex items-center gap-2 text-[10px] bg-green-500/10 text-green-500 p-2 rounded mt-2 border border-green-500/20'>
+                                <AlertCircle size={12} />
+                                <span>Une base de données <b>{selectedPreset === 'laravel' ? 'MySQL' : 'Postgres'}</b> sera créée et liée automatiquement.</span>
+                            </div>
+                        )}
                     </CardContent>
                  </Card>
               </div>
             )}
-
           </div>
-
 
           {/* Footer Actions */}
           <div className='flex-none pt-6 mt-6 flex items-center justify-between border-t'>
             <Button
                 variant='ghost'
-                onClick={() => step > 1 ? setStep(step - 1) : onOpenChange(false)}
+                onClick={() => step > 0 ? setStep(step - 1) : onOpenChange(false)}
             >
-                {step === 1 ? 'Annuler' : 'Précédent'}
+                {step === 0 ? 'Annuler' : 'Précédent'}
             </Button>
             
             {step < 3 ? (
+                step === 0 ? null : ( // Hide "Next" on step 0 because preset buttons advance step
                 <Button 
                     disabled={step === 1 ? !selectedRepo : !selectedServer}
                     onClick={() => setStep(step + 1)}
@@ -392,23 +425,24 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                     Suivant
                     <ChevronRight className='h-4 w-4' />
                 </Button>
+                )
             ) : (
                 <Button 
                     disabled={loading || !appName}
                     onClick={handleCreate}
-                    className='gap-2 bg-green-600 hover:bg-green-700 text-white'
+                    className='gap-2 bg-primary hover:bg-primary/90 text-white font-bold'
                 >
                     {loading ? <Loader2 className='h-4 w-4 animate-spin' /> : <Globe className='h-4 w-4' />}
-                    Lancer le déploiement
+                    Lancer la stack atomique
                 </Button>
             )}
           </div>
-
         </div>
       </SheetContent>
     </Sheet>
   )
 }
+
 
 // Small helper component to keep the file clean
 function Card({ children, className }: any) {

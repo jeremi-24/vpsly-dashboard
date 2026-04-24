@@ -20,8 +20,8 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
   const [autoScroll, setAutoScroll] = useState(true)
 
   useEffect(() => {
-    // Écoute du canal Reverb (WebSocket)
-    const channel = echo.channel(`deployment.${deploymentId}`)
+    // Écoute du canal Reverb PRIVÉ (Streaming v2 Sécurisé)
+    const channel = echo.private(`deployment.${deploymentId}`)
       .listen('DeploymentLogEvent', (e: { logs: LogEntry[] }) => {
         setLogs((prev) => [...prev, ...e.logs])
       })
@@ -30,6 +30,7 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
         echo.leaveChannel(`deployment.${deploymentId}`)
     }
   }, [deploymentId])
+
 
   // Auto-scroll robuste avec bottomRef
   useEffect(() => {
