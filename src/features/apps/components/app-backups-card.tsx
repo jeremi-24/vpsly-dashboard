@@ -8,6 +8,16 @@ import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface Backup {
   id: number
@@ -19,10 +29,11 @@ interface Backup {
   notes: string | null
 }
 
-export function AppBackupsCard({ appId, databases = [] }: { appId: number, databases?: any[] }) {
+export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId: number, databases?: any[], volumes?: any[] }) {
   const [backups, setBackups] = useState<Backup[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
 
   const fetchBackups = async () => {
     try {
@@ -40,12 +51,15 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
     fetchBackups()
   }, [appId])
 
-  const createBackup = async (databaseId?: number) => {
+  const createBackup = async (databaseId?: number, volumeId?: number) => {
     try {
       setActionLoading(true)
       await apiFetch(`/applications/${appId}/backups`, {
         method: 'POST',
-        body: JSON.stringify({ database_id: databaseId })
+        body: JSON.stringify({ 
+            database_id: databaseId,
+            volume_id: volumeId 
+        })
       })
       toast.success('Sauvegarde lancée en arrière-plan')
       // On rafraîchit après un petit délai pour voir le statut "pending"
@@ -58,8 +72,6 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
   }
 
   const deleteBackup = async (id: number) => {
-    if (!confirm('Supprimer cette entrée de sauvegarde ?')) return
-
     try {
       setActionLoading(true)
       await apiFetch(`/applications/${appId}/backups/${id}`, {
@@ -71,6 +83,7 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
       toast.error('Erreur lors de la suppression')
     } finally {
       setActionLoading(false)
+      setDeleteId(null)
     }
   }
 
@@ -142,9 +155,10 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
                         <Skeleton className="h-8 w-20 rounded-md" />
                     </div>
                 ))
-            ) : databases.length > 0 ? (
-                databases.map(db => (
-                    <div key={db.id} className="p-4 border rounded-xl bg-card/30 flex items-center justify-between group">
+            ) : (
+              <>
+                {databases.map(db => (
+                    <div key={`db-${db.id}`} className="p-4 border rounded-xl bg-card/30 flex items-center justify-between group">
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500">
                                 <Database size={18} />
@@ -163,11 +177,34 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
                             Sauvegarder
                         </Button>
                     </div>
-                ))
-            ) : (
-                <div className="col-span-2 p-8 border border-dashed rounded-xl text-center text-muted-foreground">
-                    <p className="text-xs">Aucune base de données liée trouvée pour cette application.</p>
-                </div>
+                ))}
+                {volumes.map(vol => (
+                    <div key={`vol-${vol.id}`} className="p-4 border rounded-xl bg-card/30 flex items-center justify-between group">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+                                <HardDrive size={18} />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold truncate max-w-[150px]">{vol.mount_path}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Volume (Fichiers)</p>
+                            </div>
+                        </div>
+                        <Button 
+                            size="sm" 
+                            onClick={() => createBackup(undefined, vol.id)} 
+                            disabled={actionLoading}
+                            className="h-8 text-[10px] font-bold"
+                        >
+                            Sauvegarder
+                        </Button>
+                    </div>
+                ))}
+                {databases.length === 0 && volumes.length === 0 && (
+                  <div className="col-span-2 p-8 border border-dashed rounded-xl text-center text-muted-foreground">
+                      <p className="text-xs">Aucune ressource (DB ou Volume) à sauvegarder.</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </CardContent>
@@ -200,14 +237,15 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
                   <div className="flex items-center gap-4">
                     <div className={cn(
                         "p-2 rounded-lg",
-                        backup.status === 'success' ? "bg-green-500/10 text-green-500" : 
+                        backup.status === 'success' ? (backup.type === 'volume' ? "bg-blue-500/10 text-blue-500" : "bg-green-500/10 text-green-500") : 
                         backup.status === 'failed' ? "bg-red-500/10 text-red-500" : "bg-amber-500/10 text-amber-500 animate-pulse"
                     )}>
-                        {backup.status === 'success' ? <CheckCircle2 size={16} /> : 
-                         backup.status === 'failed' ? <AlertCircle size={16} /> : <Loader2 size={16} className="animate-spin" />}
+                        {backup.status === 'pending' ? <Loader2 size={16} className="animate-spin" /> :
+                         backup.status === 'failed' ? <AlertCircle size={16} /> :
+                         backup.type === 'volume' ? <HardDrive size={16} /> : <Database size={16} />}
                     </div>
                     <div className="space-y-0.5">
-                      <p className="text-xs font-bold font-mono">{backup.name}</p>
+                      <p className="text-xs font-bold font-mono truncate max-w-[300px]">{backup.name}</p>
                       <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                         <span>{new Date(backup.created_at).toLocaleString()}</span>
                         <Separator orientation="vertical" className="h-2" />
@@ -234,10 +272,10 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={() => deleteBackup(backup.id)} 
+                      onClick={() => setDeleteId(backup.id)} 
                       className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
                     >
-                      <Trash2 className="h-14 w-14" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -250,6 +288,26 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
           </div>
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer la sauvegarde ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action supprimera l'entrée de l'historique. Le fichier physique sur le serveur sera également supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => deleteId && deleteBackup(deleteId)}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

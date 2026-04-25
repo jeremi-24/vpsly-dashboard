@@ -275,6 +275,7 @@ export function AppDetail() {
                             <AppBackupsCard 
                                 appId={Number(appId)} 
                                 databases={app.databases || []} 
+                                volumes={app.persistent_volumes || []}
                             />
                         </div>
                     )}
