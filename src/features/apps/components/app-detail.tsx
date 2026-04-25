@@ -20,6 +20,7 @@ import { AppVolumesCard } from './app-volumes-card'
 import { AppCronCard } from './app-cron-card'
 import { Zap } from 'lucide-react'
 import { LinkedDatabasesCard } from './linked-databases-card'
+import { AppBackupsCard } from './app-backups-card'
 
 
 export function AppDetail() {
@@ -100,6 +101,7 @@ export function AppDetail() {
     { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
     { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
     { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
+    { id: 'backups', title: 'Sauvegardes', icon: <HardDrive size={16} className="text-blue-400" /> },
     { id: 'automations', title: 'Crons', icon: <Zap size={16} /> },
     { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
     { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
@@ -188,21 +190,21 @@ export function AppDetail() {
 
             <div className="flex flex-1 gap-12 overflow-hidden">
                 {/* SIDEBAR NAVIGATION */}
-                <aside className="w-64 flex-none">
-                    <nav className="flex flex-col space-y-1">
+                <aside className="w-64 flex-none overflow-y-auto custom-scrollbar pr-2 h-full">
+                    <nav className="flex flex-col space-y-0.5">
                         {navItems.map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
                                 className={cn(
-                                    "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                                    "flex items-center gap-3 px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors",
                                     activeTab === item.id 
                                         ? "bg-muted text-foreground" 
                                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                                     item.className
                                 )}
                             >
-                                {item.icon}
+                                <span className="opacity-70">{item.icon}</span>
                                 {item.title}
                                 {(item.id === 'build' && app.is_deploying) && (
                                     <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
@@ -264,6 +266,16 @@ export function AppDetail() {
                         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <h2 className="text-lg font-bold mb-6">Stockage persistant (Volumes)</h2>
                             <AppVolumesCard appId={appId} />
+                        </div>
+                    )}
+
+                    {activeTab === 'backups' && (
+                        <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <h2 className="text-lg font-bold mb-6">Sauvegardes</h2>
+                            <AppBackupsCard 
+                                appId={Number(appId)} 
+                                databases={app.databases || []} 
+                            />
                         </div>
                     )}
 
