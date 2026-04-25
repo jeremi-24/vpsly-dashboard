@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface EnvVar {
     id: number
@@ -317,7 +318,17 @@ export function EnvVarCard({ appId }: EnvVarCardProps) {
 
             <div className="space-y-1">
                 {loading ? (
-                    <div className="py-8 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+                    <div className="space-y-2">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="flex items-center justify-between p-2">
+                                <div className="space-y-2 flex-1">
+                                    <Skeleton className="h-4 w-32" />
+                                    <Skeleton className="h-3 w-48" />
+                                </div>
+                                <Skeleton className="h-7 w-20 rounded-md" />
+                            </div>
+                        ))}
+                    </div>
                 ) : vars.length === 0 ? (
                     <div className="py-8 text-center border rounded-lg border-dashed opacity-40">
                         <p className="text-xs">Aucune variable.</p>

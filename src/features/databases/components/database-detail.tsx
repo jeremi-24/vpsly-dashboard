@@ -29,6 +29,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatabaseLogsTerminal } from './database-logs-terminal'
+import { Skeleton } from '@/components/ui/skeleton'
 
 function EngineLogo({ image, size = 24 }: { image: string, size?: number }) {
   const img = image.toLowerCase()

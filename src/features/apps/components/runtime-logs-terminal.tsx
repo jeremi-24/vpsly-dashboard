@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { echo } from '@/lib/echo'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface RuntimeLogsTerminalProps {
   appId: string | number
@@ -98,9 +99,14 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
         <ScrollArea className='flex-1 min-h-0 bg-transparent'>
             <div className='p-4 space-y-1'>
                 {loading && logs.length === 0 ? (
-                    <div className="flex items-center gap-2 text-white/20 italic">
-                        <Loader2 size={12} className="animate-spin" /> Initialisation du flux runtime...
-                    </div>
+                  <div className="space-y-1.5 opacity-40">
+                    {Array.from({ length: 15 }).map((_, i) => (
+                        <div key={i} className="flex gap-4">
+                            <Skeleton className="h-2 w-6 bg-white/5" />
+                            <Skeleton className={`h-2 bg-white/5 ${i % 3 === 0 ? 'w-3/4' : i % 2 === 0 ? 'w-1/2' : 'w-2/3'}`} />
+                        </div>
+                    ))}
+                  </div>
                 ) : logs.length === 0 ? (
                     <div className='text-white/10 italic'>En attente de logs en provenance du conteneur...</div>
                 ) : (

@@ -7,6 +7,7 @@ import { apiFetch, getApiUrl } from '@/lib/api'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface Backup {
   id: number
@@ -128,7 +129,20 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
         </CardHeader>
         <CardContent className="pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {databases.length > 0 ? (
+            {loading ? (
+                Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="p-4 border rounded-xl bg-card/30 flex items-center justify-between">
+                        <div className="flex items-center gap-3 w-full">
+                            <Skeleton className="h-10 w-10 rounded-lg" />
+                            <div className="space-y-2 flex-1">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-3 w-16" />
+                            </div>
+                        </div>
+                        <Skeleton className="h-8 w-20 rounded-md" />
+                    </div>
+                ))
+            ) : databases.length > 0 ? (
                 databases.map(db => (
                     <div key={db.id} className="p-4 border rounded-xl bg-card/30 flex items-center justify-between group">
                         <div className="flex items-center gap-3">
@@ -168,7 +182,19 @@ export function AppBackupsCard({ appId, databases = [] }: { appId: number, datab
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {backups.length > 0 ? (
+            {loading ? (
+                 Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-4 w-full">
+                            <Skeleton className="h-8 w-8 rounded-lg" />
+                            <div className="space-y-2 flex-1">
+                                <Skeleton className="h-4 w-48" />
+                                <Skeleton className="h-3 w-32" />
+                            </div>
+                        </div>
+                    </div>
+                 ))
+            ) : backups.length > 0 ? (
               backups.map((backup) => (
                 <div key={backup.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30 transition-colors group">
                   <div className="flex items-center gap-4">

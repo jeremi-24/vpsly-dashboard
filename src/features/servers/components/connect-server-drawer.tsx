@@ -50,8 +50,8 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
     if (!setupData) return
     navigator.clipboard.writeText(setupData.setup_command)
     setIsCopied(true)
-    toast('Copied to clipboard', {
-      description: 'The setup command is ready to be pasted into your terminal.',
+    toast('Copié dans le presse-papier', {
+      description: 'La commande est prête à être collée dans votre terminal.',
     })
     setTimeout(() => setIsCopied(false), 2000)
   }
@@ -71,12 +71,12 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
 
       setSetupData(response)
       setActiveStep(2)
-      toast.success('Server provisioned', {
-        description: 'Server identity created. Now configure SSH access.',
+      toast.success('Serveur ajouté', {
+        description: 'Le serveur a été enregistré. Configurez maintenant l\'accès SSH.',
       })
     } catch (error: any) {
-      toast.error('Creation Failed', {
-        description: error.message || 'Could not create server identity.',
+      toast.error('Erreur lors de l\'ajout', {
+        description: error.message || 'Impossible d\'enregistrer le serveur.',
       })
     } finally {
       setLoading(false)
@@ -87,8 +87,8 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
   const handleVerifyConnection = async () => {
     if (!setupData) return
     if (!isExecuted) {
-      toast.error('Action required', {
-        description: 'Please confirm that you have executed the command on your server.',
+      toast.error('Action requise', {
+        description: 'Veuillez confirmer l\'exécution de la commande sur le VPS.',
       })
       return
     }
@@ -99,16 +99,16 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
         method: 'POST',
       })
 
-      toast.success('Connection Verified!', {
-        description: 'Your server is now ready for deployments.',
+      toast.success('Connexion réussie !', {
+        description: 'Votre serveur est prêt pour les déploiements.',
       })
       
       // Cleanup and close
       handleReset()
       onSuccess()
     } catch (error: any) {
-      toast.error('Verification Failed', {
-        description: error.message || 'Could not connect to the server. Check your VPS terminal.',
+      toast.error('Échec de la connexion', {
+        description: error.message || 'Impossible de joindre le serveur. Vérifiez la commande sur le VPS.',
       })
     } finally {
       setLoading(false)
@@ -131,12 +131,12 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
         <SheetHeader>
           <SheetTitle className='flex items-center gap-2 text-xl'>
             <ServerIcon className='h-5 w-5 text-primary' />
-            {activeStep === 1 ? 'Connect a new server' : 'Configure Server Access'}
+            {activeStep === 1 ? 'Connexion serveur' : 'Configuration SSH'}
           </SheetTitle>
           <SheetDescription>
             {activeStep === 1 
-              ? 'Enter your VPS details to start the connection process.' 
-              : `Finalize the connection for ${setupData?.server.name}`}
+              ? 'Renseignez les informations de votre serveur VPS.'
+              : `Finalisation de l'accès pour ${setupData?.server.name}`}
           </SheetDescription>
         </SheetHeader>
 
@@ -146,28 +146,28 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
             <div className='space-y-6'>
               <div className='grid gap-4'>
                 <div className='grid gap-1.5'>
-                  <Label htmlFor='name'>Friendly Name</Label>
+                  <Label htmlFor='name'>Nom d'affichage</Label>
                   <Input 
                     id='name' 
-                    placeholder='My Production VPS'
+                    placeholder='ex: Production VPS'
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
-                  <p className='text-[10px] text-muted-foreground'>A name to help you identify this server.</p>
+                  <p className='text-[10px] text-muted-foreground'>Libellé utilisé dans l'interface de gestion.</p>
                 </div>
 
                 <div className='grid grid-cols-3 gap-4'>
                    <div className='grid gap-1.5 col-span-2'>
-                      <Label htmlFor='ip'>IP Address</Label>
+                      <Label htmlFor='ip'>Adresse IP</Label>
                       <Input 
                         id='ip' 
-                        placeholder='1.1.1.1'
+                        placeholder='0.0.0.0'
                         value={formData.ip}
                         onChange={(e) => setFormData({...formData, ip: e.target.value})}
                       />
                    </div>
                    <div className='grid gap-1.5'>
-                      <Label htmlFor='port'>Port</Label>
+                      <Label htmlFor='port'>Port SSH</Label>
                       <Input 
                         id='port' 
                         placeholder='22'
@@ -178,14 +178,14 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
                 </div>
 
                 <div className='grid gap-1.5'>
-                  <Label htmlFor='user'>SSH User</Label>
+                  <Label htmlFor='user'>Utilisateur SSH</Label>
                   <Input 
                     id='user' 
                     placeholder='root'
                     value={formData.ssh_user}
                     onChange={(e) => setFormData({...formData, ssh_user: e.target.value})}
                   />
-                  <p className='text-[10px] text-muted-foreground'>The user VPSly will use to connect.</p>
+                  <p className='text-[10px] text-muted-foreground'>Utilisateur système disposant des droits Docker.</p>
                 </div>
               </div>
               
@@ -195,7 +195,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
                 disabled={loading || !formData.name || !formData.ip}
               >
                 {loading ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
-                Provision Server Record 
+                Enregistrer le serveur 
                 <ChevronRight className='ml-2 h-4 w-4' />
               </Button>
             </div>
@@ -207,12 +207,11 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
                   <span className='flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground'>
                     1
                   </span>
-                  <h3 className='font-semibold'>Authorize VPSly</h3>
+                  <h3 className='font-semibold'>Autorisation SSH</h3>
                 </div>
                 
                 <p className='text-sm text-muted-foreground leading-relaxed'>
-                   Run this command on your server to authorize our secure deployment key. 
-                   This grants us access to deploy your apps.
+                   Ajoutez la clé publique de déploiement au serveur cible pour autoriser l'accès distant.
                 </p>
 
                 <div className='relative group'>
@@ -241,11 +240,9 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
                       htmlFor='executed'
                       className='text-sm font-semibold leading-none cursor-pointer'
                     >
-                      I executed the command on my VPS
+                      J'ai exécuté la commande sur le VPS
                     </Label>
-                    <p className='text-xs text-muted-foreground'>
-                      Clicking this confirms our key is in your authorized_keys file.
-                    </p>
+                   
                   </div>
                 </div>
               </div>
@@ -255,7 +252,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
                   <span className='flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground'>
                     2
                   </span>
-                  <h3 className='font-semibold'>Verify Connection</h3>
+                  <h3 className='font-semibold'>Validation connectivité</h3>
                 </div>
                 
                 <Button 
@@ -265,11 +262,11 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
                   variant={isExecuted ? 'default' : 'outline'}
                 >
                   {loading ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : null}
-                  {loading ? 'Testing SSH Link...' : 'Verify & Finalize'}
+                  {loading ? 'Test SSH en cours...' : 'Vérifier la connexion'}
                 </Button>
                 
                 <p className='text-[10px] text-center text-muted-foreground'>
-                  We will perform a real SSH handshake to confirm access.
+                  Un handshake SSH sera effectué pour valider l'accès.
                 </p>
               </div>
             </div>

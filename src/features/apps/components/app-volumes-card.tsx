@@ -13,6 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface Volume {
     id: number
@@ -116,9 +117,13 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
 
                 <div className="divide-y divide-white/5">
                     {loading ? (
-                        <div className="py-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
-                            <Loader2 className="h-6 w-6 animate-spin opacity-20" />
-                            <span className="text-[10px] uppercase font-bold tracking-widest opacity-40">Chargement...</span>
+                        <div className="p-3 space-y-4">
+                            {Array.from({ length: 2 }).map((_, i) => (
+                                <div key={i} className="space-y-2">
+                                    <Skeleton className="h-4 w-1/2" />
+                                    <Skeleton className="h-3 w-1/3" />
+                                </div>
+                            ))}
                         </div>
                     ) : volumes.length === 0 ? (
                         <div className="py-12 flex flex-col items-center justify-center text-muted-foreground/40 gap-2">

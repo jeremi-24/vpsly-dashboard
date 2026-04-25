@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Cpu, Database, HardDrive, CircleDot } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface ServerMetricsCardProps {
     serverId: number
@@ -38,11 +39,15 @@ export function ServerMetricsCard({ serverId }: ServerMetricsCardProps) {
 
     if (!metrics) {
         return (
-            <Card className="border-white/5 bg-card/30 backdrop-blur-sm">
-                <CardContent className="p-6 flex items-center justify-center text-muted-foreground animate-pulse">
-                    <span className="text-[10px] uppercase font-bold tracking-widest">En attente de métriques...</span>
-                </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <Card key={i} className="border-white/5 bg-card/30 backdrop-blur-sm p-4 space-y-4">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-8 w-full" />
+                        <Skeleton className="h-1.5 w-full rounded" />
+                    </Card>
+                ))}
+            </div>
         )
     }
 

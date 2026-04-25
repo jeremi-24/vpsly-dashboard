@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { ServerMetricsCard } from './components/server-metrics-card'
 import { Server, Search as SearchIcon, SlidersHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +11,7 @@ import { ConnectServerDrawer } from './components/connect-server-drawer'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Select,
   SelectContent,
@@ -119,8 +119,23 @@ export function Servers() {
 
         <div className='faded-bottom no-scrollbar flex-1 overflow-auto pt-4 pb-16'>
           {loading ? (
-            <div className='flex h-64 items-center justify-center'>
-              <Loader2 className='h-8 w-8 animate-spin text-primary/20' />
+            <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className='overflow-hidden rounded-lg border bg-card shadow-sm p-4 space-y-4'>
+                        <div className='flex items-center justify-between'>
+                            <Skeleton className='h-10 w-10 rounded-lg' />
+                            <Skeleton className='h-7 w-20 rounded' />
+                        </div>
+                        <div className='space-y-2'>
+                            <Skeleton className='h-6 w-3/4' />
+                            <Skeleton className='h-4 w-1/3' />
+                        </div>
+                        <div className='flex gap-2 pt-2'>
+                            <Skeleton className='h-10 flex-1' />
+                            <Skeleton className='h-10 flex-1' />
+                        </div>
+                    </div>
+                ))}
             </div>
           ) : filteredServers.length === 0 ? (
             <div className='flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center p-8 grow animate-in fade-in duration-500'>
@@ -167,20 +182,9 @@ export function Servers() {
                     </Button>
                   </div>
 
-                  {/* Part 2: Body */}
                   <div className='p-4 pt-4'>
-                    <div className="flex items-start justify-between mb-4">
-                        <div>
-                            <h2 className='text-lg font-bold tracking-tight text-foreground'>{server.name}</h2>
-                            <span className='font-mono text-[10px] text-muted-foreground opacity-60'>{server.ip}</span>
-                        </div>
-                    </div>
-                    
-                    {server.status === 'connected' && (
-                        <div className="mt-4 pt-4 border-t border-white/5">
-                            <ServerMetricsCard serverId={server.id} />
-                        </div>
-                    )}
+                    <h2 className='text-lg font-bold tracking-tight text-foreground'>{server.name}</h2>
+                    <span className='font-mono text-[10px] text-muted-foreground opacity-60'>{server.ip}</span>
                   </div>
 
                   {/* Part 3: Footer */}

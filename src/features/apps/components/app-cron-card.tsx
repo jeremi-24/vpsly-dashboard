@@ -9,6 +9,7 @@ import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface CronTask {
   id: number
@@ -119,11 +120,19 @@ export function AppCronCard({ appId }: { appId: number }) {
 
   if (loading && !data) {
     return (
-      <Card>
-        <CardContent className="py-10 flex justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Card>
+          <CardHeader>
+             <Skeleton className="h-6 w-1/3" />
+             <Skeleton className="h-4 w-2/3 mt-2" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <Skeleton className="h-12 w-full" />
+             <Skeleton className="h-12 w-full" />
+          </CardContent>
+        </Card>
+      </div>
     )
   }
 

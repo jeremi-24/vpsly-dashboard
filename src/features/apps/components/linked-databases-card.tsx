@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface LinkedDatabasesCardProps {
   appId: string
@@ -80,8 +81,18 @@ export function LinkedDatabasesCard({ appId, serverId, onUpdate }: LinkedDatabas
 
   if (loading) {
     return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="space-y-6">
+        <div className="p-6 rounded-xl border bg-card/30 space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <div className="flex gap-2">
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 w-24" />
+            </div>
+        </div>
+        <div className="space-y-3">
+            <Skeleton className="h-4 w-40 ml-1" />
+            <Skeleton className="h-16 w-full rounded-xl" />
+        </div>
       </div>
     )
   }

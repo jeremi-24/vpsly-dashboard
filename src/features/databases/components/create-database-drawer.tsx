@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Database, Server as ServerIcon, Check, Loader2, ChevronRight, Settings, Shield, Key, Boxes } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 import {
   Sheet,
@@ -228,8 +229,16 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
                      <Label className='text-muted-foreground'>Déployer sur quel serveur ?</Label>
                      <div className='space-y-2'>
                         {loading && servers.length === 0 ? (
-                            <div className='p-12 text-center text-muted-foreground animate-pulse'>
-                                 Chargement des serveurs...
+                            <div className='space-y-2'>
+                                {Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className='flex items-center gap-4 p-4 border rounded-xl'>
+                                        <Skeleton className='h-10 w-10 rounded' />
+                                        <div className='space-y-2 flex-1'>
+                                            <Skeleton className='h-4 w-1/4' />
+                                            <Skeleton className='h-3 w-1/3 opacity-50' />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : servers.length === 0 ? (
                             <div className='p-12 text-center text-muted-foreground italic text-sm'>

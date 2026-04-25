@@ -21,7 +21,7 @@ import { AppCronCard } from './app-cron-card'
 import { Zap } from 'lucide-react'
 import { LinkedDatabasesCard } from './linked-databases-card'
 import { AppBackupsCard } from './app-backups-card'
-
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function AppDetail() {
   const { appId } = useParams({ from: '/_authenticated/apps/$appId' })

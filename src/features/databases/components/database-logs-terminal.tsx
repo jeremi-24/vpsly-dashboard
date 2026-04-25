@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api'
 import { echo } from '@/lib/echo'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface DatabaseLogsTerminalProps {
   databaseId: string | number
@@ -114,8 +115,13 @@ export function DatabaseLogsTerminal({ databaseId, status }: DatabaseLogsTermina
         className="flex-1 overflow-y-auto p-4 font-mono text-[13px] leading-relaxed custom-scrollbar"
       >
         {loading && logs.length === 0 ? (
-          <div className="flex items-center gap-2 text-muted-foreground italic">
-            <Loader2 size={14} className="animate-spin text-indigo-400" /> Chargement des logs du conteneur...
+          <div className="space-y-2">
+            {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="flex gap-4">
+                    <Skeleton className="h-3 w-8 bg-white/5" />
+                    <Skeleton className={`h-3 bg-white/5 ${i % 3 === 0 ? 'w-3/4' : i % 2 === 0 ? 'w-1/2' : 'w-2/3'}`} />
+                </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-0.5 text-slate-300">

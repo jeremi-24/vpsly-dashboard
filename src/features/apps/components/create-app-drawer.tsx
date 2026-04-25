@@ -18,6 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useNavigate, Link } from '@tanstack/react-router'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 
 
 interface CreateAppDrawerProps {
@@ -145,10 +146,13 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
     if (open && step === 2 && servers.length === 0) {
       const fetchServers = async () => {
         try {
+          setLoading(true)
           const data = await apiFetch<any[]>('/servers')
           setServers(data.filter(s => s.status === 'connected'))
         } catch (error) {
           console.error(error)
+        } finally {
+          setLoading(false)
         }
       }
       fetchServers()
@@ -306,9 +310,16 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                         </Button>
                      </div>
                   ) : repos.length === 0 ? (
-                    <div className='p-12 text-center text-muted-foreground'>
-                        <Loader2 className='h-8 w-8 animate-spin mx-auto mb-3 opacity-20' />
-                        <p className='text-sm'>Chargement de vos dépôts GitHub...</p>
+                    <div className='p-2 space-y-2'>
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className='flex items-center gap-3 p-3'>
+                                <Skeleton className='h-4 w-4 rounded-full' />
+                                <div className='space-y-1.5 flex-1'>
+                                    <Skeleton className='h-3 w-1/3' />
+                                    <Skeleton className='h-2 w-1/2 opacity-50' />
+                                </div>
+                            </div>
+                        ))}
                     </div>
                   ) : filteredRepos.length === 0 ? (
                     <div className='p-12 text-center text-muted-foreground'>
@@ -368,9 +379,17 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                  <Label className='flex-none'>Choix du serveur VPS</Label>
                  <ScrollArea className='flex-1 border rounded-lg min-h-0 bg-muted/5'>
                     {servers.length === 0 ? (
-                        <div className='p-12 text-center text-muted-foreground'>
+                        <div className='p-2 space-y-2'>
                             {loading ? (
-                                <Loader2 className='h-8 w-8 animate-spin mx-auto mb-3 opacity-20' />
+                                Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className='flex items-center gap-4 p-4 border rounded-lg'>
+                                        <Skeleton className='h-10 w-10 rounded' />
+                                        <div className='space-y-2 flex-1'>
+                                            <Skeleton className='h-4 w-1/4' />
+                                            <Skeleton className='h-3 w-1/3 opacity-50' />
+                                        </div>
+                                    </div>
+                                ))
                             ) : "Aucun serveur connecté trouvé."}
                         </div>
                     ) : (

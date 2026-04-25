@@ -18,6 +18,7 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { apiFetch } from '@/lib/api'
 import { CreateAppDrawer } from '@/features/apps/components/create-app-drawer'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export interface ApplicationInfo {
   id: number
@@ -125,8 +126,24 @@ export function Apps() {
 
         <div className='faded-bottom no-scrollbar flex-1 overflow-auto pt-4 pb-16'>
           {loading ? (
-             <div className='flex h-64 items-center justify-center text-muted-foreground animate-pulse'>
-               Chargement des applications...
+             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+                {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className='overflow-hidden rounded-lg border bg-card shadow-sm p-4 space-y-4'>
+                        <div className='flex items-center justify-between'>
+                            <Skeleton className='h-10 w-10 rounded-lg' />
+                            <Skeleton className='h-7 w-20 rounded' />
+                        </div>
+                        <div className='space-y-2'>
+                            <Skeleton className='h-6 w-3/4' />
+                            <Skeleton className='h-4 w-full' />
+                            <Skeleton className='h-4 w-2/3' />
+                        </div>
+                        <div className='flex gap-2 pt-2'>
+                            <Skeleton className='h-10 flex-1' />
+                            <Skeleton className='h-10 flex-1' />
+                        </div>
+                    </div>
+                ))}
              </div>
           ) : filteredApps.length === 0 ? (
             <div className='flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center p-8'>
