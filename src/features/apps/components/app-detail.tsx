@@ -25,40 +25,54 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export function AppDetail() {
   const { appId } = useParams({ from: '/_authenticated/apps/$appId' })
-  const [app, setApp] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [isDeployingLocal, setIsDeployingLocal] = useState(false)
-  const [activeTab, setActiveTab] = useState('build')
+    const [app, setApp] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+    const [isDeployingLocal, setIsDeployingLocal] = useState(false)
+    const [activeTab, setActiveTab] = useState('build')
+    const [currentDeploymentId, setCurrentDeploymentId] = useState<number | null>(null)
 
-  const fetchApp = async () => {
-    try {
-      setLoading(true)
-      const data = await apiFetch(`/applications/${appId}`)
-      setApp(data)
-    } catch (error) {
-      console.error('Failed to fetch app details', error)
-    } finally {
-      setLoading(false)
+    const fetchApp = async () => {
+        try {
+            setLoading(true)
+            const data = await apiFetch(`/applications/${appId}`)
+            setApp(data)
+            // Initialiser le deploymentId courant depuis la DB si pas encore set par WS
+            setCurrentDeploymentId(prev => prev ?? data.deployments?.[0]?.id ?? null)
+        } catch (error) {
+            console.error('Failed to fetch app details', error)
+        } finally {
+            setLoading(false)
+        }
     }
-  }
 
-  useEffect(() => {
-    fetchApp()
+    useEffect(() => {
+        fetchApp()
 
-    // Écoute du canal WebSocket pour les mises à jour de statut
-    const channel = echo.channel(`application.${appId}`)
-      .listen('DeploymentStatusUpdatedEvent', (e: { status: string, isDeploying: boolean }) => {
-        setApp((prev: any) => prev ? { 
-          ...prev, 
-          status: e.status,
-          is_deploying: e.isDeploying 
-        } : prev)
-      })
+        // Écoute du canal WebSocket pour les mises à jour de statut
+        const channel = echo.channel(`application.${appId}`)
+            .listen('DeploymentStatusUpdatedEvent', (e: { 
+                status: string, 
+                isDeploying: boolean, 
+                deploymentId: number 
+            }) => {
+                setApp((prev: any) => prev ? { 
+                    ...prev, 
+                    status: e.status,
+                    is_deploying: e.isDeploying 
+                } : prev)
 
-    return () => {
-      echo.leaveChannel(`application.${appId}`)
-    }
-  }, [appId])
+                // Bascule sur le nouveau déploiement
+                setCurrentDeploymentId(e.deploymentId)
+
+                if (!e.isDeploying) {
+                    setIsDeployingLocal(false);
+                }
+            })
+
+        return () => {
+            echo.leaveChannel(`application.${appId}`)
+        }
+    }, [appId])
 
 
   if (loading) {
@@ -171,12 +185,12 @@ export function AppDetail() {
                                     body: JSON.stringify({ application_id: app.id })
                                 });
                                 toast.success('Déploiement lancé !');
-                                fetchApp();
+                                // fetchApp() supprimé : le WebSocket gère la mise à jour
                             } catch (error) {
                                 toast.error('Échec du lancement du déploiement');
-                            } finally {
                                 setIsDeployingLocal(false);
                             }
+                            // finally setIsDeployingLocal(false) supprimé : l'event WS le fera
                         }}
                         className="bg-indigo-600 hover:bg-indigo-700 h-8 text-xs font-bold"
                     >
@@ -222,10 +236,11 @@ export function AppDetail() {
                     {activeTab === 'build' && (
                         <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]">
-                                {latestDeployment ? (
+                                {currentDeploymentId ? (
                                     <DeploymentTerminal 
-                                        deploymentId={latestDeployment.id} 
-                                        initialLogs={latestDeployment.logs || []} 
+                                        key={currentDeploymentId}
+                                        deploymentId={currentDeploymentId} 
+                                        initialLogs={currentDeploymentId === latestDeployment?.id ? (latestDeployment.logs || []) : []} 
                                     />
                                 ) : (
                                     <div className="h-full flex items-center justify-center border border-dashed rounded-lg bg-muted/30 text-muted-foreground p-8 text-center">
@@ -308,25 +323,65 @@ export function AppDetail() {
 
                     {activeTab === 'danger' && (
                         <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <h2 className="text-lg font-bold text-red-500">Danger</h2>
+                            <h2 className="text-lg font-bold text-red-500">Zone de Danger</h2>
                             
-                            <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="space-y-1">
-                                        <h4 className="text-sm font-bold">Supprimer l'application</h4>
-                                        <p className="text-xs text-muted-foreground">Stoppe les containers et supprime toutes les données.</p>
+                            <div className="space-y-6">
+                                {/* DOCKER PRUNE */}
+                                <div className="p-6 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-bold flex items-center gap-2">
+                                                <RefreshCw size={14} /> Nettoyer le serveur (Prune)
+                                            </h4>
+                                            <p className="text-xs text-muted-foreground">Supprime les containers arrêtés, les images orphelines et les volumes inutilisés sur <strong>{app.server?.name}</strong>.</p>
+                                        </div>
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+                                            onClick={async () => {
+                                                if (confirm('Voulez-vous vraiment lancer un nettoyage complet du serveur Docker ? Cela libérera de l\'espace disque en supprimant les fichiers inutilisés.')) {
+                                                    try {
+                                                        const res = await apiFetch(`/servers/${app.server_id}/prune`, { method: 'POST' });
+                                                        toast.success(res.message);
+                                                    } catch (e) {
+                                                        toast.error('Échec du nettoyage du serveur');
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            Nettoyer
+                                        </Button>
                                     </div>
-                                    <Button 
-                                        variant="destructive" 
-                                        size="sm"
-                                        onClick={() => {
-                                            if (confirm('Êtes-vous sûr de vouloir supprimer cette application ? Cette action est irréversible.')) {
-                                                alert('Action de suppression à implémenter');
-                                            }
-                                        }}
-                                    >
-                                        Supprimer
-                                    </Button>
+                                </div>
+
+                                {/* DELETE APP */}
+                                <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-bold flex items-center gap-2">
+                                                <Trash2 size={14} /> Supprimer l'application
+                                            </h4>
+                                            <p className="text-xs text-muted-foreground">Arrête les containers, supprime les fichiers sur le VPS et retire l'application du dashboard.</p>
+                                        </div>
+                                        <Button 
+                                            variant="destructive" 
+                                            size="sm"
+                                            onClick={async () => {
+                                                if (confirm(`Voulez-vous vraiment supprimer "${app.name}" ? Cette action est irréversible et supprimera également les containers sur le VPS.`)) {
+                                                    try {
+                                                        await apiFetch(`/applications/${appId}`, { method: 'DELETE' });
+                                                        toast.success('Application supprimée. Nettoyage en cours sur le VPS.');
+                                                        window.location.href = '/apps';
+                                                    } catch (e) {
+                                                        toast.error('Échec de la suppression');
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            Supprimer
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
