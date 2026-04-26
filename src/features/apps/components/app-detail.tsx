@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { echo } from '@/lib/echo'
 import { EnvVarCard } from './env-vars-card'
 import { toast } from 'sonner'
+import { Maximize2, Minimize2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { RuntimeLogsTerminal } from './runtime-logs-terminal'
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible'
@@ -31,8 +32,9 @@ export function AppDetail() {
     const [app, setApp] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [isDeployingLocal, setIsDeployingLocal] = useState(false)
-    const [activeTab, setActiveTab] = useState('build')
+    const [activeTab, setActiveTab] = useState('console')
     const [currentDeploymentId, setCurrentDeploymentId] = useState<number | null>(null)
+    const [expandedConsole, setExpandedConsole] = useState<'build' | 'runtime' | 'none'>('runtime')
 
     const fetchApp = async () => {
         try {
@@ -69,8 +71,13 @@ export function AppDetail() {
                 // Bascule sur le nouveau déploiement
                 setCurrentDeploymentId(e.deploymentId)
 
-                if (!e.isDeploying) {
-                    setIsDeployingLocal(false);
+                if (e.isDeploying) {
+                    setExpandedConsole('build')
+                } else if (e.status === 'success' || e.status === 'running') {
+                    setExpandedConsole('runtime')
+                    setIsDeployingLocal(false)
+                } else {
+                    setIsDeployingLocal(false)
                 }
             })
 
@@ -115,8 +122,7 @@ export function AppDetail() {
   const currentStatus = statusConfig[app.status] || { label: app.status, color: 'bg-muted text-muted-foreground' }
 
   const navItems = [
-    { id: 'build', title: 'Console de Build', icon: <RefreshCw size={16} /> },
-    { id: 'runtime', title: 'Logs de l\'app', icon: <Activity size={16} /> },
+    { id: 'console', title: 'Console', icon: <Activity size={16} /> },
     { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
     { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
     { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
@@ -227,7 +233,7 @@ export function AppDetail() {
                             >
                                 <span className="opacity-70">{item.icon}</span>
                                 {item.title}
-                                {(item.id === 'build' && app.is_deploying) && (
+                                {(item.id === 'console' && app.is_deploying) && (
                                     <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
                                 )}
                             </button>
@@ -238,30 +244,73 @@ export function AppDetail() {
                 {/* CONTENT AREA */}
                 <div className={cn(
                     "flex-1 min-w-0 pb-6 md:pr-4 custom-scrollbar",
-                    activeTab === 'build' || activeTab === 'runtime' ? "overflow-hidden" : "overflow-y-auto"
+                    activeTab === 'console' ? "overflow-hidden" : "overflow-y-auto"
                 )}>
-                    {activeTab === 'build' && (
-                        <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]">
-                                {currentDeploymentId ? (
-                                    <DeploymentTerminal 
-                                        key={currentDeploymentId}
-                                        deploymentId={currentDeploymentId} 
-                                        initialLogs={currentDeploymentId === latestDeployment?.id ? (latestDeployment.logs || []) : []} 
-                                    />
-                                ) : (
-                                    <div className="h-full flex items-center justify-center border border-dashed rounded-lg bg-muted/30 text-muted-foreground p-8 text-center">
-                                        <p className="text-sm">Aucun déploiement récent trouvé sur ce serveur.</p>
+                    {activeTab === 'console' && (
+                        <div className="h-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            {/* BUILD CONSOLE */}
+                            <div className={cn(
+                                "min-h-0 flex flex-col transition-all duration-500 ease-in-out",
+                                expandedConsole === 'build' ? "flex-[2]" : (expandedConsole === 'runtime' ? "flex-[0.5] opacity-50" : "flex-1")
+                            )}>
+                                <div className="flex items-center justify-between mb-2 flex-none">
+                                    <div className="flex items-center gap-4">
+                                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                            Console de Build
+                                        </h3>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-5 w-5 hover:bg-white/5" 
+                                            onClick={() => setExpandedConsole(expandedConsole === 'build' ? 'none' : 'build')}
+                                        >
+                                            {expandedConsole === 'build' ? <Minimize2 size={10} /> : <Maximize2 size={10} />}
+                                        </Button>
                                     </div>
-                                )}
+                                    {app.is_deploying && (
+                                        <Badge variant="outline" className="text-[8px] h-4 bg-amber-500/10 text-amber-500 border-amber-500/20 animate-pulse">
+                                            En cours...
+                                        </Badge>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]">
+                                    {currentDeploymentId ? (
+                                        <DeploymentTerminal 
+                                            key={currentDeploymentId}
+                                            deploymentId={currentDeploymentId} 
+                                            initialLogs={currentDeploymentId === latestDeployment?.id ? (latestDeployment.logs || []) : []} 
+                                        />
+                                    ) : (
+                                        <div className="h-full flex items-center justify-center bg-muted/5 text-muted-foreground p-4 text-center">
+                                            <p className="text-xs italic">Aucun log de build disponible.</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
 
-                    {activeTab === 'runtime' && (
-                        <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <div className="flex-1 min-h-0">
-                                <RuntimeLogsTerminal appId={appId} />
+                            {/* RUNTIME CONSOLE */}
+                            <div className={cn(
+                                "min-h-0 flex flex-col transition-all duration-500 ease-in-out",
+                                expandedConsole === 'runtime' ? "flex-[2]" : (expandedConsole === 'build' ? "flex-[0.5] opacity-50" : "flex-1")
+                            )}>
+                                <div className="flex items-center justify-between mb-2 flex-none">
+                                    <div className="flex items-center gap-4">
+                                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                            Logs de l'application
+                                        </h3>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-5 w-5 hover:bg-white/5" 
+                                            onClick={() => setExpandedConsole(expandedConsole === 'runtime' ? 'none' : 'runtime')}
+                                        >
+                                            {expandedConsole === 'runtime' ? <Minimize2 size={10} /> : <Maximize2 size={10} />}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="flex-1 min-h-0">
+                                    <RuntimeLogsTerminal appId={appId} />
+                                </div>
                             </div>
                         </div>
                     )}

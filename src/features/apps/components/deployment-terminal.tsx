@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { echo } from '@/lib/echo'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Terminal as TerminalIcon, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Terminal as TerminalIcon, AlertCircle, CheckCircle2, ClipboardCopy, Check, Copy } from 'lucide-react'
 
 interface LogEntry {
   type: 'info' | 'success' | 'error' | 'debug'
@@ -19,6 +19,7 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
   const [logs, setLogs] = useState<LogEntry[]>(Array.isArray(initialLogs) ? initialLogs : [])
   const bottomRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     // Écoute du canal Reverb PRIVÉ (Streaming v2 Sécurisé)
@@ -83,6 +84,18 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
                   className={`text-[10px] transition-colors font-bold ${autoScroll ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
                 >
                     {autoScroll ? 'AUTOSCROLL ON' : 'AUTOSCROLL OFF'}
+                </button>
+
+                <button 
+                    onClick={() => {
+                        navigator.clipboard.writeText(safeLogs.map(l => `[${l.type}] ${l.message}`).join('\n'))
+                        setCopied(true)
+                        setTimeout(() => setCopied(false), 2000)
+                    }}
+                    className="text-white/20 hover:text-blue-400 transition-colors ml-2"
+                    title="Copier les logs de build"
+                >
+                    {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
                 </button>
             </div>
         </div>

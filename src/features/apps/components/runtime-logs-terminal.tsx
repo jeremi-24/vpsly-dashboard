@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Terminal as TerminalIcon, Loader2, Trash2 } from 'lucide-react'
+import { Terminal as TerminalIcon, Loader2, Copy, Check } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { echo } from '@/lib/echo'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -16,6 +16,7 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
   const [isStreaming, setIsStreaming] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
+  const [copied, setCopied] = useState(false)
 
   const fetchHistory = async () => {
     try {
@@ -85,11 +86,15 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
                     </button>
                     
                     <button 
-                        onClick={() => setLogs([])}
-                        className="text-white/20 hover:text-red-400 transition-colors ml-2"
-                        title="Effacer la console"
+                        onClick={() => {
+                            navigator.clipboard.writeText(logs.join('\n'))
+                            setCopied(true)
+                            setTimeout(() => setCopied(false), 2000)
+                        }}
+                        className="text-white/20 hover:text-blue-400 transition-colors ml-2"
+                        title="Copier les logs"
                     >
-                        <Trash2 size={12} />
+                        {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
                     </button>
                 </div>
             </div>
