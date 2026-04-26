@@ -145,10 +145,10 @@ export function AppDetail() {
       <Main fixed>
         <div className="flex flex-col h-full">
             {/* HEADER SIMPLIFIÉ */}
-            <div className="flex items-start justify-between mb-6 flex-none">
+            <div className="flex flex-col sm:flex-row items-start justify-between mb-6 gap-4 flex-none">
                 <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold tracking-tight">{app.name}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight truncate max-w-[200px] sm:max-w-none">{app.name}</h1>
                         <Badge 
                             variant="outline" 
                             className={`uppercase px-2 py-0.5 text-[10px] font-bold border ${currentStatus.color} ${currentStatus.pulse ? 'animate-pulse' : ''}`}
@@ -159,29 +159,29 @@ export function AppDetail() {
                     <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1"><ServerIcon size={12} /> {app.server?.name}</span>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                        <a href={app.repo_url} target="_blank" className="flex items-center gap-1 hover:text-indigo-400 transition-colors">
-                            <FolderGitIcon size={12} /> {app.repo_url}
+                        <a href={app.repo_url} target="_blank" className="flex items-center gap-1 hover:text-indigo-400 transition-colors truncate max-w-[150px] sm:max-w-none">
+                            <FolderGitIcon size={12} /> {app.repo_url.replace('https://github.com/', '')}
                         </a>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
                         <Badge variant="outline" className="text-[10px] h-4 font-mono px-1.5">{app.branch}</Badge>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                        <span className="text-[10px] opacity-70 italic">
+                        <span className="text-[10px] opacity-70 italic whitespace-nowrap">
                             {app.last_deployed_at 
-                                ? `Dernier build ${formatDistanceToNow(new Date(app.last_deployed_at), { addSuffix: true, locale: fr })}`
+                                ? `${formatDistanceToNow(new Date(app.last_deployed_at), { addSuffix: true, locale: fr })}`
                                 : 'Jamais déployé'}
                         </span>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
                          <a 
                             href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`} 
                             target="_blank" 
-                            className="hover:underline flex items-center gap-1 text-indigo-400 font-medium"
+                            className="hover:underline flex items-center gap-1 text-indigo-400 font-medium truncate max-w-[150px] sm:max-w-none"
                         >
                            <Globe size={12} /> {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
                         </a>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Button 
                         variant="default" 
                         size="sm" 
@@ -194,14 +194,12 @@ export function AppDetail() {
                                     body: JSON.stringify({ application_id: app.id })
                                 });
                                 toast.success('Déploiement lancé !');
-                                // fetchApp() supprimé : le WebSocket gère la mise à jour
                             } catch (error) {
                                 toast.error('Échec du lancement du déploiement');
                                 setIsDeployingLocal(false);
                             }
-                            // finally setIsDeployingLocal(false) supprimé : l'event WS le fera
                         }}
-                        className="bg-indigo-600 hover:bg-indigo-700 h-8 text-xs font-bold"
+                        className="bg-indigo-600 hover:bg-indigo-700 h-8 text-xs font-bold w-full sm:w-auto"
                     >
                         {(app.is_deploying || isDeployingLocal) ? <Loader2 size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2" />}
                         Redéployer
@@ -211,16 +209,16 @@ export function AppDetail() {
 
             <Separator className="mb-6" />
 
-            <div className="flex flex-1 gap-12 overflow-hidden">
+            <div className="flex flex-col md:flex-row flex-1 gap-6 md:gap-12 overflow-hidden">
                 {/* SIDEBAR NAVIGATION */}
-                <aside className="w-64 flex-none overflow-y-auto custom-scrollbar pr-2 h-full">
-                    <nav className="flex flex-col space-y-0.5">
+                <aside className="w-full md:w-64 flex-none overflow-x-auto md:overflow-y-auto custom-scrollbar md:pr-2">
+                    <nav className="flex flex-row md:flex-col space-x-1 md:space-x-0 md:space-y-0.5 min-w-max md:min-w-0 pb-2 md:pb-0">
                         {navItems.map((item) => (
                             <button
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
                                 className={cn(
-                                    "flex items-center gap-3 px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors",
+                                    "flex items-center gap-3 px-3 py-2 md:py-1.5 text-[13px] font-medium rounded-md transition-colors whitespace-nowrap",
                                     activeTab === item.id 
                                         ? "bg-muted text-foreground" 
                                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
@@ -239,7 +237,7 @@ export function AppDetail() {
 
                 {/* CONTENT AREA */}
                 <div className={cn(
-                    "flex-1 pr-4 custom-scrollbar",
+                    "flex-1 min-w-0 pb-6 md:pr-4 custom-scrollbar",
                     activeTab === 'build' || activeTab === 'runtime' ? "overflow-hidden" : "overflow-y-auto"
                 )}>
                     {activeTab === 'build' && (
@@ -350,7 +348,7 @@ export function AppDetail() {
                 </div>
 
                 {/* Infos réseau */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {[
                         { label: 'Port conteneur', value: app.container_port || '3000', icon: <Lock className="h-3.5 w-3.5 text-muted-foreground" /> },
                         { label: 'Reverse proxy', value: 'Traefik v3', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
