@@ -331,70 +331,88 @@ export function AppDetail() {
 
 
                     {activeTab === 'danger' && (
-                        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <h2 className="text-lg font-bold text-red-500">Zone de Danger</h2>
-                            
-                            <div className="space-y-6">
-                                {/* DOCKER PRUNE */}
-                                <div className="p-6 rounded-xl border border-amber-500/20 bg-amber-500/5 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="space-y-1">
-                                            <h4 className="text-sm font-bold flex items-center gap-2">
-                                                <RefreshCw size={14} /> Nettoyer le serveur (Prune)
-                                            </h4>
-                                            <p className="text-xs text-muted-foreground">Supprime les containers arrêtés, les images orphelines et les volumes inutilisés sur <strong>{app.server?.name}</strong>.</p>
-                                        </div>
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm"
-                                            className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
-                                            onClick={async () => {
-                                                if (confirm('Voulez-vous vraiment lancer un nettoyage complet du serveur Docker ? Cela libérera de l\'espace disque en supprimant les fichiers inutilisés.')) {
-                                                    try {
-                                                        const res = await apiFetch(`/servers/${app.server_id}/prune`, { method: 'POST' });
-                                                        toast.success(res.message);
-                                                    } catch (e) {
-                                                        toast.error('Échec du nettoyage du serveur');
-                                                    }
-                                                }
-                                            }}
-                                        >
-                                            Nettoyer
-                                        </Button>
-                                    </div>
-                                </div>
+    <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-4">
+            Actions irréversibles
+        </p>
 
-                                {/* DELETE APP */}
-                                <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div className="space-y-1">
-                                            <h4 className="text-sm font-bold flex items-center gap-2">
-                                                <Trash2 size={14} /> Supprimer l'application
-                                            </h4>
-                                            <p className="text-xs text-muted-foreground">Arrête les containers, supprime les fichiers sur le VPS et retire l'application du dashboard.</p>
-                                        </div>
-                                        <Button 
-                                            variant="destructive" 
-                                            size="sm"
-                                            onClick={async () => {
-                                                if (confirm(`Voulez-vous vraiment supprimer "${app.name}" ? Cette action est irréversible et supprimera également les containers sur le VPS.`)) {
-                                                    try {
-                                                        await apiFetch(`/applications/${appId}`, { method: 'DELETE' });
-                                                        toast.success('Application supprimée. Nettoyage en cours sur le VPS.');
-                                                        window.location.href = '/apps';
-                                                    } catch (e) {
-                                                        toast.error('Échec de la suppression');
-                                                    }
-                                                }
-                                            }}
-                                        >
-                                            Supprimer
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+        <div className="space-y-3">
+            {/* PRUNE */}
+            <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-amber-500/20 bg-amber-500/[0.04]">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 2L14 13H2L8 2Z" stroke="#BA7517" strokeWidth="1.2" strokeLinejoin="round"/>
+                            <path d="M8 6.5V9" stroke="#BA7517" strokeWidth="1.2" strokeLinecap="round"/>
+                            <circle cx="8" cy="11" r="0.6" fill="#BA7517"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium">Nettoyer le serveur</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                            Supprime containers arrêtés, images orphelines et volumes inutilisés.
+                        </p>
+                    </div>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 text-xs"
+                    onClick={async () => {
+                        if (confirm('Lancer un nettoyage complet du serveur Docker ?')) {
+                            try {
+                                const res = await apiFetch(`/servers/${app.server_id}/prune`, { method: 'POST' })
+                                toast.success(res.message)
+                            } catch {
+                                toast.error('Échec du nettoyage')
+                            }
+                        }
+                    }}
+                >
+                    Lancer le nettoyage
+                </Button>
+            </div>
+
+            {/* DELETE */}
+            <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/[0.04]">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect x="2" y="4" width="12" height="1.2" rx="0.6" fill="#E24B4A"/>
+                            <path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="#E24B4A" strokeWidth="1.2"/>
+                            <path d="M6.5 7v4M9.5 7v4" stroke="#E24B4A" strokeWidth="1.2" strokeLinecap="round"/>
+                            <rect x="3.5" y="5.2" width="9" height="8" rx="1" stroke="#E24B4A" strokeWidth="1.2"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p className="text-sm font-medium">Supprimer l'application</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                            Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard.
+                        </p>
+                    </div>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs"
+                    onClick={async () => {
+                        if (confirm(`Supprimer "${app.name}" ? Cette action est irréversible.`)) {
+                            try {
+                                await apiFetch(`/applications/${appId}`, { method: 'DELETE' })
+                                toast.success('Application supprimée.')
+                                window.location.href = '/apps'
+                            } catch {
+                                toast.error('Échec de la suppression')
+                            }
+                        }
+                    }}
+                >
+                    Supprimer
+                </Button>
+            </div>
+        </div>
+    </div>
+)}
                 </div>
             </div>
         </div>
