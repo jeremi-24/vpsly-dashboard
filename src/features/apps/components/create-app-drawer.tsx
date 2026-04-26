@@ -179,7 +179,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
         })
       })
 
-      toast.success('Stack atomique créée', { description: 'Redirection vers votre dashboard...' })
+      toast.success('Application configurée', { description: 'Redirection vers votre dashboard...' })
 
       // Redirection immédiate
       if (result.application?.id) {
@@ -456,7 +456,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                   <CardHeader className='p-4 pb-2'>
                     <CardTitle className='text-sm flex items-center gap-2'>
                       <Check className='h-4 w-4 text-green-500' />
-                      Résumé du déploiement atomique
+                      Résumé du déploiement
                     </CardTitle>
                   </CardHeader>
                   <CardContent className='p-4 pt-0 text-sm space-y-1.5'>
