@@ -40,8 +40,19 @@ export function Servers() {
   const [servers, setServers] = useState<ServerInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [selectedServer, setSelectedServer] = useState<ServerInfo | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+
+  const handleAddServer = () => {
+    setSelectedServer(null)
+    setDrawerOpen(true)
+  }
+
+  const handleEditServer = (server: ServerInfo) => {
+    setSelectedServer(server)
+    setDrawerOpen(true)
+  }
 
   const fetchServers = async () => {
     try {
@@ -87,7 +98,7 @@ export function Servers() {
               Connectez et gérez vos instances VPS pour le déploiement.
             </p>
           </div>
-          <Button onClick={() => setDrawerOpen(true)}>
+          <Button onClick={handleAddServer}>
             <Plus className='mr-2 h-4 w-4' />
             <span>Connecter un serveur</span>
           </Button>
@@ -154,7 +165,7 @@ export function Servers() {
                 <Button
                   variant='outline'
                   className='mt-6'
-                  onClick={() => setDrawerOpen(true)}
+                  onClick={handleAddServer}
                 >
                   Connect my first server
                 </Button>
@@ -197,7 +208,7 @@ export function Servers() {
                     </button>
                     <button
                       className='flex-1 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
-                      onClick={() => toast.info('Feature coming soon')}
+                      onClick={() => handleEditServer(server)}
                     >
                       Modifier
                     </button>
@@ -211,6 +222,7 @@ export function Servers() {
         <ConnectServerDrawer
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
+          server={selectedServer}
           onSuccess={() => {
             setDrawerOpen(false)
             fetchServers()

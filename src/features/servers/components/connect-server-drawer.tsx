@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Copy, Check, Info, Server as ServerIcon, Loader, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +19,7 @@ interface ConnectServerDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess: () => void
+  server?: any
 }
 
 interface ServerResponse {
@@ -31,7 +32,7 @@ interface ServerResponse {
   setup_command: string
 }
 
-export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectServerDrawerProps) {
+export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: ConnectServerDrawerProps) {
   const [activeStep, setActiveStep] = useState<1 | 2>(1)
   const [isCopied, setIsCopied] = useState(false)
   const [isExecuted, setIsExecuted] = useState(false)
@@ -43,6 +44,19 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
     ssh_user: 'root',
     ssh_port: '22',
   })
+
+  useEffect(() => {
+    if (open && server) {
+      setFormData({
+        name: server.name || '',
+        ip: server.ip || '',
+        ssh_user: server.ssh_user || 'root',
+        ssh_port: server.ssh_port?.toString() || '22',
+      })
+    } else if (open) {
+      handleReset()
+    }
+  }, [open, server])
 
   const [setupData, setSetupData] = useState<ServerResponse | null>(null)
 
@@ -56,27 +70,37 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
     setTimeout(() => setIsCopied(false), 2000)
   }
 
-  // Step 1: Create the server in pending state
-  const handleCreateServer = async (e: React.FormEvent) => {
+  const handleSaveServer = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
-      toast.info('Enregistrement du serveur...')
-      const response = await apiFetch<ServerResponse>('/servers', {
-        method: 'POST',
+      const isEditing = !!server
+      toast.info(isEditing ? 'Mise à jour du serveur...' : 'Enregistrement du serveur...')
+      
+      const endpoint = isEditing ? `/servers/${server.id}` : '/servers'
+      const method = isEditing ? 'PUT' : 'POST'
+
+      const response = await apiFetch<ServerResponse>(endpoint, {
+        method,
         body: JSON.stringify({
           ...formData,
           ssh_port: parseInt(formData.ssh_port),
         }),
       })
 
-      setSetupData(response)
-      setActiveStep(2)
-      toast.success('Serveur ajouté avec succès', {
-        description: 'Le serveur a été enregistré. Configurez maintenant l\'accès SSH.',
-      })
+      if (isEditing) {
+          toast.success('Serveur mis à jour')
+          onSuccess()
+          handleReset()
+      } else {
+          setSetupData(response)
+          setActiveStep(2)
+          toast.success('Serveur ajouté avec succès', {
+            description: 'Le serveur a été enregistré. Configurez maintenant l\'accès SSH.',
+          })
+      }
     } catch (error: any) {
-      toast.error('Erreur lors de l\'ajout', {
+      toast.error('Erreur', {
         description: error.message || 'Impossible d\'enregistrer le serveur.',
       })
     } finally {
@@ -133,11 +157,11 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
         <SheetHeader>
           <SheetTitle className='flex items-center gap-2 text-xl'>
             <ServerIcon className='h-5 w-5 text-primary' />
-            {activeStep === 1 ? 'Connexion serveur' : 'Configuration SSH'}
+            {activeStep === 2 ? 'Configuration SSH' : (server ? 'Modifier le serveur' : 'Connexion serveur')}
           </SheetTitle>
           <SheetDescription>
             {activeStep === 1
-              ? 'Renseignez les informations de votre serveur VPS.'
+              ? (server ? 'Modifiez les informations de votre instance.' : 'Renseignez les informations de votre serveur VPS.')
               : `Finalisation de l'accès pour ${setupData?.server.name}`}
           </SheetDescription>
         </SheetHeader>
@@ -193,12 +217,12 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
 
               <Button
                 className='w-full'
-                onClick={handleCreateServer}
+                onClick={handleSaveServer}
                 disabled={loading || !formData.name || !formData.ip}
               >
                 {loading ? <Loader className='mr-2 h-4 w-4 animate-spin' /> : null}
-                Enregistrer le serveur
-                <ChevronRight className='ml-2 h-4 w-4' />
+                {server ? 'Mettre à jour' : 'Enregistrer le serveur'}
+                {!server && <ChevronRight className='ml-2 h-4 w-4' />}
               </Button>
             </div>
           ) : (
