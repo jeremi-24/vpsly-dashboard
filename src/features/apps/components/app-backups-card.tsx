@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { HardDrive, Download, Trash2, RefreshCw, Loader, Database, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -6,6 +6,7 @@ import { apiFetch, getApiUrl } from '@/lib/api'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { echo } from '@/lib/echo'
 
 interface Backup {
   id: number
@@ -26,7 +27,8 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
   const fetchBackups = async () => {
     try {
       setLoading(true)
-      setBackups(await apiFetch(`/applications/${appId}/backups`))
+      const data = await apiFetch(`/applications/${appId}/backups`)
+      setBackups(data)
     } catch {
       toast.error('Erreur lors du chargement')
     } finally {
@@ -34,17 +36,42 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
     }
   }
 
-  useEffect(() => { fetchBackups() }, [appId])
+  useEffect(() => { 
+    fetchBackups() 
+
+    // Écoute des mises à jour de backup en temps réel
+    const channel = echo.private(`application.${appId}`)
+      .listen('.BackupUpdatedEvent', (e: { backup: Backup }) => {
+        setBackups(prev => {
+          const index = prev.findIndex(b => b.id === e.backup.id)
+          if (index !== -1) {
+            const newBackups = [...prev]
+            newBackups[index] = e.backup
+            return newBackups
+          }
+          return [e.backup, ...prev]
+        })
+        
+        if (e.backup.status === 'success') toast.success(`Sauvegarde terminée : ${e.backup.name}`)
+        if (e.backup.status === 'failed') toast.error(`Échec de la sauvegarde : ${e.backup.name}`)
+      })
+
+    return () => {
+        echo.leaveChannel(`application.${appId}`)
+    }
+  }, [appId])
 
   const createBackup = async (databaseId?: number, volumeId?: number) => {
     try {
       setActionLoading(true)
-      await apiFetch(`/applications/${appId}/backups`, {
+      const pendingBackup = await apiFetch(`/applications/${appId}/backups`, {
         method: 'POST',
         body: JSON.stringify({ database_id: databaseId, volume_id: volumeId })
       })
+      
+      // Mise à jour optimiste : on ajoute le record "pending" immédiatement
+      setBackups(prev => [pendingBackup, ...prev])
       toast.success('Sauvegarde lancée')
-      setTimeout(fetchBackups, 2000)
     } catch {
       toast.error('Erreur lors du lancement')
     } finally {
