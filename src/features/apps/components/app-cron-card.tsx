@@ -1,305 +1,246 @@
 import { useState, useEffect } from 'react'
 import { Clock, Plus, Trash2, RefreshCw, Loader2, AlertCircle, CheckCircle2, ExternalLink } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
 interface CronTask {
-  id: number
-  command: string
-  frequency: string
-  description: string
-  is_active: boolean
+    id: number
+    command: string
+    frequency: string
+    description: string
+    is_active: boolean
 }
 
 interface CronData {
-  build_pack: string
-  has_laravel_scheduler: boolean
-  last_cron_synced_at: string | null
-  last_cron_sync_error: string | null
-  tasks: CronTask[]
+    build_pack: string
+    has_laravel_scheduler: boolean
+    last_cron_synced_at: string | null
+    last_cron_sync_error: string | null
+    tasks: CronTask[]
 }
 
 export function AppCronCard({ appId }: { appId: number }) {
-  const [data, setData] = useState<CronData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [syncing, setSyncing] = useState(false)
-  const [addingTask, setAddingTask] = useState(false)
-  const [newTask, setNewTask] = useState({ command: '', frequency: '* * * * *', description: '' })
+    const [data, setData] = useState<CronData | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [syncing, setSyncing] = useState(false)
+    const [addingTask, setAddingTask] = useState(false)
+    const [newTask, setNewTask] = useState({ command: '', frequency: '* * * * *', description: '' })
 
-  const fetchCrons = async () => {
-    try {
-      setLoading(true)
-      const res = await apiFetch(`/applications/${appId}/crons`)
-      setData(res)
-    } catch (err) {
-      toast.error('Failed to fetch cron tasks')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchCrons()
-  }, [appId])
-
-  const toggleLaravel = async (active: boolean) => {
-    try {
-      setSyncing(true)
-      const res = await apiFetch(`/applications/${appId}/crons/toggle-laravel`, {
-        method: 'PUT',
-        body: JSON.stringify({ active })
-      })
-      setData(res)
-      toast.success(active ? 'Laravel Scheduler activé' : 'Laravel Scheduler désactivé')
-    } catch (err) {
-      toast.error('Erreur lors de la mise à jour du scheduler')
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  const addTask = async () => {
-    try {
-      setSyncing(true)
-      const res = await apiFetch(`/applications/${appId}/crons`, {
-        method: 'POST',
-        body: JSON.stringify(newTask)
-      })
-      setData(res)
-      setAddingTask(false)
-      setNewTask({ command: '', frequency: '* * * * *', description: '' })
-      toast.success('Tâche ajoutée avec succès')
-    } catch (err) {
-      toast.error('Erreur lors de l\'ajout de la tâche')
-    } finally {
-      setSyncing(false)
-    }
-  }
-
-  const deleteTask = async (id: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche planifiée ? La modification sera appliquée immédiatement sur le serveur.')) {
-      return
+    const fetchCrons = async () => {
+        try {
+            setLoading(true)
+            setData(await apiFetch(`/applications/${appId}/crons`))
+        } catch {
+            toast.error('Erreur lors du chargement')
+        } finally {
+            setLoading(false)
+        }
     }
 
-    try {
-      setSyncing(true)
-      const res = await apiFetch(`/applications/${appId}/crons/${id}`, {
-        method: 'DELETE'
-      })
-      setData(res)
-      toast.success('Tâche supprimée')
-    } catch (err) {
-      toast.error('Erreur lors de la suppression')
-    } finally {
-      setSyncing(false)
-    }
-  }
+    useEffect(() => { fetchCrons() }, [appId])
 
-  const manualSync = async () => {
-    try {
-      setSyncing(true)
-      const res = await apiFetch(`/applications/${appId}/crons/sync`, {
-        method: 'POST'
-      })
-      setData(res)
-      toast.success('Synchronisation VPS réussie')
-    } catch (err) {
-      toast.error('Échec de la synchronisation')
-    } finally {
-      setSyncing(false)
+    const toggleLaravel = async (active: boolean) => {
+        try {
+            setSyncing(true)
+            setData(await apiFetch(`/applications/${appId}/crons/toggle-laravel`, {
+                method: 'PUT',
+                body: JSON.stringify({ active })
+            }))
+            toast.success(active ? 'Laravel Scheduler activé' : 'Désactivé')
+        } catch {
+            toast.error('Erreur')
+        } finally {
+            setSyncing(false)
+        }
     }
-  }
 
-  if (loading && !data) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-24 w-full rounded-xl" />
-        <Card>
-          <CardHeader>
-             <Skeleton className="h-6 w-1/3" />
-             <Skeleton className="h-4 w-2/3 mt-2" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <Skeleton className="h-12 w-full" />
-             <Skeleton className="h-12 w-full" />
-          </CardContent>
-        </Card>
-      </div>
+    const addTask = async () => {
+        if (!newTask.command) return
+        try {
+            setSyncing(true)
+            setData(await apiFetch(`/applications/${appId}/crons`, {
+                method: 'POST',
+                body: JSON.stringify(newTask)
+            }))
+            setAddingTask(false)
+            setNewTask({ command: '', frequency: '* * * * *', description: '' })
+            toast.success('Tâche ajoutée')
+        } catch {
+            toast.error('Erreur lors de l\'ajout')
+        } finally {
+            setSyncing(false)
+        }
+    }
+
+    const deleteTask = async (id: number) => {
+        if (!confirm('Supprimer cette tâche ?')) return
+        try {
+            setSyncing(true)
+            setData(await apiFetch(`/applications/${appId}/crons/${id}`, { method: 'DELETE' }))
+            toast.success('Tâche supprimée')
+        } catch {
+            toast.error('Erreur')
+        } finally {
+            setSyncing(false)
+        }
+    }
+
+    const manualSync = async () => {
+        try {
+            setSyncing(true)
+            setData(await apiFetch(`/applications/${appId}/crons/sync`, { method: 'POST' }))
+            toast.success('Synchronisation réussie')
+        } catch {
+            toast.error('Échec de la synchronisation')
+        } finally {
+            setSyncing(false)
+        }
+    }
+
+    const isLaravel = data?.build_pack?.toLowerCase().includes('laravel') || data?.build_pack === 'php'
+
+    if (loading) return (
+        <div className="space-y-3">
+            <Skeleton className="h-16 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+        </div>
     )
-  }
 
-  const isLaravel = data?.build_pack?.toLowerCase().includes('laravel') || data?.build_pack === 'php'
-
-  return (
-    <div className="space-y-6">
-      {/* 1. LARAVEL SCHEDULER (Conditionnel) */}
-      {isLaravel && (
-        <Card className="border-indigo-500/20 bg-indigo-500/5">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-indigo-500" />
-                  Laravel Scheduler
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Exécute <code>php artisan schedule:run</code> toutes les minutes dans votre conteneur.
-                </CardDescription>
-              </div>
-              <Switch 
-                checked={data?.has_laravel_scheduler} 
-                onCheckedChange={toggleLaravel}
-                disabled={syncing}
-              />
-            </div>
-          </CardHeader>
-        </Card>
-      )}
-
-      {/* 2. CUSTOM CRON JOBS */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div className="space-y-0.5">
-            <CardTitle className="text-lg">Tâches personnalisées</CardTitle>
-            <CardDescription className="text-xs">
-              Exécutez des commandes spécifiques à intervalles fixes sur le VPS hôte.
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-             <Button variant="outline" size="sm" onClick={manualSync} disabled={syncing} className="h-8 text-[10px]">
-                {syncing ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <RefreshCw className="h-3 w-3 mr-2" />}
-                Forcer Sync
-             </Button>
-             <Button size="sm" onClick={() => setAddingTask(true)} disabled={addingTask || syncing} className="h-8 text-[10px] font-bold">
-                <Plus className="h-3 w-3 mr-2" />
-                Ajouter
-             </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {addingTask && (
-            <div className="mb-6 p-4 border rounded-lg bg-muted/30 space-y-4 animate-in fade-in slide-in-from-top-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-xs">Commande</Label>
-                  <Input 
-                    placeholder="ex: php artisan backup:run" 
-                    value={newTask.command} 
-                    onChange={(e) => setNewTask({...newTask, command: e.target.value})}
-                    className="h-8 text-xs"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Fréquence (Cron)</Label>
-                    <a href="https://crontab.guru" target="_blank" className="text-[10px] text-indigo-400 hover:underline flex items-center gap-1">
-                      Aide <ExternalLink size={10} />
-                    </a>
-                  </div>
-                  <Input 
-                    placeholder="* * * * *" 
-                    value={newTask.frequency} 
-                    onChange={(e) => setNewTask({...newTask, frequency: e.target.value})}
-                    className="h-8 text-xs font-mono"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs">Description (Optionnel)</Label>
-                <Input 
-                  placeholder="ex: Sauvegarde quotidienne" 
-                  value={newTask.description} 
-                  onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-                  className="h-8 text-xs"
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setAddingTask(false)} className="h-7 text-[10px]">Annuler</Button>
-                <Button size="sm" onClick={addTask} disabled={!newTask.command || syncing} className="h-7 text-[10px]">
-                   {syncing && <Loader2 className="h-3 w-3 animate-spin mr-2" />}
-                   Enregistrer
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-3">
-            {data?.tasks && data.tasks.length > 0 ? (
-              data.tasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30 transition-colors group">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <code className="bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded text-[10px] font-mono border border-indigo-500/20">
-                        {task.frequency}
-                      </code>
-                      <span className="text-xs font-bold font-mono">{task.command}</span>
+    return (
+        <div className="space-y-3">
+            {/* Laravel Scheduler */}
+            {isLaravel && (
+                <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/[0.04] px-4 py-3.5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
+                            <Clock className="h-4 w-4 text-indigo-400" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium">Laravel Scheduler</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Exécute <code className="text-[10px] bg-white/5 px-1 rounded">schedule:run</code> toutes les minutes
+                            </p>
+                        </div>
                     </div>
-                    {task.description && <p className="text-[10px] text-muted-foreground opacity-70">{task.description}</p>}
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => deleteTask(task.id)} 
-                    className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                    <Switch checked={data?.has_laravel_scheduler} onCheckedChange={toggleLaravel} disabled={syncing} />
                 </div>
-              ))
-            ) : !addingTask && (
-              <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg opacity-50">
-                <p className="text-[10px] font-bold uppercase tracking-widest">Aucune tâche personnalisée</p>
-              </div>
             )}
-          </div>
 
-          <Separator className="my-6" />
-
-          {/* 3. SYNC STATUS & ERRORS */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground bg-muted/20 p-3 rounded-lg border border-white/5">
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5">
-                    <span className="font-bold uppercase opacity-50">Sync Status:</span>
-                    {data?.last_cron_sync_error ? (
-                        <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 text-[9px] px-1.5 h-4">
-                           <AlertCircle size={10} className="mr-1" /> Echec
-                        </Badge>
-                    ) : data?.last_cron_synced_at ? (
-                        <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20 text-[9px] px-1.5 h-4">
-                           <CheckCircle2 size={10} className="mr-1" /> OK
-                        </Badge>
-                    ) : (
-                        <span className="opacity-40 italic">Pas encore synchronisé</span>
-                    )}
+            {/* Tâches personnalisées */}
+            <div className="rounded-xl border bg-card/30 overflow-hidden">
+                <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                    <p className="text-sm font-medium">Tâches personnalisées</p>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={manualSync} disabled={syncing} className="h-7 text-xs gap-1.5">
+                            <RefreshCw className={cn("h-3 w-3", syncing && "animate-spin")} />
+                            Sync VPS
+                        </Button>
+                        <Button size="sm" onClick={() => setAddingTask(true)} disabled={addingTask} className="h-7 text-xs gap-1.5">
+                            <Plus className="h-3 w-3" />
+                            Ajouter
+                        </Button>
                     </div>
-                    {data?.last_cron_synced_at && (
-                    <span className="opacity-60 italic">Dernière synchro : {new Date(data.last_cron_synced_at).toLocaleString()}</span>
+                </div>
+
+                {/* Formulaire ajout */}
+                {addingTask && (
+                    <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02] space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs text-muted-foreground">Commande</Label>
+                                <Input
+                                    placeholder="php artisan backup:run"
+                                    value={newTask.command}
+                                    onChange={e => setNewTask({ ...newTask, command: e.target.value })}
+                                    className="h-8 text-xs font-mono"
+                                />
+                            </div>
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-xs text-muted-foreground">Fréquence</Label>
+                                    <a href="https://crontab.guru" target="_blank" className="text-[10px] text-indigo-400 hover:underline flex items-center gap-0.5">
+                                        Aide <ExternalLink size={9} />
+                                    </a>
+                                </div>
+                                <Input
+                                    placeholder="* * * * *"
+                                    value={newTask.frequency}
+                                    onChange={e => setNewTask({ ...newTask, frequency: e.target.value })}
+                                    className="h-8 text-xs font-mono"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label className="text-xs text-muted-foreground">Description (optionnel)</Label>
+                            <Input
+                                placeholder="Sauvegarde quotidienne"
+                                value={newTask.description}
+                                onChange={e => setNewTask({ ...newTask, description: e.target.value })}
+                                className="h-8 text-xs"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="sm" onClick={() => setAddingTask(false)} className="h-7 text-xs">Annuler</Button>
+                            <Button size="sm" onClick={addTask} disabled={!newTask.command || syncing} className="h-7 text-xs">
+                                {syncing && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+                                Enregistrer
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Liste des tâches */}
+                <div className="divide-y divide-white/[0.04]">
+                    {data?.tasks && data.tasks.length > 0 ? data.tasks.map(task => (
+                        <div key={task.id} className="flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] group transition-colors">
+                            <div className="flex items-center gap-3">
+                                <code className="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/20 shrink-0">
+                                    {task.frequency}
+                                </code>
+                                <div>
+                                    <p className="text-xs font-mono font-medium">{task.command}</p>
+                                    {task.description && <p className="text-[10px] text-muted-foreground mt-0.5">{task.description}</p>}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => deleteTask(task.id)}
+                                className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
+                            >
+                                <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    )) : !addingTask && (
+                        <div className="py-10 text-center text-muted-foreground">
+                            <p className="text-xs">Aucune tâche personnalisée</p>
+                        </div>
                     )}
                 </div>
-            </div>
 
-            {data?.last_cron_sync_error && (
-               <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10 space-y-2">
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-red-500 uppercase tracking-widest">
-                     <AlertCircle size={12} /> Détails de l'erreur
-                  </div>
-                  <pre className="text-[10px] font-mono text-red-400/80 overflow-x-auto max-h-32 custom-scrollbar whitespace-pre-wrap p-2 bg-black/20 rounded">
-                     {data.last_cron_sync_error}
-                  </pre>
-               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+                {/* Status bar */}
+                <div className="px-4 py-2.5 border-t border-white/5 flex items-center gap-2">
+                    <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", data?.last_cron_sync_error ? "bg-red-500" : data?.last_cron_synced_at ? "bg-green-500" : "bg-muted-foreground/30")} />
+                    <span className="text-[10px] text-muted-foreground">
+                        {data?.last_cron_sync_error ? 'Erreur de synchronisation' :
+                         data?.last_cron_synced_at ? `Synchronisé le ${new Date(data.last_cron_synced_at).toLocaleString()}` :
+                         'Pas encore synchronisé'}
+                    </span>
+                </div>
+
+                {/* Erreur détail */}
+                {data?.last_cron_sync_error && (
+                    <div className="mx-4 mb-3 p-3 rounded-lg bg-red-500/5 border border-red-500/10">
+                        <pre className="text-[10px] font-mono text-red-400/80 overflow-x-auto whitespace-pre-wrap">
+                            {data.last_cron_sync_error}
+                        </pre>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
 }

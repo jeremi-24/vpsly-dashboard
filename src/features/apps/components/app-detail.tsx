@@ -270,7 +270,6 @@ export function AppDetail() {
 
                     {activeTab === 'env' && (
                         <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <h2 className="text-lg font-bold mb-6">Variables d'environnement</h2>
                             <EnvVarCard appId={appId} />
                         </div>
                     )}
@@ -311,23 +310,66 @@ export function AppDetail() {
                         </div>
                     )}
 
-                    {activeTab === 'networking' && (
-                        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                            <h2 className="text-lg font-bold">Domaine</h2>
-                            
-                            <div className="space-y-6">
-                                <div className="p-6 rounded-xl border bg-card/30 space-y-4">
-                                    <h4 className="text-sm font-bold">URL active</h4>
-                                    <div className="flex gap-2">
-                                        <div className="flex-1 h-9 bg-muted/50 rounded-lg border border-white/5 flex items-center px-3 font-mono text-xs">
-                                            {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
-                                        </div>
-                                        <Button variant="outline" size="sm" disabled>Modifier</Button>
-                                    </div>
-                                </div>
+                  {activeTab === 'networking' && (
+    <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-3">
+        {/* URL active */}
+        <div className="rounded-xl border bg-card/30 overflow-hidden">
+            <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                <div>
+                    <p className="text-sm font-medium">URL active</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Domaine public de l'application</p>
+                </div>
+                <span className={cn(
+                    "text-[10px] font-medium px-2 py-0.5 rounded border",
+                    app.status === 'success' || app.status === 'running'
+                        ? "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20"
+                        : "bg-muted text-muted-foreground border-border"
+                )}>
+                    {app.status === 'success' || app.status === 'running' ? 'En ligne' : app.status}
+                </span>
+            </div>
+            <div className="p-4 space-y-3">
+                <div className="flex gap-2">
+                    <div className="flex-1 h-9 bg-background/50 rounded-lg border border-white/5 flex items-center gap-2 px-3">
+                        <Globe className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                        <span className="text-xs font-mono truncate">
+                            {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
+                        </span>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-9 text-xs shrink-0"
+                        onClick={() => window.open(`https://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`, '_blank')}
+                    >
+                        Ouvrir
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-9 text-xs shrink-0" disabled>
+                        Modifier
+                    </Button>
+                </div>
+
+                {/* Infos réseau */}
+                <div className="grid grid-cols-2 gap-2">
+                    {[
+                        { label: 'Port conteneur', value: app.container_port || '3000', icon: <Lock className="h-3.5 w-3.5 text-muted-foreground" /> },
+                        { label: 'Reverse proxy', value: 'Traefik v3', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
+                        { label: 'SSL / HTTPS', value: 'Auto (sslip.io)', icon: <Lock className="h-3.5 w-3.5 text-green-500" /> },
+                        { label: 'Réseau Docker', value: 'vpsly', icon: <ServerIcon className="h-3.5 w-3.5 text-muted-foreground" /> },
+                    ].map(item => (
+                        <div key={item.label} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-white/5 bg-white/[0.02]">
+                            <div className="flex items-center gap-2">
+                                {item.icon}
+                                <span className="text-xs text-muted-foreground">{item.label}</span>
                             </div>
+                            <span className="text-xs font-mono">{item.value}</span>
                         </div>
-                    )}
+                    ))}
+                </div>
+            </div>
+        </div>
+    </div>
+)}
 
 
                     {activeTab === 'danger' && (
