@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { 
-    Database, 
-    Plus, 
-    Trash2, 
+import {
+    Database,
+    Plus,
+    Trash2,
     HardDrive,
     AlertCircle,
-    Loader2
+    Loader
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
@@ -101,15 +101,15 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                 <div className="p-4 bg-muted/20 border-b border-white/5">
                     <form onSubmit={handleAdd} className="flex gap-2">
                         <div className="flex-1">
-                            <Input 
-                                placeholder="Chemin dans le conteneur (ex: /app/storage)" 
+                            <Input
+                                placeholder="Chemin dans le conteneur (ex: /app/storage)"
                                 value={newVolume.mount_path}
                                 onChange={e => setNewVolume({ mount_path: e.target.value })}
                                 className="h-8 text-xs bg-background/50 border-white/10"
                             />
                         </div>
                         <Button type="submit" size="sm" className="h-8 text-[10px] px-3 font-bold uppercase" disabled={adding}>
-                            {adding ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3 mr-1" />}
+                            {adding ? <Loader className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3 mr-1" />}
                             Ajouter
                         </Button>
                     </form>
@@ -142,9 +142,9 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                                         <span className="font-mono">ID: {vol.name}</span>
                                     </div>
                                 </div>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
                                     onClick={() => handleDelete(vol.id)}
                                 >
@@ -159,7 +159,7 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                     <div className="flex items-start gap-2">
                         <AlertCircle className="h-3.5 w-3.5 text-primary mt-0.5" />
                         <p className="text-[10px] leading-relaxed text-muted-foreground line-clamp-2">
-                            Les volumes permettent de conserver les données entre les déploiements. 
+                            Les volumes permettent de conserver les données entre les déploiements.
                             <strong> Attention :</strong> Les modifications prennent effet au prochain déploiement de l'application.
                         </p>
                     </div>

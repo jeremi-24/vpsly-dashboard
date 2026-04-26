@@ -62,10 +62,10 @@ export function Servers() {
   }, [])
 
   const filteredServers = servers.filter((server) => {
-    const matchesSearch = 
+    const matchesSearch =
       server.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       server.ip.includes(searchTerm)
-    
+
     const matchesStatus = statusFilter === 'all' || server.status === statusFilter
 
     return matchesSearch && matchesStatus
@@ -120,22 +120,22 @@ export function Servers() {
         <div className='faded-bottom no-scrollbar flex-1 overflow-auto pt-4 pb-16'>
           {loading ? (
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className='overflow-hidden rounded-lg border bg-card shadow-sm p-4 space-y-4'>
-                        <div className='flex items-center justify-between'>
-                            <Skeleton className='h-10 w-10 rounded-lg' />
-                            <Skeleton className='h-7 w-20 rounded' />
-                        </div>
-                        <div className='space-y-2'>
-                            <Skeleton className='h-6 w-3/4' />
-                            <Skeleton className='h-4 w-1/3' />
-                        </div>
-                        <div className='flex gap-2 pt-2'>
-                            <Skeleton className='h-10 flex-1' />
-                            <Skeleton className='h-10 flex-1' />
-                        </div>
-                    </div>
-                ))}
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className='overflow-hidden rounded-lg border bg-card shadow-sm p-4 space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <Skeleton className='h-10 w-10 rounded-lg' />
+                    <Skeleton className='h-7 w-20 rounded' />
+                  </div>
+                  <div className='space-y-2'>
+                    <Skeleton className='h-6 w-3/4' />
+                    <Skeleton className='h-4 w-1/3' />
+                  </div>
+                  <div className='flex gap-2 pt-2'>
+                    <Skeleton className='h-10 flex-1' />
+                    <Skeleton className='h-10 flex-1' />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : filteredServers.length === 0 ? (
             <div className='flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center p-8 grow animate-in fade-in duration-500'>
@@ -146,13 +146,13 @@ export function Servers() {
                 {searchTerm || statusFilter !== 'all' ? 'No matching servers' : 'No servers connected yet'}
               </h3>
               <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Try adjusting your search or filters.' 
+                {searchTerm || statusFilter !== 'all'
+                  ? 'Try adjusting your search or filters.'
                   : 'Add your first VPS to start deploying your applications.'}
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button 
-                  variant='outline' 
+                <Button
+                  variant='outline'
                   className='mt-6'
                   onClick={() => setDrawerOpen(true)}
                 >
@@ -167,7 +167,7 @@ export function Servers() {
                   {/* Part 1: Header */}
                   <div className='flex items-center justify-between p-4 pb-0'>
                     <div className='flex size-10 items-center justify-center rounded-lg bg-muted p-2'>
-                        <Server className='h-6 w-6 text-foreground' />
+                      <Server className='h-6 w-6 text-foreground' />
                     </div>
                     <Button
                       variant='outline'
@@ -189,13 +189,13 @@ export function Servers() {
 
                   {/* Part 3: Footer */}
                   <div className='flex border-t bg-muted/5'>
-                    <button 
+                    <button
                       className='flex-1 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r'
                       onClick={() => toast.info('Feature coming soon')}
                     >
                       Détails
                     </button>
-                    <button 
+                    <button
                       className='flex-1 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
                       onClick={() => toast.info('Feature coming soon')}
                     >
@@ -208,8 +208,8 @@ export function Servers() {
           )}
         </div>
 
-        <ConnectServerDrawer 
-          open={drawerOpen} 
+        <ConnectServerDrawer
+          open={drawerOpen}
           onOpenChange={setDrawerOpen}
           onSuccess={() => {
             setDrawerOpen(false)
@@ -221,7 +221,7 @@ export function Servers() {
   )
 }
 
-function Loader2(props: any) {
+function Loader(props: any) {
   return (
     <svg
       {...props}

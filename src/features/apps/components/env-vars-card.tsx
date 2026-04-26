@@ -3,7 +3,7 @@ import { apiFetch } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Plus, Trash2, Eye, EyeOff, AlertCircle, Loader2, Copy, X, FileUp } from 'lucide-react'
+import { Plus, Trash2, Eye, EyeOff, AlertCircle, Loader, Copy, X, FileUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -161,8 +161,8 @@ export function EnvVarCard({ appId }: { appId: string }) {
                 <button
                     className={cn(
                         "text-[10px] flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all border",
-                        bulkMode 
-                            ? "bg-primary/10 text-primary border-primary/20" 
+                        bulkMode
+                            ? "bg-primary/10 text-primary border-primary/20"
                             : "bg-white/5 text-muted-foreground hover:text-foreground border-white/5 hover:border-white/10"
                     )}
                     onClick={() => setBulkMode(!bulkMode)}
@@ -188,7 +188,7 @@ export function EnvVarCard({ appId }: { appId: string }) {
                             />
                             <div className="flex gap-2">
                                 <Button size="sm" className="flex-1 h-9 text-xs bg-indigo-600 hover:bg-indigo-500" onClick={handleBulkImport} disabled={processingBulk || !bulkContent.trim()}>
-                                    {processingBulk && <Loader2 className="h-3 w-3 animate-spin mr-2" />}
+                                    {processingBulk && <Loader className="h-3 w-3 animate-spin mr-2" />}
                                     Importer les variables
                                 </Button>
                                 <Button size="sm" variant="ghost" className="h-9 text-xs" onClick={() => setBulkMode(false)}>Annuler</Button>
@@ -212,7 +212,7 @@ export function EnvVarCard({ appId }: { appId: string }) {
                                 required
                             />
                             <Button type="submit" size="icon" className="h-9 w-9 shrink-0 bg-indigo-600 hover:bg-indigo-500" disabled={adding}>
-                                {adding ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                                {adding ? <Loader className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
                             </Button>
                         </form>
                     )}
@@ -252,7 +252,7 @@ export function EnvVarCard({ appId }: { appId: string }) {
                                             className="h-6 text-[10px] font-mono py-0 px-2 w-48 bg-white/5 border-white/10"
                                             disabled={savingId === v.id}
                                         />
-                                        {savingId === v.id && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+                                        {savingId === v.id && <Loader className="h-3 w-3 animate-spin text-muted-foreground" />}
                                     </div>
                                 ) : (
                                     <p
