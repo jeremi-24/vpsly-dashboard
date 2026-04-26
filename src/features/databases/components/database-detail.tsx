@@ -198,50 +198,62 @@ export function DatabaseDetail() {
       </Header>
 
       <Main fixed>
-        <div className="flex items-start justify-between mb-8">
+        {/* HEADER SIMPLIFIÉ */}
+        <div className="flex flex-col sm:flex-row items-start justify-between mb-8 gap-4 flex-none">
             <div className="space-y-1">
                 <div className="flex items-center gap-3">
-                    <h1 className="text-2xl font-bold tracking-tight">{database.name}</h1>
+                    <h1 className="text-2xl font-bold tracking-tight truncate max-w-[250px] sm:max-w-none">{database.name}</h1>
+                    <Badge 
+                        variant="outline" 
+                        className={cn(
+                            "uppercase px-1.5 py-0 text-[9px] font-bold",
+                            isRunning ? "bg-green-500/10 text-green-500 border-green-500/10" : "bg-slate-500/10 text-slate-500 border-slate-500/10"
+                        )}
+                    >
+                        {isRunning ? 'Online' : (isDeploying ? 'Deploying...' : database.status)}
+                    </Badge>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1"><ServerIcon size={12} /> {database.server?.name}</span>
-                    <Separator orientation="vertical" className="h-3 sm:block hidden" />
+                    <Separator orientation="vertical" className="h-3 hidden sm:block" />
                     <span className="flex items-center gap-1 font-mono opacity-70 tracking-tighter"><Shield size={12} /> {database.image}</span>
-                    <Separator orientation="vertical" className="h-3 sm:block hidden" />
+                    <Separator orientation="vertical" className="h-3 hidden sm:block" />
                     <span className="text-indigo-400 font-medium">Instance Active</span>
                 </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Button 
                     variant="default" 
                     size="sm" 
                     disabled={isDeploying}
                     onClick={handleRedeploy}
-                    className="bg-indigo-600 hover:bg-indigo-700 h-8 text-xs font-bold"
+                    className="bg-indigo-600 hover:bg-indigo-700 h-8 text-xs font-bold w-full sm:w-auto"
                 >
                     {isDeploying ? <Loader2 size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2" />}
-                    Reboot
+                    Redémarrer
                 </Button>
             </div>
         </div>
 
-        <div className="flex flex-1 gap-12 overflow-hidden h-[calc(100vh-200px)]">
-            <aside className="w-60 flex-none h-full">
-                <nav className="flex flex-col space-y-1">
+        <Separator className="mb-6" />
+
+        <div className="flex flex-col md:flex-row flex-1 gap-6 md:gap-12 overflow-hidden">
+            <aside className="w-full md:w-60 flex-none overflow-x-auto md:overflow-y-auto custom-scrollbar md:pr-2">
+                <nav className="flex flex-row md:flex-col space-x-1 md:space-x-0 md:space-y-1 min-w-max md:min-w-0 pb-2 md:pb-0">
                     {navItems.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={cn(
-                                "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                                "flex items-center gap-3 px-3 py-2 md:py-1.5 text-[13px] font-medium rounded-md transition-colors whitespace-nowrap",
                                 activeTab === item.id 
                                     ? "bg-muted text-foreground font-bold" 
                                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                                 item.className
                             )}
                         >
-                            {item.icon}
+                            <span className="opacity-70">{item.icon}</span>
                             {item.title}
                             {(item.id === 'logs' && isDeploying) && (
                                 <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
@@ -251,53 +263,54 @@ export function DatabaseDetail() {
                 </nav>
             </aside>
 
-            <div className={cn(
-                "flex-1 pr-2 custom-scrollbar",
-                activeTab === 'logs' ? "overflow-hidden" : "overflow-y-auto"
-            )}>
-                {activeTab === 'logs' && (
-                    <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="flex-1 min-h-0">
-                            <DatabaseLogsTerminal databaseId={databaseId} status={database.status} />
+                {/* CONTENT AREA */}
+                <div className={cn(
+                    "flex-1 min-w-0 pb-6 md:pr-4 custom-scrollbar",
+                    activeTab === 'logs' ? "overflow-hidden" : "overflow-y-auto"
+                )}>
+                    {activeTab === 'logs' && (
+                        <div className="h-full flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div className="flex-1 min-h-0">
+                                <DatabaseLogsTerminal databaseId={databaseId} status={database.status} />
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {activeTab === 'config' && (
-                    <div className="max-w-3xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <section className="space-y-6">
-                           <h2 className="text-lg font-bold">Connexion</h2>
-                           
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2 p-4 rounded-xl border bg-card/30">
-                                    <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest leading-none">DB_HOST (Interne)</Label>
-                                    <div className="flex items-center gap-2 group">
-                                        <code className="text-xs font-mono text-indigo-400 bg-indigo-500/5 px-2 py-1 rounded truncate flex-1">{database.uuid}</code>
-                                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(database.uuid)}>
-                                            <Copy size={12} />
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                <div className={cn(
-                                    "space-y-2 p-4 rounded-xl border transition-all",
-                                    database.is_public ? "bg-card/30" : "bg-muted/20 opacity-40 grayscale"
-                                )}>
-                                    <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest leading-none">DB_HOST (Public)</Label>
-                                    {database.is_public ? (
-                                         <div className="flex items-center gap-2">
-                                            <code className="text-xs font-mono text-indigo-400 bg-indigo-500/5 px-2 py-1 rounded truncate flex-1">{database.server?.ip}</code>
-                                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(database.server?.ip)}>
+                    {activeTab === 'config' && (
+                        <div className="max-w-3xl space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <section className="space-y-6">
+                               <h2 className="text-lg font-bold">Connexion</h2>
+                               
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2 p-4 rounded-xl border bg-card/30">
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest leading-none">DB_HOST (Interne)</Label>
+                                        <div className="flex items-center gap-2 group">
+                                            <code className="text-xs font-mono text-indigo-400 bg-indigo-500/5 px-2 py-1 rounded truncate flex-1">{database.uuid}</code>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(database.uuid)}>
                                                 <Copy size={12} />
                                             </Button>
                                         </div>
-                                    ) : (
-                                        <div className="text-xs italic text-muted-foreground mt-1">Désactivé</div>
-                                    )}
-                                </div>
-                           </div>
+                                    </div>
 
-                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className={cn(
+                                        "space-y-2 p-4 rounded-xl border transition-all",
+                                        database.is_public ? "bg-card/30" : "bg-muted/20 opacity-40 grayscale"
+                                    )}>
+                                        <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest leading-none">DB_HOST (Public)</Label>
+                                        {database.is_public ? (
+                                             <div className="flex items-center gap-2">
+                                                <code className="text-xs font-mono text-indigo-400 bg-indigo-500/5 px-2 py-1 rounded truncate flex-1">{database.server?.ip}</code>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(database.server?.ip)}>
+                                                    <Copy size={12} />
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div className="text-xs italic text-muted-foreground mt-1">Désactivé</div>
+                                        )}
+                                    </div>
+                               </div>
+
+                               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                                 <div className="space-y-2 p-4 rounded-xl border bg-card/30">
                                     <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">DB_PORT</Label>
                                     <div className="flex items-center gap-2">
@@ -344,7 +357,7 @@ export function DatabaseDetail() {
 
                         <section className="space-y-6">
                             <h2 className="text-lg font-bold">Réseau</h2>
-                            <div className="flex items-center justify-between p-6 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 rounded-xl border border-indigo-500/20 bg-indigo-500/5 gap-4">
                                 <div className="space-y-1">
                                     <h4 className="text-sm font-bold">Accès Public</h4>
                                     <p className="text-xs text-muted-foreground">Expose la base sur le port {database.public_port || 5432} du VPS.</p>
@@ -355,7 +368,7 @@ export function DatabaseDetail() {
                                     disabled={isDeploying}
                                     onClick={handleTogglePublic}
                                     className={cn(
-                                        "h-8 font-bold",
+                                        "h-8 font-bold w-full sm:w-auto",
                                         database.is_public ? "bg-indigo-600 hover:bg-indigo-700" : ""
                                     )}
                                 >
@@ -373,7 +386,7 @@ export function DatabaseDetail() {
                         <div className="grid gap-3">
                             {database.persistent_storages?.length > 0 ? (
                                 database.persistent_storages.map((vol: any) => (
-                                    <div key={vol.id} className="flex items-center justify-between p-4 rounded-xl border bg-card/30">
+                                    <div key={vol.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border bg-card/30 gap-3">
                                         <div className="flex items-center gap-4">
                                             <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500">
                                                 <HardDrive size={20} />
@@ -393,7 +406,7 @@ export function DatabaseDetail() {
                             )}
 
                             <div className="mt-8 p-6 rounded-xl border border-indigo-500/10 bg-indigo-500/5 space-y-4">
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                     <div className="space-y-1">
                                         <h4 className="text-sm font-bold flex items-center gap-2">
                                             <Shield className="h-4 w-4 text-indigo-400" />
@@ -406,7 +419,7 @@ export function DatabaseDetail() {
                                         size="sm" 
                                         disabled={integrityStatus === 'checking'}
                                         onClick={handleVerifyIntegrity}
-                                        className="h-8 font-bold"
+                                        className="h-8 font-bold w-full sm:w-auto"
                                     >
                                         {integrityStatus === 'checking' ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : <Check className="h-3 w-3 mr-2" />}
                                         Vérifier
@@ -430,12 +443,12 @@ export function DatabaseDetail() {
                     <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <h2 className="text-lg font-bold text-red-500">Danger</h2>
                         <div className="p-6 rounded-xl border border-red-500/20 bg-red-500/5 space-y-4">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <div className="space-y-1">
                                     <h4 className="text-sm font-bold">Supprimer l'instance</h4>
                                     <p className="text-xs text-muted-foreground">Stoppe le container. Les données restent sur le disque.</p>
                                 </div>
-                                <Button variant="destructive" size="sm" onClick={() => alert('Suppression à implémenter')}>
+                                <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => alert('Suppression à implémenter')}>
                                     Supprimer
                                 </Button>
                             </div>
