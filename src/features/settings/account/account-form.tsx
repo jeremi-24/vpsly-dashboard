@@ -1,18 +1,8 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
 import {
   Form,
   FormControl,
@@ -23,24 +13,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { useAuthStore } from '@/stores/auth-store'
-
-const languages = [
-  { label: 'English', value: 'en' },
-  { label: 'French', value: 'fr' },
-  { label: 'German', value: 'de' },
-  { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt' },
-  { label: 'Russian', value: 'ru' },
-  { label: 'Japanese', value: 'ja' },
-  { label: 'Korean', value: 'ko' },
-  { label: 'Chinese', value: 'zh' },
-] as const
+import { apiFetch } from '@/lib/api'
+import { useState } from 'react'
 
 const accountFormSchema = z.object({
   name: z
@@ -48,24 +23,38 @@ const accountFormSchema = z.object({
     .min(1, 'Veuillez entrer votre nom.')
     .min(2, 'Le nom doit contenir au moins 2 caractères.')
     .max(30, 'Le nom ne doit pas dépasser 30 caractères.'),
-  language: z.string('Veuillez sélectionner une langue.'),
+  // language: z.string('Veuillez sélectionner une langue.'),
 })
 
 type AccountFormValues = z.infer<typeof accountFormSchema>
 
 export function AccountForm() {
   const { auth } = useAuthStore()
+  const [loading, setLoading] = useState(false)
   
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: auth.user?.name || '',
-      language: 'fr',
+      // language: 'fr',
     },
   })
 
-  function onSubmit(data: AccountFormValues) {
-    showSubmittedData(data)
+  async function onSubmit(data: AccountFormValues) {
+    try {
+      setLoading(true)
+      const updatedUser = await apiFetch<any>('/user', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      })
+      
+      auth.setUser(updatedUser)
+      toast.success('Profil mis à jour avec succès !')
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour du profil.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -89,6 +78,7 @@ export function AccountForm() {
           )}
         />
 
+        {/* 
         <FormField
           control={form.control}
           name='language'
@@ -151,8 +141,11 @@ export function AccountForm() {
               <FormMessage />
             </FormItem>
           )}
-        />
-        <Button type='submit'>Mettre à jour le compte</Button>
+        /> 
+        */}
+        <Button type='submit' disabled={loading}>
+          {loading ? 'Mise à jour...' : 'Mettre à jour le compte'}
+        </Button>
       </form>
     </Form>
   )

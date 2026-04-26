@@ -93,26 +93,26 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                         <HardDrive className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                        <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Volumes Persistants</CardTitle>
-                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">Stockage persistant pour vos fichiers et bases SQLite</p>
+                        <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Stockage des données</CardTitle>
+                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">Gardez vos fichiers et données même après un redéploiement</p>
                     </div>
                 </div>
-                <Badge variant="outline" className="text-[10px] h-5 opacity-50">{volumes.length}</Badge>
+                <Badge variant="outline" className="text-[10px] h-5 opacity-50">{volumes.length} dossiers configurés</Badge>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="p-4 bg-muted/20 border-b border-white/5">
                     <form onSubmit={handleAdd} className="flex gap-2">
                         <div className="flex-1">
                             <Input
-                                placeholder="Chemin dans le conteneur (ex: /app/storage)"
+                                placeholder="Dossier à sauvegarder (ex: /app/storage)"
                                 value={newVolume.mount_path}
                                 onChange={e => setNewVolume({ mount_path: e.target.value })}
                                 className="h-8 text-xs bg-background/50 border-white/10"
                             />
                         </div>
-                        <Button type="submit" size="sm" className="h-8 text-[10px] px-3 font-bold uppercase" disabled={adding}>
+                        <Button type="submit" size="sm" className="h-8 text-[10px] px-3 font-bold" disabled={adding}>
                             {adding ? <Loader className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3 mr-1" />}
-                            Ajouter
+                            Ajouter un dossier
                         </Button>
                     </form>
                 </div>
@@ -130,7 +130,7 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                     ) : volumes.length === 0 ? (
                         <div className="py-12 flex flex-col items-center justify-center text-muted-foreground/40 gap-2">
                             <Database className="h-8 w-8 opacity-10" />
-                            <p className="text-[10px] font-bold uppercase tracking-tighter">Aucun volume configuré</p>
+                            <p className="text-[10px] font-bold uppercase tracking-tighter">Aucun stockage configuré pour cette application</p>
                         </div>
                     ) : (
                         volumes.map((vol) => (
@@ -138,10 +138,10 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <code className="text-xs font-mono font-bold text-primary">{vol.mount_path}</code>
-                                        <Badge variant="secondary" className="text-[8px] h-3 px-1 leading-none opacity-40">Docker Volume</Badge>
+                                        <Badge variant="secondary" className="text-[8px] h-3 px-1 leading-none opacity-40">Dossier persistant</Badge>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground opacity-60">
-                                        <span className="font-mono">ID: {vol.name}</span>
+                                        <span className="font-mono">ID Volume: {vol.name}</span>
                                     </div>
                                 </div>
                                 <Button
@@ -160,9 +160,9 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                 <div className="p-4 bg-primary/5 border-t border-white/5">
                     <div className="flex items-start gap-2">
                         <AlertCircle className="h-3.5 w-3.5 text-primary mt-0.5" />
-                        <p className="text-[10px] leading-relaxed text-muted-foreground line-clamp-2">
-                            Les volumes permettent de conserver les données entre les déploiements.
-                            <strong> Attention :</strong> Les modifications prennent effet au prochain déploiement de l'application.
+                        <p className="text-[10px] leading-relaxed text-muted-foreground">
+                            Les dossiers ajoutés ici permettent de conserver vos fichiers (uploads, stockage, base locale) après chaque déploiement.
+                            <strong> Attention :</strong> Les changements s'appliquent au prochain déploiement.
                         </p>
                     </div>
                 </div>

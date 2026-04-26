@@ -352,7 +352,7 @@ export function AppDetail() {
 
                             {activeTab === 'storage' && (
                                 <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <h2 className="text-lg font-bold mb-6">Stockage persistant (Volumes)</h2>
+                                    <h2 className="text-lg font-bold mb-6">Stockage des données</h2>
                                     <AppVolumesCard appId={appId} />
                                 </div>
                             )}
