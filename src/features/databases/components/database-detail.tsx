@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from '@tanstack/react-router'
+import { useParams, Link, useNavigate } from '@tanstack/react-router'
 import { 
   Server as ServerIcon, 
   Loader2, 
@@ -30,6 +30,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatabaseLogsTerminal } from './database-logs-terminal'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ConfirmDialog } from '@/components/confirm-dialog'
 
 function EngineLogo({ image, size = 24 }: { image: string, size?: number }) {
   const img = image.toLowerCase()
@@ -58,6 +59,21 @@ export function DatabaseDetail() {
   const [showPassword, setShowPassword] = useState(false)
   const [isActionInProgress, setIsActionInProgress] = useState(false)
   const [integrityStatus, setIntegrityStatus] = useState<'idle' | 'checking' | 'intact' | 'missing'>('idle')
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const handleDelete = async () => {
+    try {
+      setIsActionInProgress(true)
+      await apiFetch(`/databases/${databaseId}`, { method: 'DELETE' })
+      toast.success('Base de données supprimée')
+      setIsConfirmOpen(false)
+      navigate({ to: '/databases' })
+    } catch (error) {
+      toast.error('Échec de la suppression')
+      setIsActionInProgress(false)
+    }
+  }
 
   const handleVerifyIntegrity = async () => {
     try {
@@ -448,7 +464,13 @@ export function DatabaseDetail() {
                                     <h4 className="text-sm font-bold">Supprimer l'instance</h4>
                                     <p className="text-xs text-muted-foreground">Stoppe le container. Les données restent sur le disque.</p>
                                 </div>
-                                <Button variant="destructive" size="sm" className="w-full sm:w-auto" onClick={() => alert('Suppression à implémenter')}>
+                                <Button 
+                                    variant="destructive" 
+                                    size="sm" 
+                                    className="w-full sm:w-auto" 
+                                    onClick={() => setIsConfirmOpen(true)}
+                                    disabled={isDeploying}
+                                >
                                     Supprimer
                                 </Button>
                             </div>
@@ -458,6 +480,26 @@ export function DatabaseDetail() {
             </div>
         </div>
       </Main>
+
+      <ConfirmDialog
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        title="Supprimer la base de données ?"
+        destructive
+        isLoading={isActionInProgress}
+        handleConfirm={handleDelete}
+        confirmText="Supprimer définitivement"
+        desc={
+          <div className="space-y-3">
+            <p>
+              Cette action va stopper le container <code className="text-indigo-400">{database.uuid}</code> sur le serveur.
+            </p>
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400">
+              <strong>Note :</strong> Les volumes de données ne seront pas supprimés pour éviter toute perte accidentelle. Vous devrez les supprimer manuellement sur le VPS si nécessaire.
+            </div>
+          </div>
+        }
+      />
     </>
   )
 }
