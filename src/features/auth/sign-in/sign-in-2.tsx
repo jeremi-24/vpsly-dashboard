@@ -33,19 +33,19 @@ export function SignIn2() {
           </div>
           <UserAuthForm redirectTo={redirect} />
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            By clicking sign in, you agree to our{' '}
+            En cliquant sur connexion, vous acceptez nos{' '}
             <a
               href='/terms'
               className='underline underline-offset-4 hover:text-primary'
             >
-              Terms of Service
+              Conditions d'Utilisation
             </a>{' '}
-            and{' '}
+            et notre{' '}
             <a
               href='/privacy'
               className='underline underline-offset-4 hover:text-primary'
             >
-              Privacy Policy
+              Politique de Confidentialité
             </a>
             .
           </p>
@@ -63,14 +63,14 @@ export function SignIn2() {
           className='dark:hidden'
           width={1024}
           height={1151}
-          alt='Shadcn-Admin'
+          alt='VPSLY Dashboard'
         />
         <img
           src={dashboardDark}
           className='hidden dark:block'
           width={1024}
           height={1138}
-          alt='Shadcn-Admin'
+          alt='VPSLY Dashboard'
         />
       </div>
     </div>

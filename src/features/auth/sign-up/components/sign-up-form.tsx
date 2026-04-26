@@ -20,18 +20,15 @@ import { PasswordInput } from '@/components/password-input'
 
 const formSchema = z
   .object({
-    email: z.email({
-      error: (iss) =>
-        iss.input === '' ? 'Please enter your email.' : undefined,
-    }),
+    email: z.string().email('Veuillez entrer une adresse email valide.'),
     password: z
       .string()
-      .min(1, 'Please enter your password.')
-      .min(7, 'Password must be at least 7 characters long.'),
-    confirmPassword: z.string().min(1, 'Please confirm your password.'),
+      .min(1, 'Veuillez entrer votre mot de passe.')
+      .min(7, 'Le mot de passe doit contenir au moins 7 caractères.'),
+    confirmPassword: z.string().min(1, 'Veuillez confirmer votre mot de passe.'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
+    message: 'Les mots de passe ne correspondent pas.',
     path: ['confirmPassword'],
   })
 
@@ -54,12 +51,12 @@ export function SignUpForm({
     setIsLoading(true)
 
     toast.promise(sleep(2000), {
-      loading: 'Creating account...',
+      loading: 'Création du compte...',
       success: () => {
         setIsLoading(false)
-        return `Account created for ${data.email}.`
+        return `Compte créé pour ${data.email}.`
       },
-      error: 'Error',
+      error: 'Erreur lors de la création du compte',
     })
   }
 
@@ -77,7 +74,7 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder='name@example.com' {...field} />
+                <Input placeholder='nom@exemple.com' {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -88,7 +85,7 @@ export function SignUpForm({
           name='password'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Mot de passe</FormLabel>
               <FormControl>
                 <PasswordInput placeholder='********' {...field} />
               </FormControl>
@@ -101,7 +98,7 @@ export function SignUpForm({
           name='confirmPassword'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>Confirmer le mot de passe</FormLabel>
               <FormControl>
                 <PasswordInput placeholder='********' {...field} />
               </FormControl>
@@ -111,7 +108,7 @@ export function SignUpForm({
         />
         <Button className='mt-2' disabled={isLoading}>
           {isLoading ? <Loader className='animate-spin' /> : <UserPlus />}
-          Create Account
+          Créer un compte
         </Button>
 
         <div className='relative my-2'>
@@ -120,7 +117,7 @@ export function SignUpForm({
           </div>
           <div className='relative flex justify-center text-xs uppercase'>
             <span className='bg-background px-2 text-muted-foreground'>
-              Or continue with
+              Ou continuer avec
             </span>
           </div>
         </div>

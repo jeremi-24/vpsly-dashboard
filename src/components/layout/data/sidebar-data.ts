@@ -24,6 +24,7 @@ import {
   GalleryVerticalEnd,
   FolderGitIcon,
   Database,
+  Crown,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -82,6 +83,11 @@ export const sidebarData: SidebarData = {
               title: 'Intégrations',
               url: '/settings/integrations',
               icon: FolderGitIcon,
+            },
+            {
+              title: 'Facturation',
+              url: '/settings/billing',
+              icon: Crown,
             },
           ],
         },

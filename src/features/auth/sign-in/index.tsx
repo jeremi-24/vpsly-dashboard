@@ -17,16 +17,16 @@ export function SignIn() {
     <AuthLayout>
       <Card className='max-w-sm gap-4'>
         <CardHeader>
-          <CardTitle className='text-lg tracking-tight'>Sign in</CardTitle>
+          <CardTitle className='text-lg tracking-tight'>Connexion</CardTitle>
           <CardDescription>
-            Enter your email and password below to log into{' '}
-            <br className='max-sm:hidden' /> your account. Don't have an
-            account?{' '}
+            Entrez votre email et mot de passe ci-dessous pour vous connecter à{' '}
+            <br className='max-sm:hidden' /> votre compte. Vous n'avez pas de
+            compte ?{' '}
             <Link
               to='/sign-up'
               className='text-nowrap underline underline-offset-4 hover:text-primary'
             >
-              Sign Up
+              Créer un compte
             </Link>
           </CardDescription>
         </CardHeader>
@@ -35,19 +35,19 @@ export function SignIn() {
         </CardContent>
         <CardFooter>
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            By clicking sign in, you agree to our{' '}
+            En cliquant sur connexion, vous acceptez nos{' '}
             <a
               href='/terms'
               className='underline underline-offset-4 hover:text-primary'
             >
-              Terms of Service
+              Conditions d'Utilisation
             </a>{' '}
-            and{' '}
+            et notre{' '}
             <a
               href='/privacy'
               className='underline underline-offset-4 hover:text-primary'
             >
-              Privacy Policy
+              Politique de Confidentialité
             </a>
             .
           </p>

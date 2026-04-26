@@ -74,7 +74,7 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
         <div className='flex items-center gap-4'>
           <div className='flex items-center gap-2'>
             {autoScroll && <div className='h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse' />}
-            <span className='text-[10px] text-white/40'>{autoScroll ? 'LIVE' : 'PAUSED'}</span>
+            <span className='text-[10px] text-white/40'>{autoScroll ? 'EN DIRECT' : 'EN PAUSE'}</span>
           </div>
 
           <div className='flex items-center gap-2'>
@@ -82,7 +82,7 @@ export function RuntimeLogsTerminal({ appId }: RuntimeLogsTerminalProps) {
               onClick={() => setAutoScroll(!autoScroll)}
               className={`text-[10px] transition-colors font-bold ${autoScroll ? 'text-primary' : 'text-white/20 hover:text-white/40'}`}
             >
-              {autoScroll ? 'AUTOSCROLL ON' : 'AUTOSCROLL OFF'}
+              {autoScroll ? 'DÉFILEMENT AUTO' : 'DÉFILEMENT MANUEL'}
             </button>
 
             <button

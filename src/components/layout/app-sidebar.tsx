@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { sidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
+import { NavProCard } from './nav-pro-card'
 import { TeamSwitcher } from './team-switcher'
 
 export function AppSidebar() {
@@ -30,6 +31,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
+        <NavProCard />
         <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />

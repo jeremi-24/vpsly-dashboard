@@ -19,6 +19,13 @@ import { useNavigate, Link } from '@tanstack/react-router'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 
 interface CreateAppDrawerProps {
@@ -352,24 +359,28 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                   )}
                 </ScrollArea>
 
-                {selectedRepo && (
                   <div className='animate-in fade-in pt-4'>
                     <Label>Branche</Label>
-                    {branches.length > 0 ? (
-                      <select
-                        className='w-full mt-2 p-2 border rounded-md text-sm bg-background'
-                        value={selectedBranch}
-                        onChange={(e) => setSelectedBranch(e.target.value)}
-                      >
-                        {branches.map(b => (
-                          <option key={b.name} value={b.name}>{b.name}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div className='text-xs text-muted-foreground mt-1'>Chargement des branches...</div>
-                    )}
+                    <div className="mt-2">
+                      {branches.length > 0 ? (
+                        <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choisir une branche" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {branches.map(b => (
+                              <SelectItem key={b.name} value={b.name}>{b.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className='flex items-center gap-2 text-xs text-muted-foreground mt-1'>
+                          <Loader className="h-3 w-3 animate-spin" />
+                          Chargement des branches...
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
               </div>
             )}
 
@@ -452,25 +463,24 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                   </p>
                 </div>
 
-                <Card className='bg-muted/30 border-dashed'>
-                  <CardHeader className='p-4 pb-2'>
-                    <CardTitle className='text-sm flex items-center gap-2'>
-                      <Check className='h-4 w-4 text-green-500' />
-                      Résumé du déploiement
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className='p-4 pt-0 text-sm space-y-1.5'>
-                    <div className='flex justify-between'><span className='opacity-60'>Stack :</span> <span className='capitalize font-medium text-primary'>{selectedPreset}</span></div>
-                    <div className='flex justify-between'><span className='opacity-60'>Source :</span> <span>{selectedRepo?.full_name} ({selectedBranch})</span></div>
-                    <div className='flex justify-between'><span className='opacity-60'>Serveur :</span> <span>{selectedServer?.name}</span></div>
+                <div className='p-4 rounded-xl border border-dashed bg-muted/10 space-y-3'>
+                    <div className='flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-60'>
+                      <Check className='h-3 w-3 text-green-500' />
+                      Résumé
+                    </div>
+                    <div className='space-y-2 text-xs'>
+                      <div className='flex justify-between items-center'><span className='opacity-60'>Stack</span> <Badge variant="secondary" className="h-5 text-[9px] uppercase font-bold">{selectedPreset}</Badge></div>
+                      <div className='flex justify-between items-center'><span className='opacity-60'>Source</span> <span className="font-medium">{selectedRepo?.name} <span className="opacity-40 text-[10px]">({selectedBranch})</span></span></div>
+                      <div className='flex justify-between items-center'><span className='opacity-60'>Serveur</span> <span className="font-medium">{selectedServer?.name}</span></div>
+                    </div>
+                    
                     {selectedPreset !== 'generic' && (
-                      <div className='flex items-center gap-2 text-[10px] bg-green-500/10 text-green-500 p-2 rounded mt-2 border border-green-500/20'>
-                        <AlertCircle size={12} />
-                        <span>Une base de données <b>{selectedPreset === 'laravel' ? 'MySQL' : 'Postgres'}</b> sera créée et liée automatiquement.</span>
+                      <div className='flex items-start gap-2 text-[10px] bg-indigo-500/10 text-indigo-500 p-2 rounded mt-2 border border-indigo-500/20 leading-tight'>
+                        <AlertCircle size={12} className="shrink-0 mt-0.5" />
+                        <span>Base de données <b>{selectedPreset === 'laravel' ? 'MySQL' : 'Postgres'}</b> incluse.</span>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                </div>
               </div>
             )}
           </div>

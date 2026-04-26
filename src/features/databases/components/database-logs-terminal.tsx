@@ -84,7 +84,7 @@ export function DatabaseLogsTerminal({ databaseId, status }: DatabaseLogsTermina
           <Terminal size={14} className="text-muted-foreground" />
           <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Flux d'activité du moteur SQL</span>
           <Badge variant="outline" className="bg-indigo-500/10 text-indigo-500 border-indigo-500/20 text-[10px] h-4">
-            LIVE
+            EN DIRECT
           </Badge>
         </div>
         <div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ export function DatabaseLogsTerminal({ databaseId, status }: DatabaseLogsTermina
             <Trash2 size={12} />
           </Button>
           <div className="flex items-center gap-2 ml-2">
-            <span className="text-[10px] text-muted-foreground uppercase font-bold">Autoscroll</span>
+            <span className="text-[10px] text-muted-foreground uppercase font-bold">Défilement Auto</span>
             <button
               onClick={() => setAutoScroll(!autoScroll)}
               className={`w-8 h-4 rounded-full transition-colors relative ${autoScroll ? 'bg-indigo-600' : 'bg-white/10'}`}

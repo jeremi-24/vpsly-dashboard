@@ -45,10 +45,10 @@ const languages = [
 const accountFormSchema = z.object({
   name: z
     .string()
-    .min(1, 'Please enter your name.')
-    .min(2, 'Name must be at least 2 characters.')
-    .max(30, 'Name must not be longer than 30 characters.'),
-  language: z.string('Please select a language.'),
+    .min(1, 'Veuillez entrer votre nom.')
+    .min(2, 'Le nom doit contenir au moins 2 caractères.')
+    .max(30, 'Le nom ne doit pas dépasser 30 caractères.'),
+  language: z.string('Veuillez sélectionner une langue.'),
 })
 
 type AccountFormValues = z.infer<typeof accountFormSchema>
@@ -60,7 +60,7 @@ export function AccountForm() {
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: auth.user?.name || '',
-      language: 'en', // Par daut, peut tre tendu plus tard
+      language: 'fr',
     },
   })
 
@@ -76,13 +76,13 @@ export function AccountForm() {
           name='name'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Nom</FormLabel>
               <FormControl>
-                <Input placeholder='Your name' {...field} />
+                <Input placeholder='Votre nom' {...field} />
               </FormControl>
               <FormDescription>
-                This is the name that will be displayed on your profile and in
-                emails.
+                C'est le nom qui sera affiché sur votre profil et dans les
+                e-mails.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -94,7 +94,7 @@ export function AccountForm() {
           name='language'
           render={({ field }) => (
             <FormItem className='flex flex-col'>
-              <FormLabel>Language</FormLabel>
+              <FormLabel>Langue</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -110,15 +110,15 @@ export function AccountForm() {
                         ? languages.find(
                             (language) => language.value === field.value
                           )?.label
-                        : 'Select language'}
+                        : 'Sélectionner une langue'}
                       <CaretSortIcon className='ms-2 h-4 w-4 shrink-0 opacity-50' />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
                 <PopoverContent className='w-[200px] p-0'>
                   <Command>
-                    <CommandInput placeholder='Search language...' />
-                    <CommandEmpty>No language found.</CommandEmpty>
+                    <CommandInput placeholder='Rechercher une langue...' />
+                    <CommandEmpty>Aucune langue trouvée.</CommandEmpty>
                     <CommandGroup>
                       <CommandList>
                         {languages.map((language) => (
@@ -135,7 +135,7 @@ export function AccountForm() {
                                 language.value === field.value
                                   ? 'opacity-100'
                                   : 'opacity-0'
-                              )}
+                                )}
                             />
                             {language.label}
                           </CommandItem>
@@ -146,13 +146,13 @@ export function AccountForm() {
                 </PopoverContent>
               </Popover>
               <FormDescription>
-                This is the language that will be used in the dashboard.
+                C'est la langue qui sera utilisée dans le tableau de bord.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type='submit'>Update account</Button>
+        <Button type='submit'>Mettre à jour le compte</Button>
       </form>
     </Form>
   )
