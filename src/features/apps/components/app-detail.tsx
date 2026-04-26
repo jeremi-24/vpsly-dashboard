@@ -23,6 +23,9 @@ import { LinkedDatabasesCard } from './linked-databases-card'
 import { AppBackupsCard } from './app-backups-card'
 import { Skeleton } from '@/components/ui/skeleton'
 
+import { formatDistanceToNow } from 'date-fns'
+import { fr } from 'date-fns/locale'
+
 export function AppDetail() {
   const { appId } = useParams({ from: '/_authenticated/apps/$appId' })
     const [app, setApp] = useState<any>(null)
@@ -53,12 +56,14 @@ export function AppDetail() {
             .listen('DeploymentStatusUpdatedEvent', (e: { 
                 status: string, 
                 isDeploying: boolean, 
-                deploymentId: number 
+                deploymentId: number,
+                lastDeployedAt?: string
             }) => {
                 setApp((prev: any) => prev ? { 
                     ...prev, 
                     status: e.status,
-                    is_deploying: e.isDeploying 
+                    is_deploying: e.isDeploying,
+                    last_deployed_at: e.lastDeployedAt || prev.last_deployed_at
                 } : prev)
 
                 // Bascule sur le nouveau déploiement
@@ -160,7 +165,11 @@ export function AppDetail() {
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
                         <Badge variant="outline" className="text-[10px] h-4 font-mono px-1.5">{app.branch}</Badge>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                        <span className="text-[10px] opacity-70 italic">Dernier build il y a 2h</span>
+                        <span className="text-[10px] opacity-70 italic">
+                            {app.last_deployed_at 
+                                ? `Dernier build ${formatDistanceToNow(new Date(app.last_deployed_at), { addSuffix: true, locale: fr })}`
+                                : 'Jamais déployé'}
+                        </span>
                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
                          <a 
                             href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`} 
