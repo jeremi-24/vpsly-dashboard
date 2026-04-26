@@ -8,6 +8,16 @@ import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface CronTask {
   id: number
@@ -30,6 +40,7 @@ export function AppCronCard({ appId }: { appId: number }) {
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [addingTask, setAddingTask] = useState(false)
+  const [deleteId, setDeleteId] = useState<number | null>(null)
   const [newTask, setNewTask] = useState({ command: '', frequency: '* * * * *', description: '' })
 
   const fetchCrons = async () => {
@@ -79,7 +90,6 @@ export function AppCronCard({ appId }: { appId: number }) {
   }
 
   const deleteTask = async (id: number) => {
-    if (!confirm('Supprimer cette tâche ?')) return
     try {
       setSyncing(true)
       setData(await apiFetch(`/applications/${appId}/crons/${id}`, { method: 'DELETE' }))
@@ -88,6 +98,7 @@ export function AppCronCard({ appId }: { appId: number }) {
       toast.error('Erreur')
     } finally {
       setSyncing(false)
+      setDeleteId(null)
     }
   }
 
@@ -209,7 +220,7 @@ export function AppCronCard({ appId }: { appId: number }) {
                 </div>
               </div>
               <button
-                onClick={() => deleteTask(task.id)}
+                onClick={() => setDeleteId(task.id)}
                 className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -243,6 +254,23 @@ export function AppCronCard({ appId }: { appId: number }) {
           </div>
         )}
       </div>
+
+      <AlertDialog open={deleteId !== null} onOpenChange={open => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette tâche ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. La tâche sera définitivement supprimée du serveur lors de la prochaine synchronisation.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteId && deleteTask(deleteId)} className="bg-red-500 hover:bg-red-600">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
