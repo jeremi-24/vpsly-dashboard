@@ -29,6 +29,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatabaseLogsTerminal } from './database-logs-terminal'
+import { MonitoringCard } from '@/features/monitoring/components/monitoring-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 
@@ -258,6 +259,9 @@ export function DatabaseDetail() {
 
                 <div className="flex flex-col md:flex-row flex-1 gap-6 md:gap-12 overflow-hidden">
                     <aside className="w-full md:w-60 flex-none overflow-x-auto md:overflow-y-auto custom-scrollbar md:pr-2">
+                        <div className="mb-4 px-1 hidden md:block">
+                            <MonitoringCard type="databases" id={databaseId} />
+                        </div>
                         <nav className="flex flex-row md:flex-col space-x-1 md:space-x-0 md:space-y-1 min-w-max md:min-w-0 pb-2 md:pb-0">
                             {navItems.map((item) => (
                                 <button
