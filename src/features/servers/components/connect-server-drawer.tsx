@@ -61,6 +61,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
     e.preventDefault()
     setLoading(true)
     try {
+      toast.info('Enregistrement du serveur...')
       const response = await apiFetch<ServerResponse>('/servers', {
         method: 'POST',
         body: JSON.stringify({
@@ -71,7 +72,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
 
       setSetupData(response)
       setActiveStep(2)
-      toast.success('Serveur ajouté', {
+      toast.success('Serveur ajouté avec succès', {
         description: 'Le serveur a été enregistré. Configurez maintenant l\'accès SSH.',
       })
     } catch (error: any) {
@@ -95,11 +96,12 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess }: ConnectSe
 
     setLoading(true)
     try {
+      toast.info('Vérification de la connexion SSH...')
       await apiFetch(`/servers/${setupData.server.id}/test-connection`, {
         method: 'POST',
       })
 
-      toast.success('Connexion réussie !', {
+      toast.success('Connexion SSH réussie !', {
         description: 'Votre serveur est prêt pour les déploiements.',
       })
 

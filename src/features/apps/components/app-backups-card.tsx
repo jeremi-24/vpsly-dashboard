@@ -64,6 +64,7 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
   const createBackup = async (databaseId?: number, volumeId?: number) => {
     try {
       setActionLoading(true)
+      toast.info('Initialisation de la sauvegarde...')
       const pendingBackup = await apiFetch(`/applications/${appId}/backups`, {
         method: 'POST',
         body: JSON.stringify({ database_id: databaseId, volume_id: volumeId })
@@ -71,9 +72,9 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
       
       // Mise à jour optimiste : on ajoute le record "pending" immédiatement
       setBackups(prev => [pendingBackup, ...prev])
-      toast.success('Sauvegarde lancée')
+      toast.success('Sauvegarde mise en file d\'attente')
     } catch {
-      toast.error('Erreur lors du lancement')
+      toast.error('Échec du lancement de la sauvegarde')
     } finally {
       setActionLoading(false)
     }
@@ -82,11 +83,12 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
   const deleteBackup = async (id: number) => {
     try {
       setActionLoading(true)
+      toast.info('Suppression du fichier de sauvegarde...')
       await apiFetch(`/applications/${appId}/backups/${id}`, { method: 'DELETE' })
       setBackups(b => b.filter(x => x.id !== id))
-      toast.success('Sauvegarde supprimée')
+      toast.success('Sauvegarde supprimée avec succès')
     } catch {
-      toast.error('Erreur')
+      toast.error('Erreur lors de la suppression')
     } finally {
       setActionLoading(false)
       setDeleteId(null)

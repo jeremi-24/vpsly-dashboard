@@ -53,15 +53,16 @@ export function EnvVarCard({ appId }: { appId: string }) {
         }
         try {
             setAdding(true)
+            toast.info('Ajout de la variable...')
             await apiFetch(`/applications/${appId}/env-vars`, {
                 method: 'POST',
                 body: JSON.stringify(newVar)
             })
-            toast.success('Variable ajoutée')
+            toast.success('Variable ajoutée avec succès')
             setNewVar({ key: '', value: '' })
             fetchVars()
         } catch {
-            toast.error('Erreur lors de l\'ajout')
+            toast.error('Échec de l\'ajout de la variable')
         } finally {
             setAdding(false)
         }
@@ -73,11 +74,13 @@ export function EnvVarCard({ appId }: { appId: string }) {
             return
         }
         try {
+            toast.info('Déchiffrement de la valeur...')
             const data = await apiFetch(`/applications/${appId}/env-vars/${id}/reveal`)
             setVars(prev => prev.map(v => v.id === id ? { ...v, value: data.value } : v))
             setShowValues(prev => ({ ...prev, [id]: true }))
+            toast.success('Valeur déchiffrée')
         } catch {
-            toast.error('Erreur lors de la révélation')
+            toast.error('Erreur lors du déchiffrement')
         }
     }
 
@@ -93,6 +96,7 @@ export function EnvVarCard({ appId }: { appId: string }) {
 
     const executeDelete = async (id: number) => {
         try {
+            toast.info('Suppression de la variable...')
             await apiFetch(`/applications/${appId}/env-vars/${id}`, { method: 'DELETE' })
             toast.success('Variable supprimée')
             setDeleteConfirmId(null)
@@ -108,11 +112,12 @@ export function EnvVarCard({ appId }: { appId: string }) {
             setSavingId(id)
             const v = vars.find(x => x.id === id)
             if (!v || editValue === v.value) { setEditingId(null); return }
+            toast.info('Mise à jour de la variable...')
             await apiFetch(`/applications/${appId}/env-vars`, {
                 method: 'POST',
                 body: JSON.stringify({ key: v.key, value: editValue })
             })
-            toast.success('Valeur mise à jour')
+            toast.success('Valeur mise à jour avec succès')
             setEditingId(null)
             fetchVars()
         } catch {
@@ -139,16 +144,17 @@ export function EnvVarCard({ appId }: { appId: string }) {
         if (!variables.length) { toast.error('Aucune variable valide trouvée'); return }
         try {
             setProcessingBulk(true)
+            toast.info(`Import de ${variables.length} variables en cours...`)
             await apiFetch(`/applications/${appId}/env-vars/bulk`, {
                 method: 'POST',
                 body: JSON.stringify({ variables })
             })
-            toast.success(`${variables.length} variables importées`)
+            toast.success(`${variables.length} variables importées avec succès`)
             setBulkMode(false)
             setBulkContent('')
             fetchVars()
         } catch {
-            toast.error('Erreur lors de l\'import')
+            toast.error('Échec de l\'import des variables')
         } finally {
             setProcessingBulk(false)
         }

@@ -57,11 +57,12 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
 
         try {
             setAdding(true)
+            toast.info('Ajout du volume en cours...')
             await apiFetch(`/applications/${appId}/volumes`, {
                 method: 'POST',
                 body: JSON.stringify(newVolume)
             })
-            toast.success('Volume ajouté')
+            toast.success('Volume ajouté avec succès')
             setNewVolume({ mount_path: '' })
             fetchVolumes()
         } catch (error) {
@@ -73,10 +74,11 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
 
     const handleDelete = async (id: number) => {
         try {
+            toast.info('Détachement du volume...')
             await apiFetch(`/applications/${appId}/volumes/${id}`, {
                 method: 'DELETE'
             })
-            toast.success('Volume détaché')
+            toast.success('Volume détaché avec succès')
             fetchVolumes()
         } catch (error) {
             toast.error('Erreur lors de la suppression')

@@ -197,11 +197,12 @@ export function AppDetail() {
                                 onClick={async () => {
                                     try {
                                         setIsDeployingLocal(true);
+                                        toast.info('Préparation du déploiement...');
                                         await apiFetch('/deployments', {
                                             method: 'POST',
                                             body: JSON.stringify({ application_id: app.id })
                                         });
-                                        toast.success('Déploiement lancé !');
+                                        toast.info('Processus de déploiement initié');
                                     } catch (error) {
                                         toast.error('Échec du lancement du déploiement');
                                         setIsDeployingLocal(false);
@@ -467,10 +468,11 @@ export function AppDetail() {
                                                 onClick={async () => {
                                                     if (confirm('Lancer un nettoyage complet du serveur Docker ?')) {
                                                         try {
+                                                            toast.info('Nettoyage du serveur Docker en cours...');
                                                             const res = await apiFetch(`/servers/${app.server_id}/prune`, { method: 'POST' })
                                                             toast.success(res.message)
                                                         } catch {
-                                                            toast.error('Échec du nettoyage')
+                                                            toast.error('Échec du nettoyage du serveur')
                                                         }
                                                     }
                                                 }}
@@ -478,40 +480,41 @@ export function AppDetail() {
                                                 Lancer le nettoyage
                                             </Button>
                                         </div>
-
-                                        {/* DELETE */}
-                                        <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/[0.04]">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                        <rect x="2" y="4" width="12" height="1.2" rx="0.6" fill="#E24B4A" />
-                                                        <path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="#E24B4A" strokeWidth="1.2" />
-                                                        <path d="M6.5 7v4M9.5 7v4" stroke="#E24B4A" strokeWidth="1.2" strokeLinecap="round" />
-                                                        <rect x="3.5" y="5.2" width="9" height="8" rx="1" stroke="#E24B4A" strokeWidth="1.2" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium">Supprimer l'application</p>
-                                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                                        Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="shrink-0 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs"
-                                                onClick={async () => {
-                                                    if (confirm(`Supprimer "${app.name}" ? Cette action est irréversible.`)) {
-                                                        try {
-                                                            await apiFetch(`/applications/${appId}`, { method: 'DELETE' })
-                                                            toast.success('Application supprimée.')
-                                                            window.location.href = '/apps'
-                                                        } catch {
-                                                            toast.error('Échec de la suppression')
-                                                        }
-                                                    }
-                                                }}
+ 
+                                         {/* DELETE */}
+                                         <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/[0.04]" >
+                                             <div className="flex items-center gap-3">
+                                                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                         <rect x="2" y="4" width="12" height="1.2" rx="0.6" fill="#E24B4A" />
+                                                         <path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="#E24B4A" strokeWidth="1.2" />
+                                                         <path d="M6.5 7v4M9.5 7v4" stroke="#E24B4A" strokeWidth="1.2" strokeLinecap="round" />
+                                                         <rect x="3.5" y="5.2" width="9" height="8" rx="1" stroke="#E24B4A" strokeWidth="1.2" />
+                                                     </svg>
+                                                 </div>
+                                                 <div>
+                                                     <p className="text-sm font-medium">Supprimer l'application</p>
+                                                     <p className="text-xs text-muted-foreground mt-0.5">
+                                                         Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard.
+                                                     </p>
+                                                 </div>
+                                             </div>
+                                             <Button
+                                                 variant="outline"
+                                                 size="sm"
+                                                 className="shrink-0 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs"
+                                                 onClick={async () => {
+                                                     if (confirm(`Supprimer "${app.name}" ? Cette action est irréversible.`)) {
+                                                         try {
+                                                             toast.info('Suppression de l\'application...')
+                                                             await apiFetch(`/applications/${appId}`, { method: 'DELETE' })
+                                                             toast.success('Application supprimée avec succès.')
+                                                             window.location.href = '/apps'
+                                                         } catch {
+                                                             toast.error('Échec de la suppression de l\'application')
+                                                         }
+                                                     }
+                                                 }}
                                             >
                                                 Supprimer
                                             </Button>

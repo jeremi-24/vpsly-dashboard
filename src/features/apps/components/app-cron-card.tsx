@@ -65,7 +65,7 @@ export function AppCronCard({ appId }: { appId: number }) {
       }))
       toast.success(active ? 'Laravel Scheduler activé' : 'Désactivé')
     } catch {
-      toast.error('Erreur')
+      toast.error('Échec de la modification du Scheduler')
     } finally {
       setSyncing(false)
     }
@@ -75,15 +75,16 @@ export function AppCronCard({ appId }: { appId: number }) {
     if (!newTask.command) return
     try {
       setSyncing(true)
+      toast.info('Ajout de la tâche en cours...')
       setData(await apiFetch(`/applications/${appId}/crons`, {
         method: 'POST',
         body: JSON.stringify(newTask)
       }))
       setAddingTask(false)
       setNewTask({ command: '', frequency: '* * * * *', description: '' })
-      toast.success('Tâche ajoutée')
+      toast.success('Tâche ajoutée avec succès')
     } catch {
-      toast.error('Erreur lors de l\'ajout')
+      toast.error('Erreur lors de l\'ajout de la tâche')
     } finally {
       setSyncing(false)
     }
@@ -92,10 +93,11 @@ export function AppCronCard({ appId }: { appId: number }) {
   const deleteTask = async (id: number) => {
     try {
       setSyncing(true)
+      toast.info('Suppression de la tâche...')
       setData(await apiFetch(`/applications/${appId}/crons/${id}`, { method: 'DELETE' }))
       toast.success('Tâche supprimée')
     } catch {
-      toast.error('Erreur')
+      toast.error('Erreur lors de la suppression')
     } finally {
       setSyncing(false)
       setDeleteId(null)
@@ -105,10 +107,11 @@ export function AppCronCard({ appId }: { appId: number }) {
   const manualSync = async () => {
     try {
       setSyncing(true)
+      toast.info('Synchronisation avec le VPS lancée...')
       setData(await apiFetch(`/applications/${appId}/crons/sync`, { method: 'POST' }))
-      toast.success('Synchronisation réussie')
+      toast.success('Configuration synchronisée sur le VPS')
     } catch {
-      toast.error('Échec de la synchronisation')
+      toast.error('Échec de la synchronisation VPS')
     } finally {
       setSyncing(false)
     }
