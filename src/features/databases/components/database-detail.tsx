@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link, useNavigate } from '@tanstack/react-router'
+import { useParams, Link, useNavigate, useSearch } from '@tanstack/react-router'
 import {
     Server as ServerIcon,
     Loader,
@@ -53,9 +53,10 @@ function EngineLogo({ image, size = 24 }: { image: string, size?: number }) {
 
 export function DatabaseDetail() {
     const { databaseId } = useParams({ from: '/_authenticated/databases/$databaseId' })
+    const search = useSearch({ from: '/_authenticated/databases/$databaseId' }) as any
     const [database, setDatabase] = useState<any>(null)
     const [loading, setLoading] = useState(true)
-    const [activeTab, setActiveTab] = useState('logs')
+    const [activeTab, setActiveTab] = useState(search.tab || 'logs')
     const [showPassword, setShowPassword] = useState(false)
     const [isActionInProgress, setIsActionInProgress] = useState(false)
     const [integrityStatus, setIntegrityStatus] = useState<'idle' | 'checking' | 'intact' | 'missing'>('idle')

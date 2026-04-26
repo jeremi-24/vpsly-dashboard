@@ -1,6 +1,7 @@
 import { Check, Copy, ExternalLink, ShieldCheck, Database as DbIcon } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useNavigate } from '@tanstack/react-router'
 
 import {
   Dialog,
@@ -20,6 +21,7 @@ interface DatabaseConnectionModalProps {
 
 export function DatabaseConnectionModal({ database, open, onOpenChange }: DatabaseConnectionModalProps) {
   const [copied, setCopied] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   if (!database) return null
 
@@ -103,8 +105,13 @@ export function DatabaseConnectionModal({ database, open, onOpenChange }: Databa
                    <button 
                      onClick={() => {
                         onOpenChange(false)
-                        // TODO: Rediriger vers l'onglet Détails/Paramètres une fois implémenté
-                        toast.info("Redirection", { description: "Ouverture des paramètres de l'instance..." })
+                                                toast.info("Redirection", { description: "Ouverture des paramètres de l'instance..." })
+
+                        navigate({ 
+                          to: '/databases/$databaseId', 
+                          params: { databaseId: database.id.toString() },
+                          search: { tab: 'config' } 
+                        })
                      }}
                      className="text-indigo-600 dark:text-indigo-400 font-bold not-italic hover:underline ml-2"
                    >
