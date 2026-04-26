@@ -79,6 +79,7 @@ export function DatabaseDetail() {
     const handleVerifyIntegrity = async () => {
         try {
             setIntegrityStatus('checking')
+            toast.info('Vérification du volume sur le VPS...')
             const res = await apiFetch(`/databases/${databaseId}/verify`, { method: 'POST' })
             if (res.is_intact) {
                 setIntegrityStatus('intact')
@@ -445,10 +446,14 @@ export function DatabaseDetail() {
                                         {integrityStatus !== 'idle' && (
                                             <div className={cn(
                                                 "p-3 rounded-lg text-xs font-medium flex items-center gap-2 animate-in fade-in zoom-in duration-300",
-                                                integrityStatus === 'intact' ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                                                integrityStatus === 'intact' ? "bg-green-500/10 text-green-500 border border-green-500/20" : 
+                                                integrityStatus === 'checking' ? "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20" :
+                                                "bg-red-500/10 text-red-500 border border-red-500/20"
                                             )}>
-                                                <Activity className="h-3 w-3" />
-                                                {integrityStatus === 'intact' ? "Système de fichiers intègre et monté" : "ALERTE : Volume manquant sur l'hôte"}
+                                                {integrityStatus === 'checking' ? <Loader className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
+                                                {integrityStatus === 'intact' ? "Système de fichiers intègre et monté" : 
+                                                 integrityStatus === 'checking' ? "Analyse du stockage en cours..." :
+                                                 "ALERTE : Volume manquant sur l'hôte"}
                                             </div>
                                         )}
                                     </div>
