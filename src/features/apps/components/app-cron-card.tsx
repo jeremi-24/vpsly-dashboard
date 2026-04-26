@@ -105,17 +105,12 @@ export function AppCronCard({ appId }: { appId: number }) {
 
   const isLaravel = data?.build_pack?.toLowerCase().includes('laravel') || data?.build_pack === 'php'
 
-  if (loading) return (
-    <div className="space-y-3">
-      <Skeleton className="h-16 w-full rounded-xl" />
-      <Skeleton className="h-32 w-full rounded-xl" />
-    </div>
-  )
-
   return (
     <div className="space-y-3">
-      {/* Laravel Scheduler */}
-      {isLaravel && (
+      {/* Laravel Scheduler Skeleton or Content */}
+      {loading && !data ? (
+        <Skeleton className="h-16 w-full rounded-xl opacity-20" />
+      ) : isLaravel && (
         <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/[0.04] px-4 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center shrink-0">
@@ -135,13 +130,13 @@ export function AppCronCard({ appId }: { appId: number }) {
       {/* Tâches personnalisées */}
       <div className="rounded-xl border bg-card/30 overflow-hidden">
         <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-          <p className="text-sm font-medium">Tâches personnalisées</p>
+          <p className="text-sm font-medium"></p>
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={manualSync} disabled={syncing} className="h-7 text-xs gap-1.5">
-              <RefreshCw className={cn("h-3 w-3", syncing && "animate-spin")} />
+            <Button variant="ghost" size="sm" onClick={manualSync} disabled={syncing || loading} className="h-7 text-xs gap-1.5">
+              <RefreshCw className={cn("h-3 w-3", (syncing || loading) && "animate-spin")} />
               Sync VPS
             </Button>
-            <Button size="sm" onClick={() => setAddingTask(true)} disabled={addingTask} className="h-7 text-xs gap-1.5">
+            <Button size="sm" onClick={() => setAddingTask(true)} disabled={addingTask || loading} className="h-7 text-xs gap-1.5">
               <Plus className="h-3 w-3" />
               Ajouter
             </Button>
@@ -164,7 +159,7 @@ export function AppCronCard({ appId }: { appId: number }) {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs text-muted-foreground">Fréquence</Label>
-                  <a href="https://crontab.guru" target="_blank" className="text-[10px] text-indigo-400 hover:underline flex items-center gap-0.5">
+                  <a href="https://crontab.guru" target="_blank" rel="noreferrer" className="text-[10px] text-indigo-400 hover:underline flex items-center gap-0.5">
                     Aide <ExternalLink size={9} />
                   </a>
                 </div>
@@ -195,9 +190,14 @@ export function AppCronCard({ appId }: { appId: number }) {
           </div>
         )}
 
-        {/* Liste des tâches */}
+        {/* Liste des tâches ou Skeleton */}
         <div className="divide-y divide-white/[0.04]">
-          {data?.tasks && data.tasks.length > 0 ? data.tasks.map(task => (
+          {loading && !data ? (
+             <div className="p-4 space-y-3">
+                <Skeleton className="h-10 w-full opacity-10" />
+                <Skeleton className="h-10 w-full opacity-5" />
+             </div>
+          ) : data?.tasks && data.tasks.length > 0 ? data.tasks.map(task => (
             <div key={task.id} className="flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] group transition-colors">
               <div className="flex items-center gap-3">
                 <code className="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/20 shrink-0">
@@ -223,14 +223,16 @@ export function AppCronCard({ appId }: { appId: number }) {
         </div>
 
         {/* Status bar */}
-        <div className="px-4 py-2.5 border-t border-white/5 flex items-center gap-2">
-          <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", data?.last_cron_sync_error ? "bg-red-500" : data?.last_cron_synced_at ? "bg-green-500" : "bg-muted-foreground/30")} />
-          <span className="text-[10px] text-muted-foreground">
-            {data?.last_cron_sync_error ? 'Erreur de synchronisation' :
-              data?.last_cron_synced_at ? `Synchronisé le ${new Date(data.last_cron_synced_at).toLocaleString()}` :
-                'Pas encore synchronisé'}
-          </span>
-        </div>
+        {!loading && (
+            <div className="px-4 py-2.5 border-t border-white/5 flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full shrink-0", data?.last_cron_sync_error ? "bg-red-500" : data?.last_cron_synced_at ? "bg-green-500" : "bg-muted-foreground/30")} />
+                <span className="text-[10px] text-muted-foreground">
+                    {data?.last_cron_sync_error ? 'Erreur de synchronisation' :
+                    data?.last_cron_synced_at ? `Synchronisé le ${new Date(data.last_cron_synced_at).toLocaleString()}` :
+                        'Pas encore synchronisé'}
+                </span>
+            </div>
+        )}
 
         {/* Erreur détail */}
         {data?.last_cron_sync_error && (
