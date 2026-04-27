@@ -27,7 +27,7 @@ export function NavProCard() {
             </div>
             
             <div className='space-y-0.5'>
-              <p className='text-xs font-bold leading-tight'>Passez à VPSly PRO</p>
+              {/* <p className='text-xs font-bold leading-tight'>Passez à VPSly PRO</p> */}
               <p className='text-[10px] leading-tight text-muted-foreground'>
                Base de données et sauvegardes
               </p>
@@ -36,9 +36,9 @@ export function NavProCard() {
             <Button 
                 asChild
                 size='sm' 
-                className='h-7 w-full rounded-md bg-primary text-[10px] font-bold'
+                className='h-7 w-full rounded-md bg-primary text-[13px]  font-bold'
             >
-              <Link to='/pricing'>Upgrade</Link>
+              <Link to='/pricing'>Passez à PRO</Link>
             </Button>
           </div>
         </div>

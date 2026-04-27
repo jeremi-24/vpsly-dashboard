@@ -61,21 +61,6 @@ export default function BillingPage() {
           </div>
         </div>
 
-        {/* Empty State / Info Card */}
-        <div className='p-6 rounded-2xl border border-dashed flex flex-col items-center justify-center text-center space-y-4 bg-muted/5'>
-          <div className='h-12 w-12 rounded-full bg-muted flex items-center justify-center'>
-            <CreditCard size={20} className='opacity-40' />
-          </div>
-          <div className='space-y-1'>
-            <p className='text-sm font-bold'>Aucun mode de paiement</p>
-            <p className='text-xs text-muted-foreground max-w-[200px] mx-auto leading-relaxed'>
-              Vous utilisez actuellement la version gratuite. Ajoutez un mode de paiement pour passer à PRO.
-            </p>
-          </div>
-          <Button variant='secondary' size='sm' className='h-8 text-[11px] font-bold rounded-lg gap-2'>
-            Bientôt disponible
-          </Button>
-        </div>
       </div>
 
       <div className='p-6 rounded-2xl border bg-primary/5 border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4'>

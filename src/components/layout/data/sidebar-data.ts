@@ -24,9 +24,10 @@ import {
   GalleryVerticalEnd,
   FolderGitIcon,
   Database,
-  Crown,
+  CreditCard,
 } from 'lucide-react'
 import { Logo } from '@/assets/logo'
+import { type SidebarData } from '../types'
 
 export const sidebarData: SidebarData = {
   user: {
@@ -87,7 +88,7 @@ export const sidebarData: SidebarData = {
             {
               title: 'Facturation',
               url: '/settings/billing',
-              icon: Crown,
+              icon: CreditCard,
             },
           ],
         },

@@ -16,6 +16,8 @@ import { Input } from '@/components/ui/input'
 import { useAuthStore } from '@/stores/auth-store'
 import { apiFetch } from '@/lib/api'
 import { useState } from 'react'
+import PhoneInput from 'react-phone-number-input'
+import 'react-phone-number-input/style.css'
 
 const accountFormSchema = z.object({
   name: z
@@ -23,7 +25,7 @@ const accountFormSchema = z.object({
     .min(1, 'Veuillez entrer votre nom.')
     .min(2, 'Le nom doit contenir au moins 2 caractères.')
     .max(30, 'Le nom ne doit pas dépasser 30 caractères.'),
-  // language: z.string('Veuillez sélectionner une langue.'),
+  phone: z.string().optional(),
 })
 
 type AccountFormValues = z.infer<typeof accountFormSchema>
@@ -36,7 +38,7 @@ export function AccountForm() {
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
       name: auth.user?.name || '',
-      // language: 'fr',
+      phone: auth.user?.phone || '',
     },
   })
 
@@ -78,71 +80,28 @@ export function AccountForm() {
           )}
         />
 
-        {/* 
         <FormField
           control={form.control}
-          name='language'
+          name='phone'
           render={({ field }) => (
-            <FormItem className='flex flex-col'>
-              <FormLabel>Langue</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant='outline'
-                      role='combobox'
-                      className={cn(
-                        'w-[200px] justify-between',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
-                        : 'Sélectionner une langue'}
-                      <CaretSortIcon className='ms-2 h-4 w-4 shrink-0 opacity-50' />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className='w-[200px] p-0'>
-                  <Command>
-                    <CommandInput placeholder='Rechercher une langue...' />
-                    <CommandEmpty>Aucune langue trouvée.</CommandEmpty>
-                    <CommandGroup>
-                      <CommandList>
-                        {languages.map((language) => (
-                          <CommandItem
-                            value={language.label}
-                            key={language.value}
-                            onSelect={() => {
-                              form.setValue('language', language.value)
-                            }}
-                          >
-                            <CheckIcon
-                              className={cn(
-                                'size-4',
-                                language.value === field.value
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                                )}
-                            />
-                            {language.label}
-                          </CommandItem>
-                        ))}
-                      </CommandList>
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+            <FormItem className='flex flex-col items-start'>
+              <FormLabel>Numéro de téléphone</FormLabel>
+              <FormControl className='w-full'>
+                <PhoneInput
+                    placeholder="Entrez votre numéro"
+                    {...field}
+                    defaultCountry="TG"
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </FormControl>
               <FormDescription>
-                C'est la langue qui sera utilisée dans le tableau de bord.
+                Votre numéro de téléphone pour les notifications importantes.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
-        /> 
-        */}
+        />
+
         <Button type='submit' disabled={loading}>
           {loading ? 'Mise à jour...' : 'Mettre à jour le compte'}
         </Button>
