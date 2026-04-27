@@ -108,8 +108,8 @@ export function Dashboard() {
             {/* COLONNE GAUCHE: SERVEURS (2/3) */}
             <div className='lg:col-span-2 space-y-4'>
               <div className='flex items-center justify-between mb-2'>
-                <h2 className='text-[10px] font-bold  tracking-widest text-muted-foreground'>État de l’infrastructure</h2>
-                <Button variant='ghost' size='sm' asChild className='h-6 text-[10px]'>
+                <h2 className='text-[10px] font-bold  tracking-widest text-muted-foreground'>État de vos serveurs</h2>
+                <Button variant='outline' size='sm' asChild className='h-6 text-[10px]'>
                   <Link to='/servers'>Gérer</Link>
                 </Button>
               </div>
@@ -198,7 +198,7 @@ export function Dashboard() {
 
             {/* COLONNE DROITE: ACTIVITÉ (1/3) */}
             <div className='space-y-4'>
-              <h2 className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>Activité Récente</h2>
+              <h2 className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>Dernier déploiement</h2>
               <Card className='border-white/5 bg-card/30 overflow-hidden'>
                 <CardContent className='p-0'>
                   {loading ? (

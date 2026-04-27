@@ -38,7 +38,7 @@ export const sidebarData: SidebarData = {
     {
       name: 'VPSly',
       logo: Logo,
-      plan: 'VPS simplified',
+      plan: 'Déployer sur votre VPS',
     },
   ],
   navGroups: [
