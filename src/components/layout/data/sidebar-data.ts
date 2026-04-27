@@ -26,7 +26,7 @@ import {
   Database,
   Crown,
 } from 'lucide-react'
-import { type SidebarData } from '../types'
+import { Logo } from '@/assets/logo'
 
 export const sidebarData: SidebarData = {
   user: {
@@ -37,7 +37,7 @@ export const sidebarData: SidebarData = {
   teams: [
     {
       name: 'VPSly',
-      logo: Command,
+      logo: Logo,
       plan: 'VPS simplified',
     },
   ],
