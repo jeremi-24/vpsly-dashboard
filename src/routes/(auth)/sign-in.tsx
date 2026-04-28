@@ -7,6 +7,12 @@ const searchSchema = z.object({
 })
 
 export const Route = createFileRoute('/(auth)/sign-in')({
+  beforeLoad: () => {
+    const accessToken = localStorage.getItem('vpsly_auth_token')
+    if (accessToken) {
+      throw redirect({ to: '/dashboard' })
+    }
+  },
   component: SignIn2,
   validateSearch: searchSchema,
 })

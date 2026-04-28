@@ -57,13 +57,13 @@ export function NavUser({ user }: NavUserProps) {
                 size='lg'
                 className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
               >
-                <Avatar className='h-8 w-8 rounded-lg'>
+                <Avatar className='h-8 w-8 rounded-none border border-border'>
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className='rounded-lg'>{getInitials(user.name)}</AvatarFallback>
+                  <AvatarFallback className='rounded-none font-bebas'>{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
                 <div className='grid flex-1 text-start text-sm leading-tight'>
-                  <span className='truncate font-semibold'>{user.name}</span>
-                  <span className='truncate text-xs'>{user.email}</span>
+                  <span className='truncate font-bebas text-lg tracking-wide uppercase'>{user.name}</span>
+                  <span className='truncate text-[10px] font-mono opacity-60'>{user.email}</span>
                 </div>
                 <ChevronsUpDown className='ms-auto size-4' />
               </SidebarMenuButton>

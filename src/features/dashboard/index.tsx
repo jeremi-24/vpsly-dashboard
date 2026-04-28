@@ -36,17 +36,17 @@ export function Dashboard() {
   }, [])
 
   const StatCard = ({ title, value, icon: Icon, loading }: any) => (
-    <Card className='border-white/5 bg-card/30 backdrop-blur-sm'>
+    <Card className='border-border rounded-none bg-card transition-transform hover:-translate-y-0.5'>
       <CardContent className='p-4 flex items-center gap-4'>
         <div className='p-2 rounded-lg bg-primary/10 text-primary'>
           <Icon size={18} />
         </div>
         <div>
-          <p className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60'>{title}</p>
+          <p className='text-[10px] font-mono font-bold uppercase tracking-widest text-muted-foreground'>{title}</p>
           {loading ? (
             <Skeleton className='h-6 w-12 mt-1' />
           ) : (
-            <p className='text-xl font-bold'>{value}</p>
+            <p className='text-3xl font-bebas tracking-wide text-primary'>{value}</p>
           )}
         </div>
       </CardContent>
@@ -70,9 +70,9 @@ export function Dashboard() {
         <div className="flex flex-col gap-6 py-4 animate-in fade-in duration-500">
           
           {/* BIENVENUE */}
-          <div className='space-y-1'>
-            <h1 className='text-xl font-bold tracking-tight'>Bonjour {user?.name}</h1>
-            <p className='text-xs text-muted-foreground'>Voici un aperçu de votre activité aujourd’hui.</p>
+          <div className='space-y-1 border-b-border pb-4'>
+            <h1 className='text-5xl font-bebas tracking-wide uppercase'>Bonjour {user?.name}</h1>
+            <p className='text-xs font-mono font-medium text-muted-foreground'>/ ACTIVITÉ RÉCENTE ET INFRASTRUCTURE</p>
           </div>
 
           {/* STATS GRID */}
@@ -103,91 +103,71 @@ export function Dashboard() {
             />
           </div>
 
-          <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+          <div className='flex flex-col gap-8'>
             
-            {/* COLONNE GAUCHE: SERVEURS (2/3) */}
-            <div className='lg:col-span-2 space-y-4'>
+            {/* SECTION SERVEURS (PLEINE LARGEUR) */}
+            <div className='space-y-4'>
               <div className='flex items-center justify-between mb-2'>
-                <h2 className='text-[10px] font-bold  tracking-widest text-muted-foreground'>État de vos serveurs</h2>
-                <Button variant='outline' size='sm' asChild className='h-6 text-[10px]'>
-                  <Link to='/servers'>Gérer</Link>
+                <h2 className='text-xl font-bebas tracking-wide uppercase'>État de vos serveurs</h2>
+                <Button variant='outline' size='sm' asChild className='h-7 border-border rounded-none font-bebas tracking-widest uppercase'>
+                  <Link to='/servers'>Gérer →</Link>
                 </Button>
               </div>
               
               {loading ? (
-                [1, 2, 3].map(i => <Skeleton key={i} className='h-[110px] w-full rounded-xl' />)
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                  {[1, 2, 3].map(i => <Skeleton key={i} className='h-[110px] w-full border-border rounded-none' />)}
+                </div>
               ) : (
-                <div className='space-y-4'>
-                  {data?.top_servers?.map((server: any) => (
-                    <Card key={server.id} className='border-white/5 bg-card/30 backdrop-blur-sm overflow-hidden group hover:border-primary/20 transition-all'>
-                      <div className='flex flex-col sm:flex-row h-full'>
-                        {/* Infos de base */}
-                        <div className='p-4 sm:w-1/3 border-b sm:border-b-0 sm:border-r border-white/5 bg-white/[0.01]'>
-                          <div className='flex items-center gap-2 mb-1'>
-                            <div className={cn(
-                              'h-2 w-2 rounded-full',
-                              server.status === 'connected' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500'
-                            )} />
-                            <span className='text-xs font-bold truncate'>{server.name}</span>
-                          </div>
-                          <p className='text-[10px] font-mono opacity-40'>{server.ip}</p>
-                          <Badge variant='outline' className='mt-3 text-[8px] h-4  opacity-50'>
-                            {server.status === 'connected' ? 'En ligne' : 'Hors ligne'}
-                          </Badge>
-                        </div>
-
-                        {/* Jauges */}
-                        <div className='p-4 flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center'>
-                          <div className='space-y-1.5'>
-                            <div className='flex justify-between text-[12px] font-medium  tracking-tighter opacity-60'>
-                              <span>CPU</span>
-                              <span>{Number(server.cpu_usage || 0).toFixed(1)}%</span>
-                            </div>
-                            <div className='h-1 w-full bg-white/5 rounded-full overflow-hidden'>
-                              <div 
-                                className={cn(
-                                  'h-full transition-all duration-500',
-                                  server.cpu_usage > 80 ? 'bg-red-500' : (server.cpu_usage > 50 ? 'bg-amber-500' : 'bg-primary')
-                                )}
-                                style={{ width: `${server.cpu_usage}%` }} 
-                              />
-                            </div>
-                          </div>
-
-                          <div className='space-y-1.5'>
-                            <div className='flex justify-between text-[12px] font-medium  tracking-tighter opacity-60'>
-                              <span>Mémoire</span>
-                              <span>{Number(server.mem_percent || 0).toFixed(1)}%</span>
-                            </div>
-                            <div className='h-1 w-full bg-white/5 rounded-full overflow-hidden'>
-                              <div 
-                                className={cn(
-                                  'h-full transition-all duration-500',
-                                  server.mem_percent > 90 ? 'bg-red-500' : (server.mem_percent > 70 ? 'bg-amber-500' : 'bg-indigo-500')
-                                )}
-                                style={{ width: `${server.mem_percent}%` }} 
-                              />
-                            </div>
-                          </div>
-
-                          <div className='space-y-1.5'>
-                            <div className='flex justify-between text-[12px] font-medium   tracking-tighter opacity-60'>
-                              <span>Stockage</span>
-                              <span>{Number(server.disk_percent || 0).toFixed(1)}%</span>
-                            </div>
-                            <div className='h-1 w-full bg-white/5 rounded-full overflow-hidden'>
-                              <div 
-                                className='h-full bg-slate-500 transition-all duration-500'
-                                style={{ width: `${server.disk_percent}%` }} 
-                              />
-                            </div>
-                          </div>
-                        </div>
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                 {data?.top_servers?.map((server: any) => (
+                  <Card key={server.id} className='border-border rounded-none bg-card overflow-hidden'>
+                    {/* Header */}
+                    <div className='px-4 py-3 flex items-center justify-between border-b border-border'>
+                      <div className='flex items-center gap-2.5'>
+                        <div className={cn(
+                          'h-2 w-2 rounded-full shrink-0',
+                          server.status === 'connected'
+                            ? 'bg-green-500 shadow-[0_0_0_3px_rgba(34,197,94,0.15)]'
+                            : 'bg-red-500'
+                        )} />
+                        <span className='text-[13px] font-bold truncate max-w-[120px]'>{server.name}</span>
+                        <span className='text-[11px] font-mono text-muted-foreground'>{server.ip}</span>
                       </div>
-                    </Card>
-                  ))}
+                      <Badge variant='outline' className={cn(
+                        'text-[10px] h-5 rounded-full',
+                        server.status === 'connected' ? 'text-green-600 border-green-200' : 'text-red-500 border-red-200'
+                      )}>
+                        {server.status === 'connected' ? 'En ligne' : 'Hors ligne'}
+                      </Badge>
+                    </div>
+
+                    {/* Métriques */}
+                    <div className={cn('grid grid-cols-3 divide-x divide-border', server.status !== 'connected' && 'opacity-40')}>
+                      {[
+                        { label: 'CPU', value: server.cpu_usage, color: 'bg-green-500' },
+                        { label: 'Mémoire', value: server.mem_percent, color: 'bg-indigo-500' },
+                        { label: 'Stockage', value: server.disk_percent, color: 'bg-slate-500' },
+                      ].map(({ label, value, color }) => (
+                        <div key={label} className='px-4 py-3.5'>
+                          <div className='flex justify-between items-baseline mb-2'>
+                            <span className='text-[10px] uppercase tracking-wider font-bold text-muted-foreground'>{label}</span>
+                            <span className='text-lg font-mono font-medium'>
+                              {server.status === 'connected' ? `${Number(value || 0).toFixed(1)}%` : '—'}
+                            </span>
+                          </div>
+                          <div className='h-1 w-full bg-muted rounded-full overflow-hidden'>
+                            {server.status === 'connected' && (
+                              <div className={cn('h-full transition-all duration-700', color)} style={{ width: `${value}%` }} />
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                ))}
                   {(!loading && (!data?.top_servers || data.top_servers.length === 0)) && (
-                    <div className='p-12 border border-dashed border-white/5 rounded-xl text-center'>
+                    <div className='p-12 border border-dashed border-border rounded-none text-center col-span-full'>
                        <p className='text-xs text-muted-foreground'>Aucun serveur à afficher.</p>
                        <Button size='sm' className='mt-4 h-8 text-xs' asChild><Link to='/servers'>Connecter un VPS</Link></Button>
                     </div>
@@ -196,39 +176,39 @@ export function Dashboard() {
               )}
             </div>
 
-            {/* COLONNE DROITE: ACTIVITÉ (1/3) */}
+            {/* SECTION DÉPLOIEMENTS (DESSOUS) */}
             <div className='space-y-4'>
-              <h2 className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>Dernier déploiement</h2>
-              <Card className='border-white/5 bg-card/30 overflow-hidden'>
+              <h2 className='text-xl font-bebas tracking-wide uppercase'>Derniers déploiements</h2>
+              <Card className='border-border rounded-none bg-card'>
                 <CardContent className='p-0'>
                   {loading ? (
-                    <div className='p-4 space-y-4'>
+                    <div className='p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
                       {[1, 2, 3, 4].map(i => <Skeleton key={i} className='h-12 w-full rounded-lg' />)}
                     </div>
                   ) : (
-                    <div className='divide-y divide-white/5'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x divide-y divide-border border-b border-r border-border'>
                       {data?.recent_deployments?.length > 0 ? (
                         data.recent_deployments.map((dep: any) => (
-                          <div key={dep.id} className='p-3 hover:bg-white/5 transition-colors group flex items-start gap-3'>
+                          <div key={dep.id} className='p-4 hover:bg-muted/20 transition-colors group flex items-start gap-3 border-l border-t border-border'>
                             <div className={cn(
                               'mt-1 h-2 w-2 rounded-full shrink-0',
                               dep.status === 'success' || dep.status === 'running' ? 'bg-green-500' : (dep.status === 'failed' ? 'bg-red-500' : 'bg-amber-500 animate-pulse')
                             )} />
                             <div className='flex-1 min-w-0'>
-                              <p className='text-xs font-bold truncate'>{dep.app_name}</p>
-                              <div className='flex items-center gap-2 mt-0.5'>
-                                <Badge variant='outline' className='text-[8px] h-3.5 px-1 leading-none opacity-40 font-mono'>{dep.branch}</Badge>
-                                <span className='text-[9px] text-muted-foreground opacity-60'>{dep.time_ago}</span>
+                              <p className='text-sm font-bold truncate'>{dep.app_name}</p>
+                              <div className='flex items-center gap-2 mt-1'>
+                                <Badge variant='outline' className='text-[10px] h-4 px-1.5 leading-none opacity-50 font-mono'>{dep.branch}</Badge>
+                                <span className='text-[10px] text-muted-foreground'>{dep.time_ago}</span>
                               </div>
                             </div>
-                            <Button variant='ghost' size='icon' className='h-6 w-6 opacity-0 group-hover:opacity-100' asChild>
-                               <Link to='/apps/$appId' params={{ appId: (dep.application_id || '').toString() }}><ChevronRight size={14} /></Link>
+                            <Button variant='ghost' size='icon' className='h-7 w-7 opacity-0 group-hover:opacity-100' asChild>
+                               <Link to='/apps/$appId' params={{ appId: (dep.application_id || '').toString() }}><ChevronRight size={16} /></Link>
                             </Button>
                           </div>
                         ))
                       ) : (
-                        <div className='p-12 text-center text-[10px] text-muted-foreground italic'>
-                          Aucun mouvement.
+                        <div className='p-12 text-center text-[10px] text-muted-foreground italic col-span-full'>
+                          Aucun mouvement récent.
                         </div>
                       )}
                     </div>

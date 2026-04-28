@@ -440,7 +440,7 @@ export default function VPSlyConceptA() {
           <a href="#pour-qui">Pour qui</a>
           <a href="#tarifs">Tarifs</a>
         </div>
-        <a href="/dashboard" className="nav-cta">Connecter mon VPS →</a>
+        <Link to="/dashboard" className="nav-cta">Connecter mon VPS →</Link>
       </nav>
 
       {/* HERO */}
@@ -459,7 +459,7 @@ export default function VPSlyConceptA() {
               <strong>Nous ne vendons pas de serveurs. Nous les rendons intelligents.</strong>
             </p>
             <div className="hero-actions">
-              <a href="/dashboard" className="btn-primary">Connecter mon VPS</a>
+              <Link to="/dashboard" className="btn-primary">Connecter mon VPS</Link>
               <a href="#tarifs" className="btn-ghost">Voir les tarifs</a>
             </div>
           </div>
@@ -710,7 +710,7 @@ export default function VPSlyConceptA() {
               Rejoignez les agences et développeurs de l'Afrique qui livrent leurs projets 3× plus vite avec VPSly.
             </p>
             <div className="cta-actions">
-              <a href="/dashboard" className="btn-white">Démarrer gratuitement</a>
+              <Link to="/dashboard" className="btn-white">Démarrer gratuitement</Link>
               <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" className="btn-outline-white">Discuter sur WhatsApp →</a>
             </div>
           </div>

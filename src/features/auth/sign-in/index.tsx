@@ -15,10 +15,10 @@ export function SignIn() {
 
   return (
     <AuthLayout>
-      <Card className='max-w-sm gap-4'>
-        <CardHeader>
-          <CardTitle className='text-lg tracking-tight'>Connexion</CardTitle>
-          <CardDescription>
+      <Card className='max-w-sm gap-4 border-border rounded-none bg-card'>
+        <CardHeader className='pb-2'>
+          <CardTitle className='text-3xl font-bebas tracking-wide uppercase'>Connexion</CardTitle>
+          <CardDescription className='text-xs font-medium'>
             Entrez votre email et mot de passe ci-dessous pour vous connecter à{' '}
             <br className='max-sm:hidden' /> votre compte. Vous n'avez pas de
             compte ?{' '}

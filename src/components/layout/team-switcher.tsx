@@ -37,14 +37,14 @@ export function TeamSwitcher({ teams }: TeamSwitcherProps) {
               size='lg'
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
             >
-              <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-[#0F172B] text-sidebar-primary-foreground'>
+              <div className='flex aspect-square size-8 items-center justify-center rounded-none border border-border bg-[#0F172B] text-sidebar-primary-foreground'>
                 <activeTeam.logo className='size-6' variant='dark' />
               </div>
               <div className='grid flex-1 text-start text-sm leading-tight'>
-                <span className='truncate font-semibold'>
+                <span className='truncate font-bebas text-lg tracking-wide uppercase'>
                   {activeTeam.name}
                 </span>
-                <span className='truncate text-xs'>{activeTeam.plan}</span>
+                <span className='truncate text-[10px] font-mono font-medium opacity-60'>{activeTeam.plan}</span>
               </div>
               <ChevronsUpDown className='ms-auto' />
             </SidebarMenuButton>

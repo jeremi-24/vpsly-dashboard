@@ -31,8 +31,8 @@ function AuthCallback() {
     apiFetch('/user')
       .then((user) => {
         auth.setUser(user)
-        // Redirection vers le Dashboard une fois le profil charg
-        navigate({ to: '/', replace: true })
+        // Redirection vers le Dashboard une fois le profil chargé
+        navigate({ to: '/dashboard', replace: true })
       })
       .catch((err) => {
         console.error('Auth sync failed:', err)
