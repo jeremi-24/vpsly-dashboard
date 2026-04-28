@@ -71,7 +71,9 @@ export function Dashboard() {
           
           {/* BIENVENUE */}
           <div className='space-y-1 border-b-border pb-4'>
-            <h1 className='text-5xl font-bebas tracking-wide uppercase'>Bonjour {user?.name}</h1>
+            <h1 className='text-4xl font-bebas tracking-wide uppercase'>
+              {new Date().getHours() >= 18 || new Date().getHours() < 5 ? 'Bonsoir' : 'Bonjour'} {user?.name}
+            </h1>
             <p className='text-xs font-mono font-medium text-muted-foreground'>/ ACTIVITÉ RÉCENTE ET INFRASTRUCTURE</p>
           </div>
 

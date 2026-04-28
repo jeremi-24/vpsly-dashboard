@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
 import { ChevronsUpDown, Plus } from 'lucide-react'
 import {
   DropdownMenu,
@@ -37,9 +38,11 @@ export function TeamSwitcher({ teams }: TeamSwitcherProps) {
               size='lg'
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
             >
-              <div className='flex aspect-square size-8 items-center justify-center rounded-none border border-border bg-[#0F172B] text-sidebar-primary-foreground'>
-                <activeTeam.logo className='size-6' variant='dark' />
-              </div>
+              <Link to='/'>
+                <div className='flex aspect-square size-8 items-center justify-center rounded-none border border-border bg-[#0F172B] text-sidebar-primary-foreground hover:bg-primary transition-colors'>
+                  <activeTeam.logo className='size-6' variant='dark' />
+                </div>
+              </Link>
               <div className='grid flex-1 text-start text-sm leading-tight'>
                 <span className='truncate font-bebas text-lg tracking-wide uppercase'>
                   {activeTeam.name}

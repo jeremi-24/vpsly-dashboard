@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from "react"
+import { useAuthStore } from '@/stores/auth-store'
 import { Zap, ShieldCheck, Activity, Database, MessageCircle, Layers, Phone } from 'lucide-react'
 import { Logo } from '@/assets/logo'
 import logoWhiteBg from '@/assets/logo/logo_white_bg.png'
@@ -353,6 +354,8 @@ function Terminal({ onComplete }: { onComplete?: () => void }) {
 }
 
 export default function VPSlyConceptA() {
+  const { auth } = useAuthStore()
+  const isLoggedIn = !!auth.accessToken
   const [isAnnual, setIsAnnual] = useState(false)
   const [copied, setCopied] = useState(false)
   const [terminalFinished, setTerminalFinished] = useState(false)
@@ -440,7 +443,7 @@ export default function VPSlyConceptA() {
           <a href="#pour-qui">Pour qui</a>
           <a href="#tarifs">Tarifs</a>
         </div>
-        <Link to="/dashboard" className="nav-cta">Connecter mon VPS →</Link>
+        <Link to="/dashboard" className="nav-cta">{isLoggedIn ? 'Aller au Dashboard →' : 'Connecter mon VPS →'}</Link>
       </nav>
 
       {/* HERO */}
@@ -459,7 +462,7 @@ export default function VPSlyConceptA() {
               <strong>Nous ne vendons pas de serveurs. Nous les rendons intelligents.</strong>
             </p>
             <div className="hero-actions">
-              <Link to="/dashboard" className="btn-primary">Connecter mon VPS</Link>
+              <Link to="/dashboard" className="btn-primary">{isLoggedIn ? 'Aller au Dashboard' : 'Connecter mon VPS'}</Link>
               <a href="#tarifs" className="btn-ghost">Voir les tarifs</a>
             </div>
           </div>
@@ -710,7 +713,7 @@ export default function VPSlyConceptA() {
               Rejoignez les agences et développeurs de l'Afrique qui livrent leurs projets 3× plus vite avec VPSly.
             </p>
             <div className="cta-actions">
-              <Link to="/dashboard" className="btn-white">Démarrer gratuitement</Link>
+              <Link to="/dashboard" className="btn-white">{isLoggedIn ? 'Accéder au Dashboard' : 'Démarrer gratuitement'}</Link>
               <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" className="btn-outline-white">Discuter sur WhatsApp →</a>
             </div>
           </div>
