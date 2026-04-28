@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import { Zap, ShieldCheck, Activity, Database, MessageCircle, Layers, Phone } from 'lucide-react'
 import { Logo } from '@/assets/logo'
 import logoWhiteBg from '@/assets/logo/logo_white_bg.png'
+import logoBlackBg from '@/assets/logo/logo_black_bg.png'
 import dashboardDark from '@/features/auth/sign-in/assets/dashboard_landing.png'
 
 export const Route = createFileRoute('/')({
@@ -461,13 +462,6 @@ export default function VPSlyConceptA() {
               <a href="/dashboard" className="btn-primary">Connecter mon VPS</a>
               <a href="#tarifs" className="btn-ghost">Voir les tarifs</a>
             </div>
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '1.5rem', alignItems: 'center', opacity: 0.4, grayscale: 1 }}>
-              <span className="mono" style={{ fontSize: '10px', textTransform: 'uppercase' }}>Compatible avec :</span>
-              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>Hetzner</span>
-              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>DigitalOcean</span>
-              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>AWS</span>
-              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>OVH</span>
-            </div>
           </div>
 
           <div className="hero-stats">
@@ -487,28 +481,63 @@ export default function VPSlyConceptA() {
         </div>
 
         <div className="hero-right">
-          <div className={`hero-content-wrapper ${terminalFinished ? 'fade-out' : ''}`}>
-            <div className="hero-badge-row">
-              <span className="badge active mono">● Agent connecté</span>
-              <span className="badge mono">GitHub</span>
-              <span className="badge mono">Laravel</span>
-              <span className="badge mono">Node.js</span>
-            </div>
-            <Terminal onComplete={() => setTerminalFinished(true)} />
-          </div>
+  <svg width="100%" viewBox="0 0 400 720" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <style>{`
+        .vps-pulse { animation: vpsPulse 2s ease-in-out infinite; }
+        @keyframes vpsPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+      `}</style>
+    </defs>
 
-          <img
-            src={dashboardDark}
-            alt="Dashboard Preview"
-            className={`dashboard-peek-img ${terminalFinished ? 'visible' : ''}`}
-          />
+    {/* Section labels */}
+    <text x="200" y="20" fontFamily="'DM Mono',monospace" fontSize="20" fill="#9c9c9cff" letterSpacing="1" textAnchor="middle">VOTRE VPS</text>
+    
+    {/* VPS cards TOP */}
+    {[
+      { x: 25, logo: "https://international.eco.de/wp-content/uploads/2018/02/hetzner-logo-clear-space.png", name: "Hetzner" },
+      { x: 145, logo: "https://upload.wikimedia.org/wikipedia/commons/f/ff/DigitalOcean_logo.svg", name: "DigitalOcean" },
+      { x: 265, logo: "https://www.lws-hosting.ch/img/logo_lws.png", name: "LWS" },
+    ].map(({ x, logo, name }) => (
+      <g key={name}>
+        <rect x={x} y="40" width="110" height="85" rx="10" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
+        <rect x={x + 35} y="52" width="40" height="40" rx="8" fill="#222" />
+        <image x={x + 39} y="56" width="32" height="32" href={logo} preserveAspectRatio="xMidYMid meet" />
+        <text x={x + 55} y="110" fontFamily="'Manrope',sans-serif" fontSize="12" fill="white" fontWeight="700" textAnchor="middle">{name}</text>
+      </g>
+    ))}
 
-          {terminalFinished && (
-            <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', zIndex: 10 }}>
-              <span className="badge active mono" style={{ cursor: 'pointer', background: 'var(--black)' }} onClick={() => setTerminalFinished(false)}>↺ Rejouer l'animation</span>
-            </div>
-          )}
-        </div>
+    {/* Connector lines TOP → CENTER */}
+    {[80, 200, 320].map((cx, i) => (
+      <path key={i} d={`M ${cx} 125 C ${cx} 200 200 240 200 300`} fill="none" stroke="white" strokeWidth="0.5" opacity="0.2"/>
+    ))}
+
+    {/* CENTER AGENT */}
+    <rect x="145" y="300" width="110" height="90" rx="14" fill="#1a2a3a" stroke="#378ADD" strokeWidth="1.5"/>
+    <image x="175" y="310" width="50" height="50" href={logoBlackBg} preserveAspectRatio="xMidYMid meet" />
+    <text x="200" y="375" fontFamily="'Bebas Neue',sans-serif" fontSize="16" fill="white" textAnchor="middle" letterSpacing="1">VPSly</text>
+
+    {/* Connector lines CENTER → BOTTOM */}
+    {[80, 140, 200, 260, 320].map((cx, i) => (
+      <path key={i} d={`M 200 390 C 200 450 ${cx} 500 ${cx} 560`} fill="none" stroke="white" strokeWidth="0.5" opacity="0.2"/>
+    ))}
+
+    {/* APP cards BOTTOM */}
+    {[
+      { x: 20, y: 560, name: "CRM", sub: "crm.tg" },
+      { x: 95, y: 560, name: "SaaS", sub: "app.io" },
+      { x: 170, y: 560, name: "API", sub: "api.com" },
+      { x: 245, y: 560, name: "Web", sub: "site.tg" },
+      { x: 320, y: 560, name: "Blog", sub: "blog.tg" },
+    ].map(({ x, y, name, sub }) => (
+      <g key={name}>
+        <rect x={x} y={y} width="60" height="70" rx="8" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
+        <circle cx={x + 30} cy={y + 15} r="4" fill="#4CAF50" className="vps-pulse"/>
+        <text x={x + 30} y={y + 40} fontFamily="'Manrope',sans-serif" fontSize="10" fill="white" fontWeight="700" textAnchor="middle">{name}</text>
+        <text x={x + 30} y={y + 55} fontFamily="'DM Mono',monospace" fontSize="8" fill="#555" textAnchor="middle">{sub}</text>
+      </g>
+    ))}
+  </svg>
+</div>
       </section>
 
       {/* PROBLEM / SOLUTION */}
