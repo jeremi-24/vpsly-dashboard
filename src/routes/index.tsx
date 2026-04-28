@@ -2,7 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from "react"
 import { Zap, ShieldCheck, Activity, Database, MessageCircle, Layers } from 'lucide-react'
 import { Logo } from '@/assets/logo'
-import logoBlackBg from '@/assets/logo/logo_white_bg.png'
+import logoWhiteBg from '@/assets/logo/logo_white_bg.png'
+import dashboardDark from '@/features/auth/sign-in/assets/dashboard_landing.png'
 
 export const Route = createFileRoute('/')({
   component: VPSlyConceptA,
@@ -138,9 +139,31 @@ const styles = `
   .t-cursor { display: inline-block; width: 8px; height: 14px; background: #378ADD; animation: blink 1s step-end infinite; vertical-align: middle; }
   @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
-  .hero-badge-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .badge { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 6px 12px; border: 1px solid #333; color: #666; }
   .badge.active { border-color: var(--primary); color: var(--primary); }
+
+  .dashboard-peek-img {
+    position: absolute;
+    top: 2%;
+    left: 1%;
+    width: 300%;
+    height: auto;
+    border-radius: 12px;
+    object-fit: cover;
+    object-position: top left;
+    z-index: 1;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .dashboard-peek-img.visible {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .hero-content-wrapper { position: relative; width: 100%; z-index: 2; transition: opacity 0.4s; }
+  .fade-out { opacity: 0; pointer-events: none; }
 
   /* SECTION PROBLEM */
   .section-problem {
@@ -290,13 +313,19 @@ const TERMINAL_LINES = [
 
 ]
 
-function Terminal() {
+function Terminal({ onComplete }: { onComplete?: () => void }) {
   const [visibleLines, setVisibleLines] = useState(0)
   useEffect(() => {
-    if (visibleLines >= TERMINAL_LINES.length) return
+    if (visibleLines >= TERMINAL_LINES.length) {
+      if (onComplete) {
+        const t = setTimeout(onComplete, 800)
+        return () => clearTimeout(t)
+      }
+      return
+    }
     const t = setTimeout(() => setVisibleLines(v => v + 1), visibleLines === 0 ? 300 : 420)
     return () => clearTimeout(t)
-  }, [visibleLines])
+  }, [visibleLines, onComplete])
   return (
     <div className="terminal">
       <div className="terminal-bar">
@@ -323,6 +352,7 @@ function Terminal() {
 export default function VPSlyConceptA() {
   const [isAnnual, setIsAnnual] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [terminalFinished, setTerminalFinished] = useState(false)
 
   const copy = () => {
     navigator.clipboard.writeText("curl -fsSL vpsly.io/install | bash")
@@ -388,7 +418,7 @@ export default function VPSlyConceptA() {
       {/* NAV */}
       <nav>
         <a href="#" className="nav-logo">
-          <img src={logoBlackBg} alt="Logo VPSly" style={{ width: 32, height: 32, borderRadius: 6 }} />
+          <img src={logoWhiteBg} alt="Logo VPSly" style={{ width: 32, height: 32, borderRadius: 6 }} />
           VPSly
         </a>
         <div className="nav-links">
@@ -436,22 +466,27 @@ export default function VPSlyConceptA() {
         </div>
 
         <div className="hero-right">
-          <div className="hero-badge-row">
-            <span className="badge active mono">● Agent connecté</span>
-            <span className="badge mono">GitHub</span>
-            <span className="badge mono">Laravel</span>
-            <span className="badge mono">Node.js</span>
+          <div className={`hero-content-wrapper ${terminalFinished ? 'fade-out' : ''}`}>
+            <div className="hero-badge-row">
+              <span className="badge active mono">● Agent connecté</span>
+              <span className="badge mono">GitHub</span>
+              <span className="badge mono">Laravel</span>
+              <span className="badge mono">Node.js</span>
+            </div>
+            <Terminal onComplete={() => setTerminalFinished(true)} />
           </div>
-          <Terminal />
-          <div className="mono" style={{ fontSize: 12, color: "#333", display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
-            {/* <span style={{ color: "#555" }}>$ curl -fsSL vpsly.io/install | bash</span> */}
-            {/* <button
-              onClick={copy}
-              style={{ background: "transparent", border: "1px solid #333", color: copied ? "#4CAF50" : "#555", fontFamily: "'DM Mono', monospace", fontSize: 11, padding: "6px 12px", cursor: "pointer", textTransform: "uppercase", letterSpacing: "0.1em", transition: "all 0.15s" }}
-            >
-              {copied ? "Copié ✓" : "Copier"}
-            </button> */}
-          </div>
+
+          <img 
+            src={dashboardDark} 
+            alt="Dashboard Preview" 
+            className={`dashboard-peek-img ${terminalFinished ? 'visible' : ''}`} 
+          />
+
+          {terminalFinished && (
+            <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', zIndex: 10 }}>
+               <span className="badge active mono" style={{ cursor: 'pointer', background: 'var(--black)' }} onClick={() => setTerminalFinished(false)}>↺ Rejouer l'animation</span>
+            </div>
+          )}
         </div>
       </section>
 
