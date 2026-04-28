@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Toaster } from '@/components/ui/sonner'
 import { NavigationProgress } from '@/components/navigation-progress'
+import { ConnectivityStatus } from '@/components/connectivity-status'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -11,6 +12,7 @@ export const Route = createRootRouteWithContext<{
   component: () => {
     return (
       <>
+        <ConnectivityStatus />
         <NavigationProgress />
         <Outlet />
         <Toaster duration={5000} />
