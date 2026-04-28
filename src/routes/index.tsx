@@ -179,15 +179,15 @@ const styles = `
   .problem-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 0; }
   .problem-item { padding: 1.25rem 0; border-bottom: 1px solid #222; display: flex; gap: 1rem; align-items: flex-start; }
   .problem-item:last-child { border-bottom: none; }
-  .p-cross { font-family: 'DM Mono', monospace; font-size: 18px; color: #FF5F57; flex-shrink: 0; margin-top: 2px; }
-  .p-text { font-size: 13px; font-weight: 500; color: #aaa; line-height: 1.5; }
+  .p-cross { font-family: 'DM Mono', monospace; font-size: 21px; color: #FF5F57; flex-shrink: 0; margin-top: 2px; }
+  .p-text { font-size: 18px; font-weight: 700; color: #aaa; line-height: 1.5; }
 
   .solution-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 0; }
   .solution-item { padding: 1.25rem 0; border-bottom: 1px solid #e5e5e5; display: flex; gap: 1rem; align-items: flex-start; }
   .solution-item:last-child { border-bottom: none; }
-  .s-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--primary); flex-shrink: 0; margin-top: 2px; }
-  .s-title { font-size: 14px; font-weight: 700; color: var(--black); }
-  .s-desc { font-size: 12px; color: var(--gray); margin-top: 2px; }
+  .s-num { font-family: 'DM Mono', monospace; font-size: 21px; color: var(--primary); flex-shrink: 0; margin-top: 2px; }
+  .s-title { font-size: 18px; font-weight: 700; color: var(--black); }
+  .s-desc { font-size: 14px; color: var(--gray); margin-top: 4px; }
 
   /* FEATURES */
   .section-features { border-bottom: var(--rule); }
@@ -201,8 +201,8 @@ const styles = `
   .feat-item:hover .feat-text { color: #aaa; }
   .feat-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1.5rem; }
   .feat-icon { margin-bottom: 1.5rem; }
-  .feat-title { font-size: 16px; font-weight: 800; color: var(--black); margin-bottom: 0.75rem; transition: color 0.2s; }
-  .feat-text { font-size: 13px; color: var(--gray); line-height: 1.6; transition: color 0.2s; }
+  .feat-title { font-size: 20px; font-weight: 800; color: var(--black); margin-bottom: 0.75rem; transition: color 0.2s; }
+  .feat-text { font-size: 18px; color: var(--gray); line-height: 1.6; transition: color 0.2s; }
 
   /* POUR QUI */
   .section-audience { display: grid; grid-template-columns: 1fr 1fr; border-bottom: var(--rule); }
@@ -210,7 +210,7 @@ const styles = `
   .aud-item:last-child { border-right: none; }
   .aud-tag { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; padding: 5px 10px; border: 1px solid var(--black); color: var(--black); margin-bottom: 2rem; }
   .aud-h { font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px, 5vw, 72px); line-height: 1; color: var(--black); margin-bottom: 1.5rem; }
-  .aud-desc { font-size: 14px; color: var(--gray); line-height: 1.7; max-width: 36ch; }
+  .aud-desc { font-size: 18px; color: var(--gray); line-height: 1.7; max-width: 36ch; }
   .aud-metrics { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; display: flex; gap: 2.5rem; }
   .aud-metric-num { font-family: 'Bebas Neue', sans-serif; font-size: 52px; color: var(--primary); }
   .aud-metric-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray); margin-top: -4px; }
@@ -667,17 +667,19 @@ export default function VPSlyConceptA() {
           </div>
           <div className="footer-links">
             <div className="footer-col">
-              <h4>Produit</h4>
-              <a href="#">Fonctionnalités</a>
-              <a href="#">Tarifs</a>
-              <a href="#">Roadmap</a>
-              <a href="#">Changelog</a>
+              <h4>Ressources</h4>
+              <a href="#">Documentation</a>
+              <a href="#">Groupe WhatsApp</a>
+              <a href="#">Communauté</a>
             </div>
             <div className="footer-col">
-              <h4>Stack</h4>
-              <a href="#">Agent Go</a>
-              <a href="#">API Laravel</a>
-              <a href="#">React</a>
+              <h4>Technologies</h4>
+              <a href="#">PHP / Laravel</a>
+              <a href="#">Node.js / Next.js</a>
+              <a href="#">Python / Django</a>
+              <a href="#">PostgreSql</a>
+              <a href="#">Mysql</a>
+              <a href="#">Redis</a>
             </div>
             <div className="footer-col">
               <h4>Légal</h4>
