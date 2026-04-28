@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from "react"
-import { Zap, ShieldCheck, Activity, Database, MessageCircle, Layers } from 'lucide-react'
+import { Zap, ShieldCheck, Activity, Database, MessageCircle, Layers, Phone } from 'lucide-react'
 import { Logo } from '@/assets/logo'
 import logoWhiteBg from '@/assets/logo/logo_white_bg.png'
 import dashboardDark from '@/features/auth/sign-in/assets/dashboard_landing.png'
@@ -223,7 +223,7 @@ const styles = `
   .toggle-btn { background: transparent; color: #555; font-family: 'DM Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; padding: 10px 20px; border: none; cursor: pointer; transition: all 0.15s; }
   .toggle-btn.active { background: var(--primary); color: var(--white); }
 
-  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); }
   .plan-card { padding: clamp(2rem, 3vw, 3rem); border-right: 2px solid #111; border-bottom: 2px solid #111; display: flex; flex-direction: column; position: relative; transition: background 0.2s; }
   .plan-card:hover { background: #0d0d0d; }
   .plan-card.popular { background: var(--primary); border-color: var(--primary); }
@@ -237,11 +237,13 @@ const styles = `
   .plan-card.popular .plan-period { color: rgba(255,255,255,0.6); }
   .plan-divider { height: 1px; background: #1a1a1a; margin: 2rem 0; }
   .plan-card.popular .plan-divider { background: rgba(255,255,255,0.2); }
-  .plan-features { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
-  .plan-feat { display: flex; gap: 0.75rem; align-items: baseline; }
-  .plan-feat-check { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--primary); flex-shrink: 0; }
+  .plan-features { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1rem; margin-top: 1rem; }
+  .plan-feat { display: flex; gap: 0.5rem; align-items: center; }
+  .plan-feat-header { grid-column: 1 / -1; margin-top: 1rem !important; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.25rem; }
+  .plan-card:not(.popular) .plan-feat-header { border-color: rgba(0,0,0,0.1); }
+  .plan-feat-check { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--primary); flex-shrink: 0; }
   .plan-card.popular .plan-feat-check { color: var(--white); }
-  .plan-feat-text { font-size: 12px; font-weight: 600; color: #888; }
+  .plan-feat-text { font-size: 15px; font-weight: 600; color: #888; }
   .plan-card.popular .plan-feat-text { color: rgba(255,255,255,0.85); }
   .plan-cta { margin-top: 2.5rem; display: block; text-align: center; padding: 14px; font-family: 'DM Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; border: 2px solid #333; color: #888; text-decoration: none; transition: all 0.15s; }
   .plan-cta:hover { border-color: var(--primary); color: var(--primary); }
@@ -362,24 +364,35 @@ export default function VPSlyConceptA() {
 
   const plans = [
     {
-      id: "starter", tag: "01 / Starter", name: "Gratuit",
-      price: "0", period: "pour toujours",
+      id: "starter", tag: "01 / Starter", name: "Starter (Pour débuter)",
+      price: "0", period: "",
       popular: false,
-      features: ["1 serveur connecté", "2 applications actives", "Logs & console en direct", "Domaine auto (*.sslip.io)", "Bases de données illimitées"],
+      features: [
+        "1 serveur connecté", 
+        "Applications illimitées", 
+        "Pas de collaborateur",
+        "Domaine auto (*.sslip.io)",
+        "1 base de données",
+        "Support par email"
+      ],
     },
     {
-      id: "pro", tag: "02 / Pro", name: "Pro",
-      price: isAnnual ? "65 000" : "6 500",
+      id: "pro", tag: "02 / Pro", name: "Pro (Agence & Freelances)",
+      price: isAnnual ? "59 000" : "5 800",
       period: isAnnual ? "FCFA / an" : "FCFA / mois",
       popular: true,
-      features: ["3 serveurs connectés", "15 applications en production", "Domaines personnalisés + HTTPS", "Retour arrière en 1 clic", "Support 24h"],
-    },
-    {
-      id: "business", tag: "03 / Business", name: "Business",
-      price: isAnnual ? "250 000" : "25 000",
-      period: isAnnual ? "FCFA / an" : "FCFA / mois",
-      popular: false,
-      features: ["Serveurs illimités", "Apps illimitées", "Backups quotidiens", "Alertes WhatsApp", "Équipe 5 collaborateurs"],
+      features: [
+        "3 serveurs connectés", 
+        "Applications illimitées", 
+        "5 collaborateurs",
+        "Domaines perso + HTTPS", 
+        "Backups auto", 
+        //"Rollback 1 clic", 
+        //"Logs 90 jours",
+        "Alertes WhatsApp",
+        "Monitoring complet",
+        "WhatsApp 24h"
+      ],
     },
   ]
 
@@ -498,10 +511,10 @@ export default function VPSlyConceptA() {
           <p style={{ fontSize: 14, color: "#aaa", lineHeight: 1.7, marginTop: "1rem", maxWidth: "36ch" }}>Problèmes qui te ralentissent souvent</p>
           <div className="problem-list">
             {[
-              "Vercel te facture des sommes imprévues qui explosent ton budget.",
-              "Tu déploies à la main. Pull, SSH, Nginx, erreurs, recommencer.",
-              "Tu as essayé une alternative self-host. Deux jours de config pour un résultat instable.",
-              "Tu gères 5 projets sur le même VPS. Tout est mélangé.",
+              "Vercel vous facture des sommes imprévues qui explosent votre budget.",
+              "Vous déployez à la main. Pull, SSH, Nginx, erreurs, recommencer.",
+              "Vous avez essayé une alternative self-host. Deux jours de config pour un résultat instable.",
+              "Vous gérez 5 projets sur le même VPS. Tout est mélangé.",
             ].map((t, i) => (
               <div key={i} className="problem-item">
                 <span className="p-cross mono">✕</span>
@@ -513,17 +526,17 @@ export default function VPSlyConceptA() {
         <div className="sp-right">
           <div className="section-label">La solution</div>
           <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(42px, 5vw, 72px)", lineHeight: 1, color: "var(--black)", marginBottom: "0.5rem" }} className="display">
-            Ce que VPSly fait<br />à ta place.
+            Ce que VPSly fait<br />à votre place.
           </h3>
           <p style={{ fontSize: 14, color: "var(--gray)", lineHeight: 1.7, maxWidth: "38ch", marginBottom: "0.5rem" }}>
-            VPSly s'installe sur ton VPS et connecte tout depuis un dashboard centralisé.
+            VPSly s'installe sur votre VPS et connecte tout depuis un dashboard centralisé.
           </p>
           <div className="solution-list">
             {[
-              { t: "Push → Live", d: "Ton app en ligne après chaque commit." },
+              { t: "Push → Live", d: "Votre app en ligne après chaque commit." },
               { t: "HTTPS automatique", d: "SSL généré et renouvelé sans intervention." },
               { t: "Monitoring intégré", d: "CPU, RAM, disque — tout visible en direct." },
-              { t: "Backups automatiques", d: "Générer des sauvegardes de ton application ." },
+              { t: "Backups automatiques", d: "Générer des sauvegardes de votre application." },
             ].map((item, i) => (
               <div key={i} className="solution-item">
                 <span className="s-num mono">0{i + 1}</span>
@@ -543,7 +556,7 @@ export default function VPSlyConceptA() {
           <div>
             <div className="section-label">Fonctionnalités</div>
             <h2 className="display" style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(42px, 6vw, 80px)", lineHeight: 1 }}>
-              Tout ce dont tu as besoin<br />
+              Tout ce dont vous avez besoin<br />
             </h2>
           </div>
           <p style={{ fontSize: 13, color: "var(--gray)", maxWidth: "28ch", lineHeight: 1.7, fontWeight: 500 }}>
@@ -616,14 +629,22 @@ export default function VPSlyConceptA() {
               <div className="plan-period mono">{plan.period}</div>
               <div className="plan-divider" />
               <div className="plan-features">
-                {plan.features.map((f, i) => (
-                  <div key={i} className="plan-feat">
-                    <span className="plan-feat-check mono">→</span>
-                    <span className="plan-feat-text">{f}</span>
-                  </div>
-                ))}
+                {plan.features.map((f, i) => {
+                  const isHeader = f.startsWith('SECTION:');
+                  const label = isHeader ? f.replace('SECTION:', '') : f;
+                  return (
+                    <div key={i} className={`plan-feat ${isHeader ? 'plan-feat-header' : ''}`} style={isHeader ? { marginTop: '0.5rem', marginBottom: '0.25rem' } : {}}>
+                      {!isHeader && <span className="plan-feat-check mono">→</span>}
+                      <span className={`plan-feat-text ${isHeader ? 'mono' : ''}`} style={isHeader ? { color: plan.popular ? 'var(--white)' : 'var(--primary)', fontSize: '9px', textTransform: 'uppercase', opacity: 0.8 } : {}}>
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <a href="#" className="plan-cta mono">Démarrer maintenant</a>
+              <a href={plan.id === 'pro' ? "https://wa.me/22879012470" : "#"} className="plan-cta mono">
+                {plan.id === 'pro' ? "Démarrer (WhatsApp)" : "Démarrer maintenant"}
+              </a>
             </div>
           ))}
         </div>
@@ -642,13 +663,13 @@ export default function VPSlyConceptA() {
         </div>
         <div className="cta-right">
           <div>
-            <div className="section-label" style={{ color: "#333" }}>— Ce que tu gagnes</div>
+            <div className="section-label" style={{ color: "#333" }}>— Ce que vous gagnez</div>
             <p className="cta-desc">
-              Rejoins les agences et développeurs de l'Afrique  qui livrent leurs projets 3× plus vite avec VPSly.
+              Rejoignez les agences et développeurs de l'Afrique qui livrent leurs projets 3× plus vite avec VPSly.
             </p>
             <div className="cta-actions">
               <a href="#" className="btn-white">Démarrer gratuitement</a>
-              <a href="https://wa.me/228xxxxxx" className="btn-outline-white">Discuter sur WhatsApp →</a>
+              <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" className="btn-outline-white">Discuter sur WhatsApp →</a>
             </div>
           </div>
           <div style={{ fontFamily: "'DM Mono', monospace", fontSize: 11, color: "#333", marginTop: "3rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
@@ -669,7 +690,12 @@ export default function VPSlyConceptA() {
             <div className="footer-col">
               <h4>Ressources</h4>
               <a href="#">Documentation</a>
-              <a href="#">Groupe WhatsApp</a>
+              <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <MessageCircle size={14} color="var(--primary)" /> WhatsApp
+              </a>
+              <a href="tel:+22879012470" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Phone size={14} color="var(--primary)" /> +228 79012470
+              </a>
               <a href="#">Communauté</a>
             </div>
             <div className="footer-col">
@@ -683,8 +709,8 @@ export default function VPSlyConceptA() {
             </div>
             <div className="footer-col">
               <h4>Légal</h4>
-              <a href="#">Confidentialité</a>
-              <a href="#">CGU</a>
+              <Link to="/privacy">Confidentialité</Link>
+              <Link to="/terms">CGU</Link>
               <a href="#">Mentions</a>
             </div>
           </div>
