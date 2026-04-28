@@ -368,8 +368,8 @@ export default function VPSlyConceptA() {
       price: "0", period: "",
       popular: false,
       features: [
-        "1 serveur connecté", 
-        "Applications illimitées", 
+        "1 serveur connecté",
+        "Applications illimitées",
         "Pas de collaborateur",
         "Domaine auto (*.sslip.io)",
         "1 base de données",
@@ -382,11 +382,11 @@ export default function VPSlyConceptA() {
       period: isAnnual ? "FCFA / an" : "FCFA / mois",
       popular: true,
       features: [
-        "3 serveurs connectés", 
-        "Applications illimitées", 
+        "3 serveurs connectés",
+        "Applications illimitées",
         "5 collaborateurs",
-        "Domaines perso + HTTPS", 
-        "Backups auto", 
+        "Domaines perso + HTTPS",
+        "Backups auto",
         //"Rollback 1 clic", 
         //"Logs 90 jours",
         "Alertes WhatsApp",
@@ -439,7 +439,7 @@ export default function VPSlyConceptA() {
           <a href="#pour-qui">Pour qui</a>
           <a href="#tarifs">Tarifs</a>
         </div>
-        <a href="#" className="nav-cta">Connecter mon VPS →</a>
+        <a href="/dashboard" className="nav-cta">Connecter mon VPS →</a>
       </nav>
 
       {/* HERO */}
@@ -447,18 +447,26 @@ export default function VPSlyConceptA() {
         <div className="hero-left">
           <div>
             <h1 className="hero-h1 display">
-              Déploie<br />
-              tes applications<br />
+              Déployez<br />
+              vos applications<br />
               <span className="accent">Sur</span><br />
-              <span className="accent">ton VPS.</span>
+              <span className="accent">votre VPS.</span>
             </h1>
             <p className="hero-sub">
-              Tu connectes ton serveur une fois. VPSly gère le déploiement, le SSL et le monitoring.
-              Tu ne touches plus jamais un terminal pour déployer.
+              Connectez votre propre serveur (Hetzner, DigitalOcean, AWS...) et laissez VPSly gérer le déploiement, le SSL et le monitoring.
+              <br /><br />
+              <strong>Nous ne vendons pas de serveurs. Nous les rendons intelligents.</strong>
             </p>
             <div className="hero-actions">
-              <a href="#" className="btn-primary">Connecter mon VPS</a>
+              <a href="/dashboard" className="btn-primary">Connecter mon VPS</a>
               <a href="#tarifs" className="btn-ghost">Voir les tarifs</a>
+            </div>
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '1.5rem', alignItems: 'center', opacity: 0.4, grayscale: 1 }}>
+              <span className="mono" style={{ fontSize: '10px', textTransform: 'uppercase' }}>Compatible avec :</span>
+              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>Hetzner</span>
+              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>DigitalOcean</span>
+              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>AWS</span>
+              <span className="mono" style={{ fontSize: '12px', fontWeight: 'bold' }}>OVH</span>
             </div>
           </div>
 
@@ -489,15 +497,15 @@ export default function VPSlyConceptA() {
             <Terminal onComplete={() => setTerminalFinished(true)} />
           </div>
 
-          <img 
-            src={dashboardDark} 
-            alt="Dashboard Preview" 
-            className={`dashboard-peek-img ${terminalFinished ? 'visible' : ''}`} 
+          <img
+            src={dashboardDark}
+            alt="Dashboard Preview"
+            className={`dashboard-peek-img ${terminalFinished ? 'visible' : ''}`}
           />
 
           {terminalFinished && (
             <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', zIndex: 10 }}>
-               <span className="badge active mono" style={{ cursor: 'pointer', background: 'var(--black)' }} onClick={() => setTerminalFinished(false)}>↺ Rejouer l'animation</span>
+              <span className="badge active mono" style={{ cursor: 'pointer', background: 'var(--black)' }} onClick={() => setTerminalFinished(false)}>↺ Rejouer l'animation</span>
             </div>
           )}
         </div>
@@ -614,7 +622,12 @@ export default function VPSlyConceptA() {
       {/* PRICING */}
       <section className="section-pricing" id="tarifs">
         <div className="pricing-header">
-          <h2 className="display">Des prix<br />sans surprise.</h2>
+          <div>
+            <h2 className="display">Tarifs simples.</h2>
+            <p style={{ color: '#555', fontSize: '11px', marginTop: '0.5rem', textTransform: 'uppercase' }} className="mono">
+              * Les serveurs ne sont pas fournis. Vous connectez vos propres VPS.
+            </p>
+          </div>
           <div className="toggle-row">
             <button className={`toggle-btn mono ${!isAnnual ? "active" : ""}`} onClick={() => setIsAnnual(false)}>Mensuel</button>
             <button className={`toggle-btn mono ${isAnnual ? "active" : ""}`} onClick={() => setIsAnnual(true)}>Annuel</button>
@@ -668,7 +681,7 @@ export default function VPSlyConceptA() {
               Rejoignez les agences et développeurs de l'Afrique qui livrent leurs projets 3× plus vite avec VPSly.
             </p>
             <div className="cta-actions">
-              <a href="#" className="btn-white">Démarrer gratuitement</a>
+              <a href="/dashboard" className="btn-white">Démarrer gratuitement</a>
               <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" className="btn-outline-white">Discuter sur WhatsApp →</a>
             </div>
           </div>
