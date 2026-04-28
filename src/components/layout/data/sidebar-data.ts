@@ -66,6 +66,11 @@ export const sidebarData: SidebarData = {
           url: '/databases',
           icon: Database,
         },
+        {
+          title: 'Sauvegardes',
+          url: '/backups',
+          icon: ShieldCheck,
+        },
       ],
     },
     {
