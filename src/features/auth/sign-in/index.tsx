@@ -19,9 +19,7 @@ export function SignIn() {
         <CardHeader className='pb-2'>
           <CardTitle className='text-3xl font-bebas tracking-wide uppercase'>Connexion</CardTitle>
           <CardDescription className='text-xs font-medium'>
-            Entrez votre email et mot de passe ci-dessous pour vous connecter à{' '}
-            <br className='max-sm:hidden' /> votre compte. Vous n'avez pas de
-            compte ?{' '}
+            Vous n'avez pas de compte ?{' '}
             <Link
               to='/sign-up'
               className='text-nowrap underline underline-offset-4 hover:text-primary'
@@ -35,7 +33,7 @@ export function SignIn() {
         </CardContent>
         <CardFooter>
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            En cliquant sur connexion, vous acceptez nos{' '}
+            En cliquant sur Se Connecter, vous acceptez nos{' '}
             <a
               href='/terms'
               className='underline underline-offset-4 hover:text-primary'

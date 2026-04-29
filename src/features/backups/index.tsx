@@ -22,6 +22,7 @@ import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
+import { NotificationBell } from '@/components/notification-bell'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -317,6 +318,7 @@ export function Backups() {
         </div>
         <div className='ml-auto flex items-center space-x-4'>
           <Search />
+          <NotificationBell />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

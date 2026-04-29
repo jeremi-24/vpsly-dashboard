@@ -16,6 +16,7 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { NotificationBell } from '@/components/notification-bell'
 import { apiFetch } from '@/lib/api'
 import { CreateAppDrawer } from '@/features/apps/components/create-app-drawer'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -87,6 +88,7 @@ export function Apps() {
         </div>
         <div className='ml-auto flex items-center space-x-4'>
           <Search />
+          <NotificationBell />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

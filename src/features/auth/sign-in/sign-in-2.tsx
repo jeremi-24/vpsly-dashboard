@@ -21,8 +21,7 @@ export function SignIn2() {
           <div className='flex flex-col space-y-2 text-start'>
             <h2 className='text-lg font-semibold tracking-tight'>Connexion</h2>
             <p className='text-sm text-muted-foreground'>
-              Entrez votre email et mot de passe pour accéder à{" "}
-              <br className='max-sm:hidden' /> votre compte. Pas encore de compte ?{" "}
+              Pas encore de compte ?{" "}
               <Link
                 to='/sign-up'
                 className='text-nowrap underline underline-offset-4 hover:text-primary'
@@ -33,7 +32,7 @@ export function SignIn2() {
           </div>
           <UserAuthForm redirectTo={redirect} />
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            En cliquant sur connexion, vous acceptez nos{' '}
+            En cliquant sur Se Connecter, vous acceptez nos{' '}
             <a
               href='/terms'
               className='underline underline-offset-4 hover:text-primary'

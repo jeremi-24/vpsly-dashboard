@@ -7,6 +7,7 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { NotificationBell } from '@/components/notification-bell'
 import { ConnectServerDrawer } from './components/connect-server-drawer'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
@@ -91,6 +92,7 @@ export function Servers() {
         </div>
         <div className='ml-auto flex items-center space-x-4'>
           <Search />
+          <NotificationBell />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

@@ -9,6 +9,7 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Search } from '@/components/search'
+import { NotificationBell } from '@/components/notification-bell'
 import { apiFetch } from '@/lib/api'
 import { CreateDatabaseDrawer } from '@/features/databases/components/create-database-drawer'
 import { DatabaseConnectionModal } from '@/features/databases/components/database-connection-modal'
@@ -87,6 +88,7 @@ export function Databases() {
         </div>
         <div className='ml-auto flex items-center space-x-4'>
           <Search />
+          <NotificationBell />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

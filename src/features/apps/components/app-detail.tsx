@@ -8,6 +8,7 @@ import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
+import { NotificationBell } from '@/components/notification-bell'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { DeploymentTerminal } from './deployment-terminal'
@@ -153,6 +154,7 @@ export function AppDetail() {
                 </div>
                 <div className='ml-auto flex items-center space-x-4'>
                     <Search />
+                    <NotificationBell />
                     <ThemeSwitch />
                     <ProfileDropdown />
                 </div>

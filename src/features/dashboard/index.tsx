@@ -7,6 +7,7 @@ import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
+import { NotificationBell } from '@/components/notification-bell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -63,6 +64,7 @@ export function Dashboard() {
         </div>
         <div className='ml-auto flex items-center space-x-4'>
           <Search />
+          <NotificationBell />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

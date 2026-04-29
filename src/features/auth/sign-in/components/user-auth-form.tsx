@@ -49,34 +49,30 @@ export function UserAuthForm({
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
 
-    toast.promise(sleep(2000), {
-      loading: 'Connexion en cours...',
-      success: () => {
-        setIsLoading(false)
+    try {
+      const response = await apiFetch('/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      })
 
-        // Mock successful authentication with expiry computed at success time
-        const mockUser = {
-          accountNo: 'ACC001',
-          email: data.email,
-          role: ['user'],
-          exp: Date.now() + 24 * 60 * 60 * 1000, // 24 hours from now
-        }
+      // Set user and access token
+      auth.setUser(response.user)
+      auth.setAccessToken(response.access_token)
 
-        // Set user and access token
-        auth.setUser(mockUser)
-        auth.setAccessToken('mock-access-token')
+      toast.success(`Bon retour, ${response.user.name} !`)
 
-        // Redirect to the stored location or default to dashboard
-        const targetPath = redirectTo || '/dashboard'
-        navigate({ to: targetPath, replace: true })
-
-        return `Bon retour, ${data.email} !`
-      },
-      error: 'Erreur lors de la connexion',
-    })
+      // Redirect to the stored location or default to dashboard
+      const targetPath = redirectTo || '/dashboard'
+      navigate({ to: targetPath, replace: true })
+    } catch (error: any) {
+      console.error('Login error:', error)
+      toast.error(error.message || 'Identifiants incorrects.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -135,14 +131,14 @@ export function UserAuthForm({
         </div>
 
         <div className='grid grid-cols-2 gap-2'>
-          <Button
+          {/* <Button
             variant='outline'
             type='button'
             disabled={isLoading}
             onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/github`}
           >
             <IconGithub className='h-4 w-4' /> GitHub
-          </Button>
+          </Button> */}
           <Button
             variant='outline'
             type='button'
