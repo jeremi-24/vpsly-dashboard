@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { Monitor, Wrench, UserCog, FolderGitIcon } from 'lucide-react'
+import { Monitor, Wrench, UserCog, FolderGitIcon, ShieldCheck } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -21,6 +21,11 @@ const sidebarNavItems = [
     title: 'Intégrations',
     href: '/settings/integrations',
     icon: <FolderGitIcon size={18} />,
+  },
+  {
+    title: 'Sauvegardes',
+    href: '/settings/backups',
+    icon: <ShieldCheck size={18} />,
   },
 ]
 
@@ -45,12 +50,14 @@ export function Settings() {
           </p>
         </div>
         <Separator className='my-4 lg:my-6' />
-        <div className='flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-12'>
+        <div className='flex flex-1 flex-col space-y-2 overflow-hidden md:space-y-2 lg:flex-row lg:space-y-0 lg:space-x-12 h-[calc(100vh-180px)]'>
           <aside className='top-0 lg:sticky lg:w-1/5'>
             <SidebarNav items={sidebarNavItems} />
           </aside>
-          <div className='flex w-full overflow-y-hidden p-1'>
-            <Outlet />
+          <div className='flex w-full overflow-y-auto p-1 pr-4 custom-scrollbar'>
+            <div className='w-full'>
+              <Outlet />
+            </div>
           </div>
         </div>
       </Main>

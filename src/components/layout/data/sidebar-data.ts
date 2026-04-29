@@ -95,6 +95,11 @@ export const sidebarData: SidebarData = {
               url: '/settings/billing',
               icon: CreditCard,
             },
+            {
+              title: 'Sauvegardes',
+              url: '/settings/backups',
+              icon: ShieldCheck,
+            },
           ],
         },
         {
