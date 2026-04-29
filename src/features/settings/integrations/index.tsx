@@ -20,16 +20,23 @@ const GithubLogo = ({ className }: { className?: string }) => (
 
 export function SettingsIntegrations() {
   const [githubUser, setGithubUser] = useState<any>(null)
+  const [backupSettings, setBackupSettings] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   const fetchStatus = async () => {
     try {
       setLoading(true)
-      const data = await apiFetch<any>('/github/user')
-      if (data && !data.error && data.login) {
-        setGithubUser(data)
+      // GitHub
+      const ghData = await apiFetch<any>('/github/user').catch(() => null)
+      if (ghData && !ghData.error && ghData.login) {
+        setGithubUser(ghData)
       }
+
+      // Google Drive
+      const backupData = await apiFetch<any>('/settings/backups').catch(() => null)
+      setBackupSettings(backupData)
+      
     } catch (error) {
       // Not connected or error
     } finally {
@@ -41,15 +48,9 @@ export function SettingsIntegrations() {
     const params = new URLSearchParams(window.location.search)
     if (params.get('success') === 'github') {
       toast.success('GitHub connecté avec succès !')
-      
-      const pendingAction = localStorage.getItem('vpsly_pending_action')
-      if (pendingAction === 'create_app') {
-        localStorage.removeItem('vpsly_pending_action')
-        setTimeout(() => {
-            navigate({ to: '/apps', search: { action: 'create-app' } })
-        }, 1500)
-      }
-
+      window.history.replaceState({}, document.title, window.location.pathname)
+    } else if (params.get('success') === 'google_drive') {
+      toast.success('Google Drive connecté avec succès !')
       window.history.replaceState({}, document.title, window.location.pathname)
     } else if (params.get('error')) {
       toast.error(`Erreur : ${params.get('error')}`)
@@ -59,7 +60,7 @@ export function SettingsIntegrations() {
     fetchStatus()
   }, [])
 
-  const handleConnect = async () => {
+  const handleConnectGithub = async () => {
     try {
       toast.loading('Préparation de la connexion GitHub...')
       const data = await apiFetch<any>('/github/auth/redirect')
@@ -67,92 +68,180 @@ export function SettingsIntegrations() {
         window.location.href = data.url
       }
     } catch (error) {
-      toast.error('Erreur lors de la préparation de la connexion.')
+      toast.error('Erreur lors de la préparation de la connexion GitHub.')
     }
   }
+
+  const handleConnectDrive = async () => {
+    try {
+      toast.loading('Préparation de la connexion Google Drive...')
+      const data = await apiFetch<any>('/auth/google/drive/redirect')
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la préparation de la connexion Google Drive.')
+    }
+  }
+
+  const handleDisconnectDrive = async () => {
+    try {
+      await apiFetch('/settings/backups/google-drive/disconnect', { method: 'POST' })
+      toast.success('Google Drive déconnecté.')
+      fetchStatus()
+    } catch (error) {
+      toast.error('Erreur lors de la déconnexion.')
+    }
+  }
+
+  const isDriveConnected = backupSettings?.storage_destination === 'google_drive' && backupSettings?.storage_credentials?.access_token
 
   return (
     <div className='grow space-y-6'>
       <div>
         <h3 className='text-lg font-medium'>Intégrations</h3>
         <p className='text-sm text-muted-foreground'>
-          Gérez vos connexions aux services tiers.
+          Gérez vos connexions aux services tiers pour le déploiement et les sauvegardes.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-3'>
-              <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-black text-white p-2'>
-                <GithubLogo className='h-full w-full' />
-              </div>
-              <div>
-                <CardTitle>GitHub</CardTitle>
-                <CardDescription>
-                  Accédez à vos dépôts pour déployer vos applications.
-                </CardDescription>
-              </div>
-            </div>
-            {!loading && (
-                githubUser ? (
-                    <div className='flex items-center gap-2 text-green-600 font-medium text-sm bg-green-50 px-3 py-1 rounded-full border border-green-200 dark:bg-green-950/20 dark:border-green-900'>
-                        <CheckCircle2 size={16} />
-                        Connecté
-                    </div>
-                ) : (
-                    <div className='flex items-center gap-2 text-muted-foreground font-medium text-sm bg-muted px-3 py-1 rounded-full border border-border'>
-                        <XCircle size={16} />
-                        Non connecté
-                    </div>
-                )
-            )}
-            {loading && <Skeleton className='h-7 w-24 rounded-full' />}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className='flex items-center justify-between p-4 border rounded-lg bg-muted/5'>
-                <div className='flex items-center gap-3'>
-                    <Skeleton className='h-10 w-10 rounded-full' />
-                    <div className='space-y-2'>
-                        <Skeleton className='h-4 w-32' />
-                        <Skeleton className='h-3 w-24' />
-                    </div>
+      <div className='grid gap-6 grid-cols-1 max-w-4xl'>
+        {/* GitHub Card */}
+        <Card className='overflow-hidden border-none shadow-sm bg-muted/20'>
+          <CardHeader className='pb-4'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-4'>
+                <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-black text-white p-2.5 shadow-lg shadow-black/10'>
+                  <GithubLogo className='h-full w-full' />
                 </div>
-                <Skeleton className='h-8 w-24' />
-            </div>
-          ) : githubUser ? (
-            <div className='flex items-center justify-between p-4 border rounded-lg bg-muted/5 animate-in fade-in duration-500'>
-              <div className='flex items-center gap-3'>
-                <img 
-                  src={githubUser.avatar_url} 
-                  alt={githubUser.name} 
-                  className='h-10 w-10 rounded-full border'
-                />
                 <div>
-                  <p className='font-medium'>{githubUser.name || githubUser.login}</p>
-                  <p className='text-sm text-muted-foreground'>@{githubUser.login}</p>
+                  <CardTitle className='text-lg'>GitHub</CardTitle>
+                  <CardDescription>
+                    Déploiement automatique depuis vos dépôts.
+                  </CardDescription>
                 </div>
               </div>
-              <Button variant='outline' size='sm' onClick={handleConnect}>
-                Reconnecter
-              </Button>
+              {!loading && (
+                  githubUser ? (
+                      <div className='flex items-center gap-2 text-green-600 font-medium text-xs bg-green-500/10 px-3 py-1.5 rounded-full border border-green-500/20'>
+                          <CheckCircle2 size={14} />
+                          Connecté
+                      </div>
+                  ) : (
+                      <div className='flex items-center gap-2 text-muted-foreground font-medium text-xs bg-muted px-3 py-1.5 rounded-full border border-border'>
+                          <XCircle size={14} />
+                          Non configuré
+                      </div>
+                  )
+              )}
             </div>
-          ) : (
-            <div className='flex flex-col items-center justify-center py-6 text-center animate-in fade-in duration-500'>
-               <p className='text-sm text-muted-foreground mb-4'>
-                 Liez votre compte GitHub pour importer vos projets en un clic.
-               </p>
-               <Button onClick={handleConnect} className='gap-2'>
-                 <GithubLogo className='h-4 w-4' />
-                 Connecter GitHub
-                 <ExternalLink size={14} />
-               </Button>
+          </CardHeader>
+          <CardContent className='pt-0'>
+            {loading ? (
+              <Skeleton className='h-20 w-full rounded-xl' />
+            ) : githubUser ? (
+              <div className='flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border/50'>
+                <div className='flex items-center gap-4'>
+                  <img 
+                    src={githubUser.avatar_url} 
+                    alt={githubUser.name} 
+                    className='h-12 w-12 rounded-full border-2 border-background shadow-sm'
+                  />
+                  <div>
+                    <p className='font-semibold text-sm'>{githubUser.name || githubUser.login}</p>
+                    <p className='text-xs text-muted-foreground'>@{githubUser.login}</p>
+                  </div>
+                </div>
+                <Button variant='outline' size='sm' onClick={handleConnectGithub} className='rounded-lg hover:bg-muted'>
+                  Changer de compte
+                </Button>
+              </div>
+            ) : (
+              <div className='flex flex-col items-center justify-center py-6 text-center bg-background/30 rounded-xl border border-dashed border-border'>
+                 <p className='text-sm text-muted-foreground mb-4 max-w-[300px]'>
+                   Liez votre compte GitHub pour importer vos projets en un clic.
+                 </p>
+                 <Button onClick={handleConnectGithub} className='gap-2 rounded-lg px-6'>
+                   <GithubLogo className='h-4 w-4' />
+                   Connecter GitHub
+                 </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Google Drive Card */}
+        <Card className='overflow-hidden border-none shadow-sm bg-muted/20'>
+          <CardHeader className='pb-4'>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-4'>
+                <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg shadow-blue-500/5 border border-blue-500/10 dark:bg-slate-900 overflow-hidden'>
+                  <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" 
+                    alt="Google Drive" 
+                    className="h-7 w-7"
+                  />
+                </div>
+                <div>
+                  <CardTitle className='text-lg'>Google Drive</CardTitle>
+                  <CardDescription>
+                    Sauvegardes automatiques sécurisées.
+                  </CardDescription>
+                </div>
+              </div>
+              {!loading && (
+                  isDriveConnected ? (
+                      <div className='flex items-center gap-2 text-blue-600 font-medium text-xs bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/20'>
+                          <CheckCircle2 size={14} />
+                          Actif
+                      </div>
+                  ) : (
+                      <div className='flex items-center gap-2 text-muted-foreground font-medium text-xs bg-muted px-3 py-1.5 rounded-full border border-border'>
+                          <XCircle size={14} />
+                          Non configuré
+                      </div>
+                  )
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className='pt-0'>
+            {loading ? (
+              <Skeleton className='h-20 w-full rounded-xl' />
+            ) : isDriveConnected ? (
+              <div className='flex items-center justify-between p-4 rounded-xl bg-background/50 border border-border/50'>
+                <div className='flex items-center gap-4'>
+                  <div className='flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 dark:bg-blue-500/20 shadow-inner overflow-hidden'>
+                    <img 
+                      src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" 
+                      alt="Google Drive" 
+                      className="h-6 w-6"
+                    />
+                  </div>
+                  <div>
+                    <p className='font-semibold text-sm'>Google Drive connecté</p>
+                    <p className='text-xs text-muted-foreground'>{backupSettings.storage_credentials.email}</p>
+                  </div>
+                </div>
+                <Button variant='ghost' size='sm' onClick={handleDisconnectDrive} className='text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg'>
+                  Déconnecter
+                </Button>
+              </div>
+            ) : (
+              <div className='flex flex-col items-center justify-center py-6 text-center bg-background/30 rounded-xl border border-dashed border-border'>
+                 <p className='text-sm text-muted-foreground mb-4 max-w-[300px]'>
+                   Stockez vos bases de données et volumes sur votre cloud personnel.
+                 </p>
+                 <Button onClick={handleConnectDrive} variant='outline' className='gap-2 rounded-lg border-blue-500/20 hover:bg-blue-500/5 hover:text-blue-600 transition-all'>
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+                      <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 15L6.3 21h13.12l3.43-6M18.74 15L12.15 3.5h-6.85L12 14z" />
+                    </svg>
+                   Connecter Google Drive
+                 </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

@@ -15,6 +15,7 @@ interface BackupSettings {
   execution_time: string
   retention_days: number
   storage_destination: string
+  storage_credentials: any | null
   notification_channel: 'email' | 'whatsapp' | 'both' | 'none'
   notification_phone: string | null
   notification_email: string | null
@@ -29,11 +30,16 @@ export default function SettingsBackups() {
     execution_time: '02:00',
     retention_days: 7,
     storage_destination: 'local',
+    storage_credentials: null,
     notification_channel: 'email',
     notification_phone: '',
     notification_email: '',
     active: true
   })
+
+  // ... (rest of useEffect and handleSave)
+
+  // Dans le render, section Stockage (lignes ~160)
 
   // Chargement initial des réglages
   useEffect(() => {
@@ -170,16 +176,53 @@ export default function SettingsBackups() {
                 <SelectContent>
                   <SelectItem value="local">Serveur Actuel (Local)</SelectItem>
                   <SelectItem value="google_drive">Google Drive</SelectItem>
-                  <SelectItem value="s3">Amazon S3 / Compatible S3</SelectItem>
+                  <SelectItem value="s3" disabled>Amazon S3 (Bientôt)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
+            {settings.storage_destination === 'google_drive' && (
+              <div className="animate-in slide-in-from-top-1 duration-300">
+                {settings.storage_credentials?.access_token ? (
+                  <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4 flex items-center justify-between gap-3">
+                    <div className='flex items-center gap-3'>
+                        <div className='h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center dark:bg-blue-900/30 overflow-hidden shadow-inner border border-blue-500/10'>
+                             <img 
+                                src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" 
+                                alt="Google Drive" 
+                                className="h-5 w-5"
+                             />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-green-700 dark:text-green-400">Google Drive connecté</p>
+                            <p className="text-xs text-green-600/80">{settings.storage_credentials.email}</p>
+                        </div>
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                        <a href="/settings/integrations">Changer</a>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 flex flex-col gap-3">
+                    <div className='flex gap-3'>
+                        <Info className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                        <p className="text-xs text-red-700 leading-relaxed font-medium">
+                          Google Drive n'est pas encore connecté. Vous devez lier votre compte pour utiliser cette destination.
+                        </p>
+                    </div>
+                    <Button variant="destructive" size="sm" className='w-full' asChild>
+                        <a href="/settings/integrations">Connecter Google Drive maintenant</a>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {settings.storage_destination === 'local' && (
               <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4 flex gap-3 animate-in slide-in-from-top-1 duration-300">
                 <Info className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
                 <p className="text-xs text-yellow-700 leading-relaxed font-medium">
-                  Backup local uniquement. Si ce VPS tombe, vos sauvegardes tombent avec lui.
+                  Backup local uniquement. Si ce VPS tombe, vos sauvegardes tombent avec lui. Pensez à lier un stockage externe pour plus de sécurité.
                 </p>
               </div>
             )}
