@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { Search } from '@/components/search'
 import { apiFetch } from '@/lib/api'
 import { CreateDatabaseDrawer } from '@/features/databases/components/create-database-drawer'
 import { DatabaseConnectionModal } from '@/features/databases/components/database-connection-modal'
@@ -80,18 +81,21 @@ export function Databases() {
   return (
     <>
       <Header>
-        <div className='me-auto' />
-        <ThemeSwitch />
-        <ProfileDropdown />
+        <div className="flex items-center gap-2">
+            <Database className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Bases de données</span>
+        </div>
+        <div className='ml-auto flex items-center space-x-4'>
+          <Search />
+          <ThemeSwitch />
+          <ProfileDropdown />
+        </div>
       </Header>
 
       <Main fixed>
         <div className='flex items-center justify-between mb-2'>
           <div>
-            <h1 className='text-2xl font-bold tracking-tight text-foreground'>Bases de données</h1>
-            <p className='text-sm text-muted-foreground'>
-              Gérez vos instances PostgreSQL, MySQL et Redis.
-            </p>
+            <h1 className='text-2xl font-bold tracking-tight text-foreground'>Gérez vos Bases de données</h1>
           </div>
           <Button onClick={() => setDrawerOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />

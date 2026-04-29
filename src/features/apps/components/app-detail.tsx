@@ -5,6 +5,9 @@ import { cn } from '@/lib/utils'
 import { apiFetch } from '@/lib/api'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { ThemeSwitch } from '@/components/theme-switch'
+import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Search } from '@/components/search'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { DeploymentTerminal } from './deployment-terminal'
@@ -147,6 +150,11 @@ export function AppDetail() {
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{app.name}</span>
                     </div>
+                </div>
+                <div className='ml-auto flex items-center space-x-4'>
+                    <Search />
+                    <ThemeSwitch />
+                    <ProfileDropdown />
                 </div>
             </Header>
 

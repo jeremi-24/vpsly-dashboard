@@ -72,7 +72,7 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
       
       // Mise à jour optimiste : on ajoute le record "pending" immédiatement
       setBackups(prev => [pendingBackup, ...prev])
-      toast.success('Sauvegarde mise en file d\'attente')
+      toast.info('Sauvegarde mise en file d\'attente')
     } catch {
       toast.error('Échec du lancement de la sauvegarde')
     } finally {

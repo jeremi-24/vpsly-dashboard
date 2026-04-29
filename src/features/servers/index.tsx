@@ -85,18 +85,22 @@ export function Servers() {
   return (
     <>
       <Header>
-        <Search className='me-auto' />
-        <ThemeSwitch />
-        <ProfileDropdown />
+        <div className="flex items-center gap-2">
+            <Server className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Serveurs</span>
+        </div>
+        <div className='ml-auto flex items-center space-x-4'>
+          <Search />
+          <ThemeSwitch />
+          <ProfileDropdown />
+        </div>
       </Header>
 
       <Main fixed>
         <div className='flex items-center justify-between mb-2'>
           <div>
-            <h1 className='text-2xl font-bold tracking-tight'>Serveurs</h1>
-            <p className='text-muted-foreground'>
-              Connectez et gérez vos instances VPS pour le déploiement.
-            </p>
+            <h1 className='text-2xl font-bold tracking-tight'>Connectez et gérez vos VPS</h1>
+           
           </div>
           <Button onClick={handleAddServer}>
             <Plus className='mr-2 h-4 w-4' />

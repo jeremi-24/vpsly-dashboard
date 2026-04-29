@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Search } from '@/components/search'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -58,9 +59,10 @@ export function Dashboard() {
       <Header>
         <div className="flex items-center gap-2">
             <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-            <span className="text-[11px] font-bold uppercase tracking-widest opacity-70">Infrastructure</span>
+            <span className="text-sm font-medium">Infrastructure</span>
         </div>
         <div className='ml-auto flex items-center space-x-4'>
+          <Search />
           <ThemeSwitch />
           <ProfileDropdown />
         </div>

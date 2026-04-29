@@ -81,22 +81,26 @@ export function Apps() {
   return (
     <>
       <Header>
-        <Search className='me-auto' />
-        <ThemeSwitch />
-        <ProfileDropdown />
+        <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Applications</span>
+        </div>
+        <div className='ml-auto flex items-center space-x-4'>
+          <Search />
+          <ThemeSwitch />
+          <ProfileDropdown />
+        </div>
       </Header>
 
       <Main fixed>
         <div className='flex items-center justify-between mb-2'>
           <div>
-            <h1 className='text-2xl font-bold tracking-tight'>Applications</h1>
-            <p className='text-muted-foreground'>
-              Gérez vos déploiements et applications en temps réel.
-            </p>
+            <h1 className='text-2xl font-bold tracking-tight'>Déployez vos applications</h1>
+           
           </div>
           <Button onClick={() => setDrawerOpen(true)}>
             <Plus className='mr-2 h-4 w-4' />
-            <span>Créer une application</span>
+            <span>Déployer une application</span>
           </Button>
         </div>
 
