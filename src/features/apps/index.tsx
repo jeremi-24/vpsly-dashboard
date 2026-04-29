@@ -130,7 +130,7 @@ export function Apps() {
 
         <Separator className='shadow-sm' />
 
-        <div className='faded-bottom no-scrollbar flex-1 overflow-auto pt-4 pb-16'>
+        <div className='faded-bottom no-scrollbar flex-1 overflow-auto'>
           {loading ? (
              <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -152,9 +152,9 @@ export function Apps() {
                 ))}
              </div>
           ) : filteredApps.length === 0 ? (
-            <div className='flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center p-8'>
-              <div className='flex h-20 w-20 items-center justify-center rounded-full bg-primary/10'>
-                <Globe className='h-10 w-10 text-primary' />
+            <div className='flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed text-center'>
+              <div className='flex h-16 w-16 items-center justify-center rounded-full bg-primary/10'>
+                <Globe className='h-8 w-8 text-primary' />
               </div>
               <h3 className='mt-4 text-lg font-semibold'>Aucune application</h3>
               <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
@@ -163,7 +163,7 @@ export function Apps() {
                   : 'Commencez par déployer votre premier projet GitHub sur vos serveurs.'}
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button variant='outline' className='mt-6' onClick={() => setDrawerOpen(true)}>
+                <Button variant='link' className='mt-6' onClick={() => setDrawerOpen(true)}>
                   Lancer mon premier déploiement
                 </Button>
               )}

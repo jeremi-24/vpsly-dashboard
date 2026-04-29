@@ -134,7 +134,7 @@ export function Servers() {
 
         <Separator className='shadow-sm' />
 
-        <div className='faded-bottom no-scrollbar flex-1 overflow-auto pt-4 pb-16'>
+        <div className='faded-bottom no-scrollbar flex-1 overflow-auto'>
           {loading ? (
             <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
               {Array.from({ length: 3 }).map((_, i) => (
@@ -160,20 +160,20 @@ export function Servers() {
                 <Server className='h-10 w-10 text-primary' />
               </div>
               <h3 className='mt-4 text-lg font-semibold'>
-                {searchTerm || statusFilter !== 'all' ? 'No matching servers' : 'No servers connected yet'}
+                {searchTerm || statusFilter !== 'all' ? 'Aucun serveur ne correspond à votre recherche' : 'Aucun serveur connecté pour le moment'}
               </h3>
               <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
                 {searchTerm || statusFilter !== 'all'
-                  ? 'Try adjusting your search or filters.'
-                  : 'Add your first VPS to start deploying your applications.'}
+                  ? 'Essayez d\'ajuster votre recherche ou vos filtres.'
+                  : 'Ajoutez votre premier VPS pour commencer à déployer vos applications.'}
               </p>
               {!searchTerm && statusFilter === 'all' && (
                 <Button
-                  variant='outline'
+                  variant='link'
                   className='mt-6'
                   onClick={handleAddServer}
                 >
-                  Connect my first server
+                  Connecter mon premier VPS
                 </Button>
               )}
             </div>

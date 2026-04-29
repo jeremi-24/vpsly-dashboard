@@ -295,9 +295,9 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                 <ScrollArea className='flex-1 border rounded-lg min-h-0 bg-muted/5'>
                   {githubConnected === false ? (
                     <div className='p-8 h-full flex flex-col items-center justify-center text-center space-y-4'>
-                      <div className='h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary'>
+                      {/*<div className='h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary'>
                         <FolderGitIcon size={32} />
-                      </div>
+                      </div>*/}
                       <div className='space-y-1'>
                         <p className='text-sm font-bold uppercase tracking-wider'>Compte GitHub non lié</p>
                         <p className='text-xs text-muted-foreground'>
