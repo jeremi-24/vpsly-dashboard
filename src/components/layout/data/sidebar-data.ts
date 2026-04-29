@@ -18,7 +18,7 @@ import {
   UserX,
   Users,
   MessagesSquare,
-  ShieldCheck,
+  CloudDownload,
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
@@ -69,7 +69,7 @@ export const sidebarData: SidebarData = {
         {
           title: 'Sauvegardes',
           url: '/backups',
-          icon: ShieldCheck,
+          icon: CloudDownload,
         },
       ],
     },
@@ -98,7 +98,7 @@ export const sidebarData: SidebarData = {
             {
               title: 'Sauvegardes',
               url: '/settings/backups',
-              icon: ShieldCheck,
+              icon: CloudDownload,
             },
           ],
         },

@@ -23,6 +23,7 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
 
   const fetchBackups = async () => {
     try {
@@ -83,15 +84,17 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
   const deleteBackup = async (id: number) => {
     try {
       setActionLoading(true)
+      setDeletingId(id)
       toast.info('Suppression du fichier de sauvegarde...')
       await apiFetch(`/applications/${appId}/backups/${id}`, { method: 'DELETE' })
       setBackups(b => b.filter(x => x.id !== id))
       toast.success('Sauvegarde supprimée avec succès')
+      setDeleteId(null)
     } catch {
       toast.error('Erreur lors de la suppression')
     } finally {
       setActionLoading(false)
-      setDeleteId(null)
+      setDeletingId(null)
     }
   }
 
@@ -245,9 +248,10 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
                 )}
                 <button
                   onClick={() => setDeleteId(backup.id)}
+                  disabled={actionLoading}
                   className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  {deletingId === backup.id ? <Loader className="h-3.5 w-3.5 animate-spin text-red-500" /> : <Trash2 className="h-3.5 w-3.5" />}
                 </button>
               </div>
             </div>
@@ -269,7 +273,15 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && deleteBackup(deleteId)} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogAction 
+                onClick={(e) => {
+                    e.preventDefault();
+                    if (deleteId) deleteBackup(deleteId);
+                }} 
+                disabled={actionLoading}
+                className="bg-red-500 hover:bg-red-600 min-w-[100px]"
+            >
+              {actionLoading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { Monitor, Wrench, UserCog, FolderGitIcon, ShieldCheck } from 'lucide-react'
+import { Monitor, Wrench, UserCog, FolderGitIcon, CloudDownload } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -25,7 +25,7 @@ const sidebarNavItems = [
   {
     title: 'Sauvegardes',
     href: '/settings/backups',
-    icon: <ShieldCheck size={18} />,
+    icon: <CloudDownload size={18} />,
   },
 ]
 

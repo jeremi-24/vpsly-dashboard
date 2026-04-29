@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { 
-  ShieldCheck, 
+  CloudDownload, 
   Search as SearchIcon, 
   Download, 
   RotateCcw, 
@@ -101,6 +101,7 @@ export function Backups() {
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [downloadingId, setDownloadingId] = useState<number | null>(null)
   const [restoringId, setRestoringId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   
@@ -179,17 +180,19 @@ export function Backups() {
   const handleDelete = async (id: number) => {
     try {
       setActionLoading(true)
+      setDeletingId(id)
       const backup = backups.find(b => b.id === id)
       if (!backup) return
 
       await apiFetch(`/applications/${backup.application?.id}/backups/${id}`, { method: 'DELETE' })
       setBackups(prev => prev.filter(b => b.id !== id))
       toast.success('Sauvegarde supprimée avec succès')
+      setDeleteId(null)
     } catch {
       toast.error('Échec de la suppression')
     } finally {
       setActionLoading(false)
-      setDeleteId(null)
+      setDeletingId(null)
     }
   }
 
@@ -309,7 +312,7 @@ export function Backups() {
     <>
       <Header>
         <div className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+            <CloudDownload className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm font-medium">Sauvegardes</span>
         </div>
         <div className='ml-auto flex items-center space-x-4'>
@@ -404,7 +407,7 @@ export function Backups() {
                 ) : filteredBackups.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-20 animate-in fade-in zoom-in duration-500">
                         <div className="w-20 h-20 rounded-3xl bg-indigo-500/5 border border-indigo-500/10 flex items-center justify-center mb-6 shadow-2xl shadow-indigo-500/5">
-                            <ShieldCheck size={40} className="text-indigo-500/40" />
+                            <CloudDownload size={40} className="text-indigo-500/40" />
                         </div>
                         <h3 className="text-lg font-bold tracking-tight text-white/80 mb-2">Aucune sauvegarde trouvée</h3>
                         <p className="text-sm text-muted-foreground max-w-[300px] leading-relaxed mb-8">
@@ -494,7 +497,7 @@ export function Backups() {
                                     className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                                     title="Supprimer"
                                 >
-                                    <Trash2 className="h-4 w-4" />
+                                    {deletingId === bkp.id ? <Loader className="h-4 w-4 animate-spin text-red-500" /> : <Trash2 className="h-4 w-4" />}
                                 </Button>
                             </div>
                         </div>
@@ -685,8 +688,16 @@ export function Backups() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)} className="bg-red-600 hover:bg-red-700">
-              Supprimer l'archive
+            <AlertDialogAction 
+                onClick={(e) => {
+                    e.preventDefault();
+                    if (deleteId) handleDelete(deleteId);
+                }} 
+                disabled={actionLoading}
+                className="bg-red-600 hover:bg-red-700 min-w-[120px]"
+            >
+                {actionLoading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                Supprimer l'archive
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

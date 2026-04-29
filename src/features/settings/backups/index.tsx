@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ShieldCheck, Server, Bell, Save, Info, Loader } from 'lucide-react'
+import { CloudDownload, Server, Bell, Save, Info, Loader } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -106,7 +106,7 @@ export default function SettingsBackups() {
         <Card className="border-none shadow-none bg-muted/20">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-indigo-500" />
+              <CloudDownload className="h-5 w-5 text-indigo-500" />
               <CardTitle className="text-base font-medium">Planification</CardTitle>
             </div>
             <CardDescription>Fréquence et rétention.</CardDescription>
@@ -115,8 +115,8 @@ export default function SettingsBackups() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Fréquence automatique</Label>
-                <Select 
-                  value={settings.frequency} 
+                <Select
+                  value={settings.frequency}
                   onValueChange={(val) => setSettings({ ...settings, frequency: val })}
                 >
                   <SelectTrigger>
@@ -132,9 +132,9 @@ export default function SettingsBackups() {
               </div>
               <div className="space-y-2">
                 <Label>Heure d'exécution (Locale)</Label>
-                <Input 
-                  type="time" 
-                  value={settings.execution_time} 
+                <Input
+                  type="time"
+                  value={settings.execution_time}
                   onChange={(e) => setSettings({ ...settings, execution_time: e.target.value })}
                 />
               </div>
@@ -154,8 +154,8 @@ export default function SettingsBackups() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Destination</Label>
-              <Select 
-                value={settings.storage_destination} 
+              <Select
+                value={settings.storage_destination}
                 onValueChange={(val) => setSettings({ ...settings, storage_destination: val })}
               >
                 <SelectTrigger>
@@ -168,38 +168,38 @@ export default function SettingsBackups() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             {settings.storage_destination === 'google_drive' && (
               <div className="animate-in slide-in-from-top-1 duration-300">
                 {settings.storage_credentials?.access_token ? (
                   <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4 flex items-center justify-between gap-3">
                     <div className='flex items-center gap-3'>
-                        <div className='h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center dark:bg-blue-900/30 overflow-hidden shadow-inner border border-blue-500/10'>
-                             <img 
-                                src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" 
-                                alt="Google Drive" 
-                                className="h-5 w-5"
-                             />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-green-700 dark:text-green-400">Google Drive connecté</p>
-                            <p className="text-xs text-green-600/80">{settings.storage_credentials.email}</p>
-                        </div>
+                      <div className='h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center dark:bg-blue-900/30 overflow-hidden shadow-inner border border-blue-500/10'>
+                        <img
+                          src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg"
+                          alt="Google Drive"
+                          className="h-5 w-5"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400">Google Drive connecté</p>
+                        <p className="text-xs text-green-600/80">{settings.storage_credentials.email}</p>
+                      </div>
                     </div>
                     <Button variant="outline" size="sm" asChild>
-                        <a href="/settings/integrations">Changer</a>
+                      <a href="/settings/integrations">Changer</a>
                     </Button>
                   </div>
                 ) : (
                   <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 flex flex-col gap-3">
                     <div className='flex gap-3'>
-                        <Info className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
-                        <p className="text-xs text-red-700 leading-relaxed font-medium">
-                          Google Drive n'est pas encore connecté. Vous devez lier votre compte pour utiliser cette destination.
-                        </p>
+                      <Info className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                      <p className="text-xs text-red-700 leading-relaxed font-medium">
+                        Google Drive n'est pas encore connecté. Vous devez lier votre compte pour utiliser cette destination.
+                      </p>
                     </div>
                     <Button variant="destructive" size="sm" className='w-full' asChild>
-                        <a href="/settings/integrations">Connecter Google Drive maintenant</a>
+                      <a href="/settings/integrations">Connecter Google Drive maintenant</a>
                     </Button>
                   </div>
                 )}
@@ -234,8 +234,8 @@ export default function SettingsBackups() {
                   <span className="text-sm font-medium">WhatsApp</span>
                   <span className="text-xs text-muted-foreground">Message direct sur votre téléphone.</span>
                 </div>
-                <Switch 
-                  checked={settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both'} 
+                <Switch
+                  checked={settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both'}
                   onCheckedChange={(checked) => {
                     const current = settings.notification_channel
                     let next: 'email' | 'whatsapp' | 'both' | 'none' = 'none'
@@ -245,20 +245,20 @@ export default function SettingsBackups() {
                   }}
                 />
               </div>
-              
+
               {(settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both') && (
                 <div className="grid gap-2 animate-in slide-in-from-top-2 duration-300">
                   <Label htmlFor="whatsapp">Numéro de téléphone</Label>
                   <div className="flex gap-2">
-                    <Input 
-                      id="whatsapp" 
-                      placeholder="+228 90 00 00 00" 
+                    <Input
+                      id="whatsapp"
+                      placeholder="+228 90 00 00 00"
                       value={settings.notification_phone || ''}
                       onChange={(e) => setSettings({ ...settings, notification_phone: e.target.value })}
                     />
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       disabled={!settings.notification_phone}
                       onClick={() => handleTestNotification('whatsapp')}
                     >
@@ -278,8 +278,8 @@ export default function SettingsBackups() {
                   <span className="text-sm font-medium">Email</span>
                   <span className="text-xs text-muted-foreground">Rapport quotidien dans votre boîte.</span>
                 </div>
-                <Switch 
-                  checked={settings.notification_channel === 'email' || settings.notification_channel === 'both'} 
+                <Switch
+                  checked={settings.notification_channel === 'email' || settings.notification_channel === 'both'}
                   onCheckedChange={(checked) => {
                     const current = settings.notification_channel
                     let next: 'email' | 'whatsapp' | 'both' | 'none' = 'none'
@@ -294,16 +294,16 @@ export default function SettingsBackups() {
                 <div className="grid gap-2 animate-in slide-in-from-top-2 duration-300">
                   <Label htmlFor="email">Adresse email de secours</Label>
                   <div className="flex gap-2">
-                    <Input 
-                      id="email" 
+                    <Input
+                      id="email"
                       type="email"
-                      placeholder="admin@vpsly.io" 
+                      placeholder="admin@vpsly.io"
                       value={settings.notification_email || ''}
                       onChange={(e) => setSettings({ ...settings, notification_email: e.target.value })}
                     />
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       disabled={!settings.notification_email}
                       onClick={() => handleTestNotification('email')}
                     >

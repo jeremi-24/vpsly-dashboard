@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useEffect, useRef } from "react"
 import { useAuthStore } from '@/stores/auth-store'
-import { Zap, ShieldCheck, Activity, Database, MessageCircle, Layers, Phone } from 'lucide-react'
+import { Zap, CloudDownload, Activity, Database, MessageCircle, Layers, Phone } from 'lucide-react'
 import { Logo } from '@/assets/logo'
 import logoWhiteBg from '@/assets/logo/logo_white_bg.png'
 import logoBlackBg from '@/assets/logo/logo_black_bg.png'
@@ -402,7 +402,7 @@ export default function VPSlyConceptA() {
 
   const features = [
     { icon: <Zap size={32} color="var(--primary)" />, title: "Déploiement auto", text: "Ton app en ligne après chaque push GitHub. Zéro intervention manuelle." },
-    { icon: <ShieldCheck size={32} color="var(--primary)" />, title: "SSL intégré", text: "Certificats HTTPS générés et renouvelés automatiquement." },
+    { icon: <CloudDownload size={32} color="var(--primary)" />, title: "SSL intégré", text: "Certificats HTTPS générés et renouvelés automatiquement." },
     { icon: <Activity size={32} color="var(--primary)" />, title: "Monitoring live", text: "CPU, RAM, disque — visible en temps réel depuis ton dashboard." },
     { icon: <Database size={32} color="var(--primary)" />, title: "Backups", text: "Sauvegardes quotidiennes. Restauration en un seul clic." },
     { icon: <MessageCircle size={32} color="var(--primary)" />, title: "Alertes WhatsApp", text: "Notification immédiate en cas de crash ou problème critique." },
@@ -484,63 +484,63 @@ export default function VPSlyConceptA() {
         </div>
 
         <div className="hero-right">
-  <svg width="100%" viewBox="0 0 400 720" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <style>{`
+          <svg width="100%" viewBox="0 0 400 720" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>{`
         .vps-pulse { animation: vpsPulse 2s ease-in-out infinite; }
         @keyframes vpsPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
       `}</style>
-    </defs>
+            </defs>
 
-    {/* Section labels */}
-    <text x="200" y="20" fontFamily="'DM Mono',monospace" fontSize="20" fill="#9c9c9cff" letterSpacing="1" textAnchor="middle">VOTRE VPS</text>
-    
-    {/* VPS cards TOP */}
-    {[
-      { x: 25, logo: "https://international.eco.de/wp-content/uploads/2018/02/hetzner-logo-clear-space.png", name: "Hetzner" },
-      { x: 145, logo: "https://upload.wikimedia.org/wikipedia/commons/f/ff/DigitalOcean_logo.svg", name: "DigitalOcean" },
-      { x: 265, logo: "https://www.lws-hosting.ch/img/logo_lws.png", name: "LWS" },
-    ].map(({ x, logo, name }) => (
-      <g key={name}>
-        <rect x={x} y="40" width="110" height="85" rx="10" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
-        <rect x={x + 35} y="52" width="40" height="40" rx="8" fill="#222" />
-        <image x={x + 39} y="56" width="32" height="32" href={logo} preserveAspectRatio="xMidYMid meet" />
-        <text x={x + 55} y="110" fontFamily="'Manrope',sans-serif" fontSize="12" fill="white" fontWeight="700" textAnchor="middle">{name}</text>
-      </g>
-    ))}
+            {/* Section labels */}
+            <text x="200" y="20" fontFamily="'DM Mono',monospace" fontSize="20" fill="#9c9c9cff" letterSpacing="1" textAnchor="middle">VOTRE VPS</text>
 
-    {/* Connector lines TOP → CENTER */}
-    {[80, 200, 320].map((cx, i) => (
-      <path key={i} d={`M ${cx} 125 C ${cx} 200 200 240 200 300`} fill="none" stroke="white" strokeWidth="0.5" opacity="0.2"/>
-    ))}
+            {/* VPS cards TOP */}
+            {[
+              { x: 25, logo: "https://international.eco.de/wp-content/uploads/2018/02/hetzner-logo-clear-space.png", name: "Hetzner" },
+              { x: 145, logo: "https://upload.wikimedia.org/wikipedia/commons/f/ff/DigitalOcean_logo.svg", name: "DigitalOcean" },
+              { x: 265, logo: "https://www.lws-hosting.ch/img/logo_lws.png", name: "LWS" },
+            ].map(({ x, logo, name }) => (
+              <g key={name}>
+                <rect x={x} y="40" width="110" height="85" rx="10" fill="#1a1a1a" stroke="#333" strokeWidth="0.5" />
+                <rect x={x + 35} y="52" width="40" height="40" rx="8" fill="#222" />
+                <image x={x + 39} y="56" width="32" height="32" href={logo} preserveAspectRatio="xMidYMid meet" />
+                <text x={x + 55} y="110" fontFamily="'Manrope',sans-serif" fontSize="12" fill="white" fontWeight="700" textAnchor="middle">{name}</text>
+              </g>
+            ))}
 
-    {/* CENTER AGENT */}
-    <rect x="145" y="300" width="110" height="90" rx="14" fill="#1a2a3a" stroke="#378ADD" strokeWidth="1.5"/>
-    <image x="175" y="310" width="50" height="50" href={logoBlackBg} preserveAspectRatio="xMidYMid meet" />
-    <text x="200" y="375" fontFamily="'Bebas Neue',sans-serif" fontSize="16" fill="white" textAnchor="middle" letterSpacing="1">VPSly</text>
+            {/* Connector lines TOP → CENTER */}
+            {[80, 200, 320].map((cx, i) => (
+              <path key={i} d={`M ${cx} 125 C ${cx} 200 200 240 200 300`} fill="none" stroke="white" strokeWidth="0.5" opacity="0.2" />
+            ))}
 
-    {/* Connector lines CENTER → BOTTOM */}
-    {[80, 140, 200, 260, 320].map((cx, i) => (
-      <path key={i} d={`M 200 390 C 200 450 ${cx} 500 ${cx} 560`} fill="none" stroke="white" strokeWidth="0.5" opacity="0.2"/>
-    ))}
+            {/* CENTER AGENT */}
+            <rect x="145" y="300" width="110" height="90" rx="14" fill="#1a2a3a" stroke="#378ADD" strokeWidth="1.5" />
+            <image x="175" y="310" width="50" height="50" href={logoBlackBg} preserveAspectRatio="xMidYMid meet" />
+            <text x="200" y="375" fontFamily="'Bebas Neue',sans-serif" fontSize="16" fill="white" textAnchor="middle" letterSpacing="1">VPSly</text>
 
-    {/* APP cards BOTTOM */}
-    {[
-      { x: 20, y: 560, name: "CRM", sub: "crm.tg" },
-      { x: 95, y: 560, name: "SaaS", sub: "app.io" },
-      { x: 170, y: 560, name: "API", sub: "api.com" },
-      { x: 245, y: 560, name: "Web", sub: "site.tg" },
-      { x: 320, y: 560, name: "Blog", sub: "blog.tg" },
-    ].map(({ x, y, name, sub }) => (
-      <g key={name}>
-        <rect x={x} y={y} width="60" height="70" rx="8" fill="#1a1a1a" stroke="#333" strokeWidth="0.5"/>
-        <circle cx={x + 30} cy={y + 15} r="4" fill="#4CAF50" className="vps-pulse"/>
-        <text x={x + 30} y={y + 40} fontFamily="'Manrope',sans-serif" fontSize="10" fill="white" fontWeight="700" textAnchor="middle">{name}</text>
-        <text x={x + 30} y={y + 55} fontFamily="'DM Mono',monospace" fontSize="8" fill="#555" textAnchor="middle">{sub}</text>
-      </g>
-    ))}
-  </svg>
-</div>
+            {/* Connector lines CENTER → BOTTOM */}
+            {[80, 140, 200, 260, 320].map((cx, i) => (
+              <path key={i} d={`M 200 390 C 200 450 ${cx} 500 ${cx} 560`} fill="none" stroke="white" strokeWidth="0.5" opacity="0.2" />
+            ))}
+
+            {/* APP cards BOTTOM */}
+            {[
+              { x: 20, y: 560, name: "CRM", sub: "crm.tg" },
+              { x: 95, y: 560, name: "SaaS", sub: "app.io" },
+              { x: 170, y: 560, name: "API", sub: "api.com" },
+              { x: 245, y: 560, name: "Web", sub: "site.tg" },
+              { x: 320, y: 560, name: "Blog", sub: "blog.tg" },
+            ].map(({ x, y, name, sub }) => (
+              <g key={name}>
+                <rect x={x} y={y} width="60" height="70" rx="8" fill="#1a1a1a" stroke="#333" strokeWidth="0.5" />
+                <circle cx={x + 30} cy={y + 15} r="4" fill="#4CAF50" className="vps-pulse" />
+                <text x={x + 30} y={y + 40} fontFamily="'Manrope',sans-serif" fontSize="10" fill="white" fontWeight="700" textAnchor="middle">{name}</text>
+                <text x={x + 30} y={y + 55} fontFamily="'DM Mono',monospace" fontSize="8" fill="#555" textAnchor="middle">{sub}</text>
+              </g>
+            ))}
+          </svg>
+        </div>
       </section>
 
       {/* PROBLEM / SOLUTION */}
