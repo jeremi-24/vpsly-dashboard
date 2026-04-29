@@ -211,7 +211,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
                     value={formData.ssh_user}
                     onChange={(e) => setFormData({ ...formData, ssh_user: e.target.value })}
                   />
-                  <p className='text-[10px] text-muted-foreground'>Utilisateur système disposant des droits Docker.</p>
+                  <p className='text-[10px] text-muted-foreground'>Utilisateur système disposant de tout les droits.</p>
                 </div>
               </div>
 

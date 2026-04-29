@@ -60,6 +60,26 @@
   scrollbar-width: none; /* Firefox */
 }
 
+@utility sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  &:hover {
+    scrollbar-width: thin;
+    -ms-overflow-style: auto;
+    &::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+  }
+}
+
 @utility faded-bottom {
   @apply after:pointer-events-none after:absolute after:inset-s-0 after:bottom-0 after:hidden after:h-32 after:w-full after:rounded-b-2xl after:bg-[linear-gradient(180deg,transparent_10%,var(--background)_70%)] md:after:block;
 }

@@ -107,9 +107,8 @@ export default function SettingsBackups() {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <CloudDownload className="h-5 w-5 text-indigo-500" />
-              <CardTitle className="text-base font-medium">Planification</CardTitle>
+              <CardTitle className="text-base font-medium">Fréquence de sauvegardes</CardTitle>
             </div>
-            <CardDescription>Fréquence et rétention.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -147,9 +146,8 @@ export default function SettingsBackups() {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Server className="h-5 w-5 text-indigo-500" />
-              <CardTitle className="text-base font-medium">Stockage</CardTitle>
+              <CardTitle className="text-base font-medium">Destination des fichiers de sauvegarde</CardTitle>
             </div>
-            <CardDescription>Destination des fichiers de sauvegarde.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

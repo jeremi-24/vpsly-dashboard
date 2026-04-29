@@ -136,7 +136,7 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
         })
       })
 
-      toast.success('Service créé', { description: 'Lancement du déploiement Docker...' })
+      toast.success('Service créé', { description: 'Lancement du déploiement...' })
       await apiFetch(`/databases/${database.id}/deploy`, { method: 'POST' })
       toast.success('Déploiement réussi')
 
