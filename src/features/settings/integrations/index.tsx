@@ -97,7 +97,7 @@ export function SettingsIntegrations() {
   const isDriveConnected = backupSettings?.storage_destination === 'google_drive' && backupSettings?.storage_credentials?.access_token
 
   return (
-    <div className='grow space-y-6'>
+    <div className='grow space-y-3'>
       <div>
         <h3 className='text-lg font-medium'>Intégrations</h3>
         <p className='text-sm text-muted-foreground'>
@@ -105,7 +105,7 @@ export function SettingsIntegrations() {
         </p>
       </div>
 
-      <div className='grid gap-6 grid-cols-1 max-w-4xl'>
+      <div className='grid grid-cols-1 max-w-4xl'>
         {/* GitHub Card */}
         <Card className='overflow-hidden border-none shadow-sm bg-muted/20'>
           <CardHeader className='pb-4'>

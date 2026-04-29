@@ -112,20 +112,37 @@ export function Backups() {
     }
   }
 
+  const [downloadingId, setDownloadingId] = useState<number | null>(null)
+
   const handleDownload = async (backup: GlobalBackup) => {
     try {
+      setDownloadingId(backup.id)
+      toast.info(`Préparation du téléchargement : ${backup.name}...`, {
+        description: "Cela peut prendre quelques instants selon la taille du fichier.",
+        duration: 5000
+      })
+
       const token = localStorage.getItem('vpsly_auth_token')
       const res = await fetch(`${getApiUrl()}/applications/${backup.application?.id}/backups/${backup.id}/download`, {
         headers: { 'Authorization': `Bearer ${token}`, 'ngrok-skip-browser-warning': 'true' }
       })
+
       if (!res.ok) throw new Error()
+
       const blob = await res.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.body.appendChild(document.createElement('a'))
-      a.href = url; a.download = backup.name; a.click()
-      window.URL.revokeObjectURL(url); a.remove()
-    } catch {
-      toast.error('Erreur de téléchargement')
+      a.href = url
+      a.download = backup.name
+      a.click()
+      window.URL.revokeObjectURL(url)
+      a.remove()
+      
+      toast.success('Téléchargement lancé avec succès')
+    } catch (error) {
+      toast.error('Erreur lors du téléchargement. Vérifiez votre connexion.')
+    } finally {
+      setDownloadingId(null)
     }
   }
 
@@ -224,7 +241,12 @@ export function Backups() {
                           <span className='font-mono text-[11px] font-regular truncate' title={bkp.name}>{bkp.name}</span>
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
-                             <Link to={`/apps/${bkp.application?.id}`} className="text-[10px] font-medium text-primary hover:underline flex items-center gap-1">
+                             <Link 
+                               to='/apps/$appId' 
+                               params={{ appId: bkp.application?.id?.toString() ?? '' }}
+                               disabled={!bkp.application?.id}
+                               className="text-[10px] font-medium text-primary hover:underline flex items-center gap-1"
+                             >
                                 <FileCode size={10} /> {bkp.application?.name}
                              </Link>
                              <span className="text-muted-foreground opacity-30">|</span>
@@ -268,9 +290,19 @@ export function Backups() {
                         <DropdownMenuContent align='end' className='w-48'>
                           <DropdownMenuLabel className='text-[10px] font-medium uppercase opacity-50'>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className='gap-2 py-2 cursor-pointer' onClick={() => handleDownload(bkp)}>
-                            <Download size={14} className='text-primary' />
-                            <span className='text-sm'>Télécharger</span>
+                          <DropdownMenuItem 
+                            className='gap-2 py-2 cursor-pointer' 
+                            onClick={() => handleDownload(bkp)}
+                            disabled={downloadingId !== null}
+                          >
+                            {downloadingId === bkp.id ? (
+                              <Loader size={14} className='text-primary animate-spin' />
+                            ) : (
+                              <Download size={14} className='text-primary' />
+                            )}
+                            <span className='text-sm'>
+                              {downloadingId === bkp.id ? 'Préparation...' : 'Télécharger'}
+                            </span>
                           </DropdownMenuItem>
                           <DropdownMenuItem className='gap-2 py-2 cursor-pointer text-orange-600 focus:text-orange-600' disabled>
                             <RotateCcw size={14} />

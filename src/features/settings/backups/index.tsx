@@ -139,18 +139,6 @@ export default function SettingsBackups() {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Rétention (jours)</Label>
-              <div className="flex items-center gap-4">
-                <Input 
-                  type="number" 
-                  value={settings.retention_days} 
-                  onChange={(e) => setSettings({ ...settings, retention_days: parseInt(e.target.value) || 1 })}
-                  className="w-24" 
-                />
-                <span className="text-sm text-muted-foreground">Les sauvegardes au-delà de cette limite sont supprimées.</span>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
