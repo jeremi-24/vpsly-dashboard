@@ -18,7 +18,6 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { NotificationBell } from '@/components/notification-bell'
 import { apiFetch } from '@/lib/api'
-import { CreateAppDrawer } from '@/features/apps/components/create-app-drawer'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export interface ApplicationInfo {
@@ -41,12 +40,16 @@ const statusText = new Map([
   ['failed', 'Échec'],
 ])
 
+import { CreateAppDrawer } from './components/create-app-drawer'
+
 export function Apps() {
   const [apps, setApps] = useState<ApplicationInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [editingApp, setEditingApp] = useState<any>(null)
+
   const search = useSearch({ from: '/_authenticated/apps/' }) as any
   const navigate = useNavigate()
 
@@ -65,11 +68,10 @@ export function Apps() {
   useEffect(() => {
     fetchApps()
     
-    // Auto-open drawer if requested
+    // Auto-redirect to create page if requested
     if (search.action === 'create-app') {
-       setDrawerOpen(true)
-       // Nettoyer l'URL
-       navigate({ to: '/apps', search: {}, replace: true })
+       setIsDrawerOpen(true)
+       setEditingApp(null)
     }
   }, [search.action])
 
@@ -78,6 +80,11 @@ export function Apps() {
     const matchesStatus = statusFilter === 'all' || app.status === statusFilter
     return matchesSearch && matchesStatus
   })
+
+  const handleEdit = (app: any) => {
+    setEditingApp(app)
+    setIsDrawerOpen(true)
+  }
 
   return (
     <>
@@ -100,10 +107,12 @@ export function Apps() {
             <h1 className='text-2xl font-bold tracking-tight'>Déployez vos applications</h1>
            
           </div>
-          <Button onClick={() => setDrawerOpen(true)}>
-            <Plus className='mr-2 h-4 w-4' />
-            <span>Déployer une application</span>
-          </Button>
+          <Link to='/apps/create'>
+            <Button>
+              <Plus className='mr-2 h-4 w-4' />
+              <span>Déployer une application</span>
+            </Button>
+          </Link>
         </div>
 
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
@@ -163,7 +172,7 @@ export function Apps() {
                   : 'Commencez par déployer votre premier projet GitHub sur vos serveurs.'}
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button variant='link' className='mt-6' onClick={() => setDrawerOpen(true)}>
+                <Button variant='link' className='mt-6' onClick={() => { setEditingApp(null); setIsDrawerOpen(true); }}>
                   Lancer mon premier déploiement
                 </Button>
               )}
@@ -198,7 +207,7 @@ export function Apps() {
                     <div className='mt-2 space-y-1.5'>
                       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                         <FolderGitIcon size={14} />
-                        <span className='truncate'>{app.repo_url.replace('https://github.com/', '')}</span>
+                        <span className='truncate'>{app.repo_url?.replace('https://github.com/', '') || 'Application Legacy'}</span>
                       </div>
                       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                         <ServerIcon size={14} />
@@ -208,13 +217,12 @@ export function Apps() {
                   </div>
 
                   <div className='flex border-t bg-muted/5'>
-                    <Link 
-                      to='/apps/$appId' 
-                      params={{ appId: app.id.toString() }}
+                    <button 
+                      onClick={() => handleEdit(app)}
                       className='flex-1 py-3 text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r'
                     >
-                      Logs
-                    </Link>
+                      Modifier
+                    </button>
                     <Link 
                       to='/apps/$appId' 
                       params={{ appId: app.id.toString() }}
@@ -230,12 +238,10 @@ export function Apps() {
         </div>
 
         <CreateAppDrawer 
-          open={drawerOpen} 
-          onOpenChange={setDrawerOpen}
-          onSuccess={() => {
-            setDrawerOpen(false)
-            fetchApps()
-          }}
+          open={isDrawerOpen} 
+          onOpenChange={setIsDrawerOpen} 
+          onSuccess={fetchApps}
+          appToEdit={editingApp}
         />
       </Main>
     </>

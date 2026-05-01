@@ -52,7 +52,7 @@ export function RecentDeployments({ deployments }: { deployments?: Deployment[] 
                 {config.label}
               </span>
               <span className='text-muted-foreground opacity-50 w-16 text-[9px]'>
-                {d.time_ago.replace('il y a ', '').replace(' ago', '')}
+                {d.time_ago?.replace('il y a ', '').replace(' ago', '') || 'now'}
               </span>
             </div>
           </div>

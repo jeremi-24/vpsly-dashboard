@@ -126,15 +126,19 @@ export function AppDetail() {
 
     const currentStatus = statusConfig[app.status] || { label: app.status, color: 'bg-muted text-muted-foreground' }
 
+    const isLegacy = app.deployment_mode === 'legacy_existing'
+
     const navItems = [
         { id: 'console', title: 'Console', icon: <Activity size={16} /> },
         { id: 'deployments', title: 'Déploiements', icon: <History size={16} /> },
-        { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
-        { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
-        { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
-        { id: 'backups', title: 'Sauvegardes', icon: <HardDrive size={16} className="text-blue-400" /> },
-        { id: 'automations', title: 'Crons', icon: <Zap size={16} /> },
-        { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
+        ...(!isLegacy ? [
+            { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
+            { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
+            { id: 'backups', title: 'Sauvegardes', icon: <HardDrive size={16} className="text-blue-400" /> },
+            { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
+            { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
+            { id: 'automations', title: 'Crons', icon: <Zap size={16} /> },
+        ] : []),
         { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
     ]
 
@@ -176,10 +180,14 @@ export function AppDetail() {
                             </div>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                                 <span className="flex items-center gap-1"><ServerIcon size={12} /> {app.server?.name}</span>
-                                <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                                <a href={app.repo_url} target="_blank" className="flex items-center gap-1 hover:text-indigo-400 transition-colors truncate max-w-[150px] sm:max-w-none">
-                                    <FolderGitIcon size={12} /> {app.repo_url.replace('https://github.com/', '')}
-                                </a>
+                                {app.repo_url && (
+                                    <>
+                                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
+                                        <a href={app.repo_url} target="_blank" className="flex items-center gap-1 hover:text-indigo-400 transition-colors truncate max-w-[150px] sm:max-w-none">
+                                            <FolderGitIcon size={12} /> {app.repo_url?.replace('https://github.com/', '')}
+                                        </a>
+                                    </>
+                                )}
                                 <Separator orientation="vertical" className="h-3 hidden sm:block" />
                                 <Badge variant="outline" className="text-[10px] h-4 font-mono px-1.5">{app.branch}</Badge>
                                 <Separator orientation="vertical" className="h-3 hidden sm:block" />
@@ -188,14 +196,18 @@ export function AppDetail() {
                                         ? `${formatDistanceToNow(new Date(app.last_deployed_at), { addSuffix: true, locale: fr })}`
                                         : 'Jamais déployé'}
                                 </span>
-                                <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                                <a
-                                    href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`}
-                                    target="_blank"
-                                    className="hover:underline flex items-center gap-1 text-indigo-400 font-medium truncate max-w-[150px] sm:max-w-none"
-                                >
-                                    <Globe size={12} /> {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
-                                </a>
+                                {((!isLegacy && (app.domain || app.server?.ip)) || (isLegacy && app.domain)) && (
+                                    <>
+                                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
+                                        <a
+                                            href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`}
+                                            target="_blank"
+                                            className="hover:underline flex items-center gap-1 text-indigo-400 font-medium truncate max-w-[150px] sm:max-w-none"
+                                        >
+                                            <Globe size={12} /> {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
+                                        </a>
+                                    </>
+                                )}
                             </div>
                         </div>
 
@@ -454,42 +466,44 @@ export function AppDetail() {
                                     </p>
 
                                     <div className="space-y-3">
-                                        {/* PRUNE */}
-                                        <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-amber-500/20 bg-amber-500/[0.04]">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
-                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                        <path d="M8 2L14 13H2L8 2Z" stroke="#BA7517" strokeWidth="1.2" strokeLinejoin="round" />
-                                                        <path d="M8 6.5V9" stroke="#BA7517" strokeWidth="1.2" strokeLinecap="round" />
-                                                        <circle cx="8" cy="11" r="0.6" fill="#BA7517" />
-                                                    </svg>
+                                        {/* PRUNE - Only for Docker */}
+                                        {!isLegacy && (
+                                            <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-amber-500/20 bg-amber-500/[0.04]">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                            <path d="M8 2L14 13H2L8 2Z" stroke="#BA7517" strokeWidth="1.2" strokeLinejoin="round" />
+                                                            <path d="M8 6.5V9" stroke="#BA7517" strokeWidth="1.2" strokeLinecap="round" />
+                                                            <circle cx="8" cy="11" r="0.6" fill="#BA7517" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium">Nettoyer le serveur</p>
+                                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                                            Supprime containers arrêtés, images orphelines et volumes inutilisés.
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-medium">Nettoyer le serveur</p>
-                                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                                        Supprime containers arrêtés, images orphelines et volumes inutilisés.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="shrink-0 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 text-xs"
-                                                onClick={async () => {
-                                                    if (confirm('Lancer un nettoyage complet du serveur Docker ?')) {
-                                                        try {
-                                                            toast.info('Nettoyage du serveur Docker en cours...');
-                                                            const res = await apiFetch(`/servers/${app.server_id}/prune`, { method: 'POST' })
-                                                            toast.success(res.message)
-                                                        } catch {
-                                                            toast.error('Échec du nettoyage du serveur')
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="shrink-0 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 text-xs"
+                                                    onClick={async () => {
+                                                        if (confirm('Lancer un nettoyage complet du serveur Docker ?')) {
+                                                            try {
+                                                                toast.info('Nettoyage du serveur Docker en cours...');
+                                                                const res = await apiFetch(`/servers/${app.server_id}/prune`, { method: 'POST' })
+                                                                toast.success(res.message)
+                                                            } catch {
+                                                                toast.error('Échec du nettoyage du serveur')
+                                                            }
                                                         }
-                                                    }
-                                                }}
-                                            >
-                                                Lancer le nettoyage
-                                            </Button>
-                                        </div>
+                                                    }}
+                                                >
+                                                    Lancer le nettoyage
+                                                </Button>
+                                            </div>
+                                        )}
  
                                          {/* DELETE */}
                                          <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/[0.04]" >
