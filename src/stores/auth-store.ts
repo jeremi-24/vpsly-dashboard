@@ -8,6 +8,11 @@ interface AuthUser {
   email: string
   avatar?: string
   phone?: string
+  current_team_id?: number
+  current_team?: {
+    id: number
+    name: string
+  }
 }
 
 interface AuthState {

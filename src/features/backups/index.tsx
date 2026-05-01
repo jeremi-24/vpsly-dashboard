@@ -410,7 +410,7 @@ export function Backups() {
             >
                 {loading ? (
                     Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="flex items-center gap-4 px-4 py-4">
+                        <div key={i} className="flex items-center gap-4 px-4">
                             <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
                             <div className="space-y-2 flex-1">
                                 <Skeleton className="h-4 w-1/3" />
@@ -427,7 +427,7 @@ export function Backups() {
                         <p className="text-sm text-muted-foreground max-w-[300px] leading-relaxed mb-8">
                             {searchTerm || serverFilter !== 'all' || appFilter !== 'all' 
                                 ? "Aucun archive ne correspond à vos filtres actuels. Essayez d'ajuster vos critères." 
-                                : "Votre historique est vide. Commencez par créer une sauvegarde pour sécuriser vos applications."}
+                                : "Aucune sauvegarde trouvée"}
                         </p>
                         {!searchTerm && serverFilter === 'all' && appFilter === 'all' && (
                             <Button 

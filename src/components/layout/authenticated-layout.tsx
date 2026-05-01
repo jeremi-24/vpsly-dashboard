@@ -1,6 +1,9 @@
 import { Outlet } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { getCookie } from '@/lib/cookies'
 import { cn } from '@/lib/utils'
+import { apiFetch } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
 import { LayoutProvider } from '@/context/layout-provider'
 import { SearchProvider } from '@/context/search-provider'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
@@ -13,6 +16,19 @@ type AuthenticatedLayoutProps = {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie('sidebar_state') !== 'false'
+  const { setUser } = useAuthStore(state => state.auth)
+
+  useEffect(() => {
+    const syncUser = async () => {
+      try {
+        const user = await apiFetch<any>('/user')
+        setUser(user)
+      } catch (e) {
+        console.error('Failed to sync user', e)
+      }
+    }
+    syncUser()
+  }, [])
 
   return (
     <SearchProvider>

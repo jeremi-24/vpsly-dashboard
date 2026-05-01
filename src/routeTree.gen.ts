@@ -33,6 +33,7 @@ import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedServersIndexRouteImport } from './routes/_authenticated/servers/index'
 import { Route as AuthenticatedDatabasesIndexRouteImport } from './routes/_authenticated/databases/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
+import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings/team'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings/integrations'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
@@ -40,6 +41,7 @@ import { Route as AuthenticatedSettingsBillingRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsBackupsRouteImport } from './routes/_authenticated/settings/backups'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedInvitationsTokenRouteImport } from './routes/_authenticated/invitations.$token'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedDatabasesDatabaseIdRouteImport } from './routes/_authenticated/databases/$databaseId'
 import { Route as AuthenticatedAppsAppIdRouteImport } from './routes/_authenticated/apps/$appId'
@@ -167,6 +169,12 @@ const AuthenticatedAppsIndexRoute = AuthenticatedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsTeamRoute =
+  AuthenticatedSettingsTeamRouteImport.update({
+    id: '/team',
+    path: '/team',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -209,6 +217,12 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedInvitationsTokenRoute =
+  AuthenticatedInvitationsTokenRouteImport.update({
+    id: '/invitations/$token',
+    path: '/invitations/$token',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -250,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/databases/$databaseId': typeof AuthenticatedDatabasesDatabaseIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invitations/$token': typeof AuthenticatedInvitationsTokenRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/backups': typeof AuthenticatedSettingsBackupsRoute
@@ -257,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/settings/team': typeof AuthenticatedSettingsTeamRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
   '/databases/': typeof AuthenticatedDatabasesIndexRoute
   '/servers/': typeof AuthenticatedServersIndexRoute
@@ -284,6 +300,7 @@ export interface FileRoutesByTo {
   '/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/databases/$databaseId': typeof AuthenticatedDatabasesDatabaseIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/invitations/$token': typeof AuthenticatedInvitationsTokenRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/backups': typeof AuthenticatedSettingsBackupsRoute
@@ -291,6 +308,7 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/settings/team': typeof AuthenticatedSettingsTeamRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/databases': typeof AuthenticatedDatabasesIndexRoute
   '/servers': typeof AuthenticatedServersIndexRoute
@@ -321,6 +339,7 @@ export interface FileRoutesById {
   '/_authenticated/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/_authenticated/databases/$databaseId': typeof AuthenticatedDatabasesDatabaseIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/invitations/$token': typeof AuthenticatedInvitationsTokenRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/backups': typeof AuthenticatedSettingsBackupsRoute
@@ -328,6 +347,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/settings/team': typeof AuthenticatedSettingsTeamRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/databases/': typeof AuthenticatedDatabasesIndexRoute
   '/_authenticated/servers/': typeof AuthenticatedServersIndexRoute
@@ -358,6 +378,7 @@ export interface FileRouteTypes {
     | '/apps/$appId'
     | '/databases/$databaseId'
     | '/errors/$error'
+    | '/invitations/$token'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/backups'
@@ -365,6 +386,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/integrations'
     | '/settings/notifications'
+    | '/settings/team'
     | '/apps/'
     | '/databases/'
     | '/servers/'
@@ -392,6 +414,7 @@ export interface FileRouteTypes {
     | '/apps/$appId'
     | '/databases/$databaseId'
     | '/errors/$error'
+    | '/invitations/$token'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/backups'
@@ -399,6 +422,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/integrations'
     | '/settings/notifications'
+    | '/settings/team'
     | '/apps'
     | '/databases'
     | '/servers'
@@ -428,6 +452,7 @@ export interface FileRouteTypes {
     | '/_authenticated/apps/$appId'
     | '/_authenticated/databases/$databaseId'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/invitations/$token'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/backups'
@@ -435,6 +460,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/integrations'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/settings/team'
     | '/_authenticated/apps/'
     | '/_authenticated/databases/'
     | '/_authenticated/servers/'
@@ -630,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings/team': {
+      id: '/_authenticated/settings/team'
+      path: '/team'
+      fullPath: '/settings/team'
+      preLoaderRoute: typeof AuthenticatedSettingsTeamRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
       path: '/notifications'
@@ -679,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/invitations/$token': {
+      id: '/_authenticated/invitations/$token'
+      path: '/invitations/$token'
+      fullPath: '/invitations/$token'
+      preLoaderRoute: typeof AuthenticatedInvitationsTokenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -711,6 +751,7 @@ interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsDisplayRoute: typeof AuthenticatedSettingsDisplayRoute
   AuthenticatedSettingsIntegrationsRoute: typeof AuthenticatedSettingsIntegrationsRoute
   AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
+  AuthenticatedSettingsTeamRoute: typeof AuthenticatedSettingsTeamRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
 }
 
@@ -725,6 +766,7 @@ const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteCh
       AuthenticatedSettingsIntegrationsRoute,
     AuthenticatedSettingsNotificationsRoute:
       AuthenticatedSettingsNotificationsRoute,
+    AuthenticatedSettingsTeamRoute: AuthenticatedSettingsTeamRoute,
     AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
   }
 
@@ -741,6 +783,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppsAppIdRoute: typeof AuthenticatedAppsAppIdRoute
   AuthenticatedDatabasesDatabaseIdRoute: typeof AuthenticatedDatabasesDatabaseIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedInvitationsTokenRoute: typeof AuthenticatedInvitationsTokenRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedDatabasesIndexRoute: typeof AuthenticatedDatabasesIndexRoute
   AuthenticatedServersIndexRoute: typeof AuthenticatedServersIndexRoute
@@ -754,6 +797,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppsAppIdRoute: AuthenticatedAppsAppIdRoute,
   AuthenticatedDatabasesDatabaseIdRoute: AuthenticatedDatabasesDatabaseIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedInvitationsTokenRoute: AuthenticatedInvitationsTokenRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedDatabasesIndexRoute: AuthenticatedDatabasesIndexRoute,
   AuthenticatedServersIndexRoute: AuthenticatedServersIndexRoute,
