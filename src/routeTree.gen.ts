@@ -15,6 +15,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthenticatedHelpCenterRouteImport } from './routes/_authenticated/help-center'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBackupsRouteImport } from './routes/_authenticated/backups'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
@@ -71,6 +72,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedHelpCenterRoute = AuthenticatedHelpCenterRouteImport.update({
+  id: '/help-center',
+  path: '/help-center',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -239,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/backups': typeof AuthenticatedBackupsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/help-center': typeof AuthenticatedHelpCenterRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/databases/$databaseId': typeof AuthenticatedDatabasesDatabaseIdRoute
@@ -272,6 +279,7 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/backups': typeof AuthenticatedBackupsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/help-center': typeof AuthenticatedHelpCenterRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/databases/$databaseId': typeof AuthenticatedDatabasesDatabaseIdRoute
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   '/(errors)/503': typeof errors503Route
   '/_authenticated/backups': typeof AuthenticatedBackupsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/help-center': typeof AuthenticatedHelpCenterRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/_authenticated/apps/$appId': typeof AuthenticatedAppsAppIdRoute
   '/_authenticated/databases/$databaseId': typeof AuthenticatedDatabasesDatabaseIdRoute
@@ -344,6 +353,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/backups'
     | '/dashboard'
+    | '/help-center'
     | '/auth/callback'
     | '/apps/$appId'
     | '/databases/$databaseId'
@@ -377,6 +387,7 @@ export interface FileRouteTypes {
     | '/503'
     | '/backups'
     | '/dashboard'
+    | '/help-center'
     | '/auth/callback'
     | '/apps/$appId'
     | '/databases/$databaseId'
@@ -412,6 +423,7 @@ export interface FileRouteTypes {
     | '/(errors)/503'
     | '/_authenticated/backups'
     | '/_authenticated/dashboard'
+    | '/_authenticated/help-center'
     | '/auth/callback'
     | '/_authenticated/apps/$appId'
     | '/_authenticated/databases/$databaseId'
@@ -491,6 +503,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/help-center': {
+      id: '/_authenticated/help-center'
+      path: '/help-center'
+      fullPath: '/help-center'
+      preLoaderRoute: typeof AuthenticatedHelpCenterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -718,6 +737,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedBackupsRoute: typeof AuthenticatedBackupsRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedHelpCenterRoute: typeof AuthenticatedHelpCenterRoute
   AuthenticatedAppsAppIdRoute: typeof AuthenticatedAppsAppIdRoute
   AuthenticatedDatabasesDatabaseIdRoute: typeof AuthenticatedDatabasesDatabaseIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
@@ -730,6 +750,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedBackupsRoute: AuthenticatedBackupsRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedHelpCenterRoute: AuthenticatedHelpCenterRoute,
   AuthenticatedAppsAppIdRoute: AuthenticatedAppsAppIdRoute,
   AuthenticatedDatabasesDatabaseIdRoute: AuthenticatedDatabasesDatabaseIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,

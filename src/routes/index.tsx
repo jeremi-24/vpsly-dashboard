@@ -353,7 +353,7 @@ function Terminal({ onComplete }: { onComplete?: () => void }) {
   )
 }
 
-export default function VPSlyConceptA() {
+function VPSlyConceptA() {
   const { auth } = useAuthStore()
   const isLoggedIn = !!auth.accessToken
   const [isAnnual, setIsAnnual] = useState(false)

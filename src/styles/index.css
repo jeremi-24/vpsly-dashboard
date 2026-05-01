@@ -1,11 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import './theme.css';
-
-@custom-variant dark (&:is(.dark *));
-
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700;800&display=swap');
 
+@custom-variant dark (&:is(.dark *));
 @layer base {
   * {
     @apply border-border outline-ring/50 font-manrope;
