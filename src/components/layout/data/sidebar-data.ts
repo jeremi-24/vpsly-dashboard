@@ -100,6 +100,11 @@ export const sidebarData: SidebarData = {
               url: '/settings/backups',
               icon: CloudDownload,
             },
+            {
+              title: 'Mon Équipe',
+              url: '/settings/team',
+              icon: Users,
+            },
           ],
         },
       ],

@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { Monitor, Wrench, UserCog, FolderGitIcon, CloudDownload } from 'lucide-react'
+import { Monitor, Wrench, UserCog, FolderGitIcon, CloudDownload, Users } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
@@ -26,6 +26,11 @@ const sidebarNavItems = [
     title: 'Sauvegardes',
     href: '/settings/backups',
     icon: <CloudDownload size={18} />,
+  },
+  {
+    title: 'Mon Équipe',
+    href: '/settings/team',
+    icon: <Users size={18} />,
   },
 ]
 

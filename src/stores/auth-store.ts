@@ -12,6 +12,7 @@ interface AuthUser {
   current_team?: {
     id: number
     name: string
+    owner_id: number
   }
 }
 
