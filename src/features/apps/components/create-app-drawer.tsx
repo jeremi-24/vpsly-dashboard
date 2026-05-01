@@ -186,7 +186,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
         })
       })
 
-      toast.success('Application configurée', { description: 'Redirection vers votre dashboard...' })
+      toast.info('Application configurée', { description: 'Redirection vers votre dashboard...' })
 
       // Redirection immédiate
       if (result.application?.id) {
