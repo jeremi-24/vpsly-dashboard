@@ -149,21 +149,33 @@ export function Backups() {
         const channel = echo.private(`user.${user.id}`)
             .listen('.BackupUpdatedEvent', (e: { backup: GlobalBackup }) => {
                 setBackups(prev => {
-                    const index = prev.findIndex(b => b.id === e.backup.id)
-                    if (index !== -1) {
+                    const existing = prev.find(b => b.id === e.backup.id)
+                    const wasRestoring = existing?.status === 'restoring'
+
+                    // Notifications
+                    if (e.backup.status === 'success' && existing && existing.status !== 'success') {
+                        if (wasRestoring) {
+                            toast.success(`Restauration réussie : ${e.backup.name}`)
+                        } else {
+                            toast.success(`Sauvegarde terminée : ${e.backup.name}`)
+                        }
+                    }
+                    if (e.backup.status === 'failed' && existing && existing.status !== 'failed') {
+                        toast.error(`Échec : ${e.backup.name}`)
+                    }
+
+                    if (existing) {
                         const newBackups = [...prev]
+                        const index = prev.findIndex(b => b.id === e.backup.id)
                         newBackups[index] = e.backup
                         return newBackups
                     }
-                    // Only add if we are on the first page
+
                     if (currentPage === 1) {
                         return [e.backup, ...prev].slice(0, 10)
                     }
                     return prev
                 })
-
-                if (e.backup.status === 'success') toast.success(`Sauvegarde terminée : ${e.backup.name}`)
-                if (e.backup.status === 'failed') toast.error(`Échec de la sauvegarde : ${e.backup.name}`)
             })
 
         return () => {
@@ -234,7 +246,7 @@ export function Backups() {
         method: 'POST'
       })
       
-      toast.success('Restauration lancée', {
+      toast.info('Restauration lancée', {
         description: 'L\'application est en cours de rollback.'
       })
     } catch (error) {

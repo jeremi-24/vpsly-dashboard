@@ -401,7 +401,31 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess }: CreateAppDraw
                             </div>
                           </div>
                         ))
-                      ) : "Aucun serveur connecté trouvé."}
+                      ) : (
+                        <div className='p-8 h-full flex flex-col items-center justify-center text-center space-y-4'>
+                          <div className='h-12 w-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground opacity-50'>
+                            <ServerIcon size={24} />
+                          </div>
+                          <div className='space-y-1'>
+                            <p className='text-sm font-bold uppercase tracking-wider'>Aucun serveur disponible</p>
+                            <p className='text-xs text-muted-foreground px-4'>
+                              Vous devez connecter au moins un serveur VPS pour déployer cette application.
+                            </p>
+                          </div>
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="gap-2 border-dashed"
+                            onClick={() => {
+                              localStorage.setItem('vpsly_pending_action', 'create_app')
+                              navigate({ to: '/servers' })
+                            }}
+                          >
+                            <Plus size={14} />
+                            Connecter votre VPS
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className='p-2 space-y-2'>

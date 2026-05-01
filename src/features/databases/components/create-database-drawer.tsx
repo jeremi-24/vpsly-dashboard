@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Database, Server as ServerIcon, Check, Loader, ChevronRight, Settings, Shield, Key, Boxes } from 'lucide-react'
+import { Database, Server as ServerIcon, Check, Loader, ChevronRight, Settings, Shield, Key, Boxes, ExternalLink } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import {
@@ -25,7 +25,7 @@ interface CreateDatabaseDrawerProps {
 
 const ENGINES = [
   {
-    id: 'postgresql',
+    id: 'postgres',
     name: 'PostgreSQL',
     image: 'postgres:15-alpine',
     defaultPort: '5432',
@@ -37,12 +37,22 @@ const ENGINES = [
   {
     id: 'mysql',
     name: 'MySQL',
-    image: 'mysql:8.0',
+    image: 'mysql:8.4',
     defaultPort: '3306',
     color: 'border-orange-500 bg-orange-500/5',
     iconColor: 'text-orange-500',
     description: 'Populaire, simple et performant.',
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg'
+  },
+  {
+    id: 'mariadb',
+    name: 'MariaDB',
+    image: 'mariadb:11',
+    defaultPort: '3306',
+    color: 'border-teal-500 bg-teal-500/5',
+    iconColor: 'text-teal-500',
+    description: 'Fork de MySQL, performant et open-source.',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mariadb/mariadb-original.svg'
   },
   {
     id: 'redis',
@@ -72,17 +82,19 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
   const [dbUser, setDbUser] = useState('postgres')
   const [dbPassword, setDbPassword] = useState('')
   const [dbDatabase, setDbDatabase] = useState('postgres')
+  const [hasAdminer, setHasAdminer] = useState(true)
 
   // Effect pour adapter les défauts selon le moteur
   useEffect(() => {
     if (selectedEngine) {
       setImage(selectedEngine.image)
-      if (selectedEngine.id === 'mysql') {
-        setDbUser('root')
+      if (selectedEngine.id === 'mysql' || selectedEngine.id === 'mariadb') {
+        setDbUser('vpsly_user')
         setDbDatabase('laravel')
       } else if (selectedEngine.id === 'redis') {
         setDbUser('default')
         setDbDatabase('0')
+        setHasAdminer(false)
       } else {
         setDbUser('postgres')
         setDbDatabase('postgres')
@@ -129,10 +141,12 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
         body: JSON.stringify({
           name: dbName,
           server_id: selectedServer.id,
+          type: selectedEngine.id,
           image: image,
-          postgres_user: dbUser,
-          postgres_password: dbPassword,
-          postgres_db: dbDatabase,
+          db_user: dbUser,
+          db_password: dbPassword,
+          db_name: dbDatabase,
+          has_adminer: hasAdminer,
         })
       })
 
@@ -216,7 +230,7 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
                       </div>
                       <div className='flex-1'>
                         <h3 className='font-bold text-xs uppercase tracking-tighter'>Plus de moteurs...</h3>
-                        <p className='text-[10px]'>MongoDB, MariaDB, Meilisearch.</p>
+                        <p className='text-[10px]'>MongoDB, Meilisearch.</p>
                       </div>
                     </div>
                   </div>
@@ -320,19 +334,29 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
                         Générer un mot de passe aléatoire
                       </Button>
                     </div>
+
+                    {selectedEngine.id !== 'redis' && (
+                      <div className='flex items-center justify-between p-3 rounded-lg border bg-muted/20'>
+                        <div className='flex items-center gap-3'>
+                          <div className='h-8 w-8 rounded bg-indigo-500/10 flex items-center justify-center text-indigo-500'>
+                            <ExternalLink size={16} />
+                          </div>
+                          <div>
+                            <p className='text-xs font-bold'>Interface de gestion (Adminer)</p>
+                            <p className='text-[10px] text-muted-foreground'>Accès web direct à vos données.</p>
+                          </div>
+                        </div>
+                        <input 
+                          type="checkbox" 
+                          checked={hasAdminer} 
+                          onChange={(e) => setHasAdminer(e.target.checked)}
+                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                        />
+                      </div>
+                    )}
                   </div>
 
-                  <div className='mt-6 p-4 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-white text-indigo-800 dark:from-indigo-950/30 dark:to-background dark:border-indigo-900/50 shadow-sm'>
-                    <div className='flex gap-3'>
-                      <Shield className='h-5 w-5 flex-none text-indigo-400' />
-                      <div>
-                        <p className='font-bold text-xs mb-1'>Sécurité Enterprise</p>
-                        <p className='text-[10px] leading-relaxed opacity-80'>
-                          Credentials isolés et chiffrement natif activé.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  
                 </div>
               )}
             </div>

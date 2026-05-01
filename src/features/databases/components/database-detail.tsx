@@ -15,7 +15,8 @@ import {
     EyeOff,
     Activity,
     Lock,
-    Check
+    Check,
+    ExternalLink
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiFetch } from '@/lib/api'
@@ -149,6 +150,32 @@ export function DatabaseDetail() {
         }
     }
 
+    const handleStop = async () => {
+        try {
+            setIsActionInProgress(true)
+            await apiFetch(`/databases/${databaseId}/stop`, { method: 'POST' })
+            toast.success('Instance arrêtée')
+            setDatabase((prev: any) => ({ ...prev, status: 'exited' }))
+        } catch (error) {
+            toast.error('Échec de l\'arrêt')
+        } finally {
+            setIsActionInProgress(false)
+        }
+    }
+
+    const handleStart = async () => {
+        try {
+            setIsActionInProgress(true)
+            await apiFetch(`/databases/${databaseId}/start`, { method: 'POST' })
+            toast.success('Instance démarrée')
+            setDatabase((prev: any) => ({ ...prev, status: 'running' }))
+        } catch (error) {
+            toast.error('Échec du démarrage')
+        } finally {
+            setIsActionInProgress(false)
+        }
+    }
+
     const handleTogglePublic = async () => {
         try {
             setIsActionInProgress(true)
@@ -242,6 +269,42 @@ export function DatabaseDetail() {
                     </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto">
+                        {database.has_adminer && database.adminer_url && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                asChild
+                                className="h-8 text-xs font-bold w-full sm:w-auto border-indigo-500/30 text-indigo-500 hover:bg-indigo-500/10"
+                            >
+                                <a href={`http://${database.adminer_url}`} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink size={14} className="mr-2" />
+                                    Ouvrir Adminer
+                                </a>
+                            </Button>
+                        )}
+                        {isRunning ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={isDeploying}
+                                onClick={handleStop}
+                                className="h-8 text-xs font-bold w-full sm:w-auto text-red-500 border-red-500/20 hover:bg-red-500/10"
+                            >
+                                {isDeploying ? <Loader size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2 rotate-180" />}
+                                STOP
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={isDeploying}
+                                onClick={handleStart}
+                                className="h-8 text-xs font-bold w-full sm:w-auto text-green-500 border-green-500/20 hover:bg-green-500/10"
+                            >
+                                {isDeploying ? <Loader size={14} className="mr-2 animate-spin" /> : <RefreshCw size={14} className="mr-2" />}
+                                START
+                            </Button>
+                        )}
                         <Button
                             variant="default"
                             size="sm"
@@ -334,31 +397,40 @@ export function DatabaseDetail() {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                                         <div className="space-y-2 p-4 rounded-xl border bg-card/30">
+                                            <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">DB_NAME</Label>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-mono font-bold truncate">{database.db_name}</span>
+                                                <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(database.db_name)}>
+                                                    <Copy size={10} />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2 p-4 rounded-xl border bg-card/30">
                                             <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">DB_PORT</Label>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs font-mono font-bold">{database.public_port || 5432}</span>
+                                                <span className="text-xs font-mono font-bold">{database.public_port || (database.type === 'mysql' || database.type === 'mariadb' ? 3306 : (database.type === 'redis' ? 6379 : 5432))}</span>
                                             </div>
                                         </div>
                                         <div className="space-y-2 p-4 rounded-xl border bg-card/30">
                                             <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">DB_USER</Label>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs font-mono font-bold truncate">{database.postgres_user}</span>
-                                                <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(database.postgres_user)}>
+                                                <span className="text-xs font-mono font-bold truncate">{database.db_user}</span>
+                                                <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => handleCopy(database.db_user)}>
                                                     <Copy size={10} />
                                                 </Button>
                                             </div>
                                         </div>
-                                        <div className="col-span-2 space-y-2 p-4 rounded-xl border bg-card/30">
+                                        <div className="space-y-2 p-4 rounded-xl border bg-card/30">
                                             <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">DB_PASSWORD</Label>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs font-mono font-bold truncate tracking-tighter">
-                                                    {showPassword ? database.postgres_password : '••••••••••••••••'}
+                                                    {showPassword ? database.db_password : '••••••••••••••••'}
                                                 </span>
                                                 <div className="flex items-center gap-1 ml-auto">
                                                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowPassword(!showPassword)}>
                                                         {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(database.postgres_password)}>
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(database.db_password)}>
                                                         <Copy size={12} />
                                                     </Button>
                                                 </div>

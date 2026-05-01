@@ -20,10 +20,13 @@ export interface DatabaseInfo {
   uuid: string
   name: string
   image: string
+  type: string
   status: string
-  postgres_user: string
-  postgres_db: string
+  db_user: string
+  db_name: string
   is_public: boolean
+  has_adminer: boolean
+  adminer_url?: string
   public_port: number | null
   server: {
     id: number
@@ -189,16 +192,21 @@ export function Databases() {
                       
                       <div className='mt-3 flex flex-wrap gap-2'>
                           <code className='px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground border'>
-                             db: {db.postgres_db}
+                             db: {db.db_name}
                           </code>
                           <code className='px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground border'>
-                             user: {db.postgres_user}
+                             user: {db.db_user}
                           </code>
+                          {db.has_adminer && (
+                             <div className='px-2 py-0.5 bg-indigo-500/10 text-indigo-500 rounded text-[10px] font-bold border border-indigo-500/20'>
+                                Adminer
+                             </div>
+                          )}
                       </div>
                     </div>
                   </div>
 
-                  <div className='flex border-t bg-muted/5'>
+                   <div className='flex border-t bg-muted/5'>
                     <Button 
                       variant='ghost'
                       className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground rounded-none border-r'
@@ -210,6 +218,19 @@ export function Databases() {
                       <LinkIcon className='mr-2 h-3.5 w-3.5' />
                       Connexion
                     </Button>
+                    
+                    {db.has_adminer && db.adminer_url && (
+                      <a 
+                        href={`http://${db.adminer_url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className='flex-1 py-3 h-auto text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r flex items-center justify-center gap-2'
+                      >
+                        <ExternalLink className='h-3.5 w-3.5' />
+                        Adminer
+                      </a>
+                    )}
+
                     <Link 
                         to="/databases/$databaseId" 
                         params={{ databaseId: db.id.toString() }}
