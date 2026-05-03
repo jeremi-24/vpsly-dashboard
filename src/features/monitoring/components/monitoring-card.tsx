@@ -9,9 +9,10 @@ interface MonitoringData {
   server_id?: number
   cpu_usage: number
   mem_percent: number
+  disk_percent: number
   mem_total: number
   mem_used: number
-  uuid?: string // UUID de la ressource pour filtrer le websocket
+  uuid?: string
   container?: {
     id: string
     name: string
@@ -33,6 +34,7 @@ export function MonitoringCard({ type, id }: { type: 'applications' | 'databases
         server_id: res.server_id,
         cpu_usage: res.system.cpu_usage,
         mem_percent: res.system.mem_percent,
+        disk_percent: res.system.disk_percent || 0,
         mem_total: 0,
         mem_used: 0,
         container: res.container
@@ -47,7 +49,6 @@ export function MonitoringCard({ type, id }: { type: 'applications' | 'databases
 
   useEffect(() => {
     fetchMetrics()
-    // On garde un polling large (30s) en fallback, mais le websocket fera le gros du travail
     const interval = setInterval(fetchMetrics, 30000)
     return () => clearInterval(interval)
   }, [id])
@@ -56,17 +57,13 @@ export function MonitoringCard({ type, id }: { type: 'applications' | 'databases
     if (data?.server_id) {
        const channel = echo.private(`server.${data.server_id}`)
           .listen('.ServerStatsUpdated', (e: { stats: any }) => {
-             // Mise à jour temps réel depuis le websocket
              setData((prev) => {
                 if (!prev) return prev;
-                // On retrouve notre container dans la liste envoyée par le serveur
-                // Note: l'agent envoie une liste de containers. On doit trouver celui qui nous intéresse.
-                // Pour l'instant on met à jour les stats système globales
                 return {
                    ...prev,
                    cpu_usage: e.stats.cpu_usage,
                    mem_percent: e.stats.mem_percent,
-                   // Si on avait l'ID du container ou l'UUID on pourrait mettre à jour le container aussi
+                   disk_percent: e.stats.disk_percent || prev.disk_percent,
                 }
              })
           })
@@ -78,52 +75,61 @@ export function MonitoringCard({ type, id }: { type: 'applications' | 'databases
   }, [data?.server_id])
 
   if (loading && !data) {
-    return <Card className="bg-card/50"><CardContent className="p-6">Chargement des métriques...</CardContent></Card>
+    return <Card className="bg-card/50"><CardContent className="p-6 text-center text-xs text-muted-foreground animate-pulse">Initialisation des métriques...</CardContent></Card>
   }
 
   if (!data) return null
 
-  // Pour l'app, on affiche les stats du container si dispos, sinon du système
   const cpuValue = data.cpu_usage || 0
   const memValue = data.container ? (data.container.memory / data.container.memory_limit) * 100 : data.mem_percent
+  const diskValue = data.disk_percent || 0
 
   return (
-    <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-card to-muted/30">
+    <Card className="overflow-hidden border-none shadow-sm bg-background/50 backdrop-blur-sm">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-sm font-bold flex items-center gap-2">
-          <Activity size={16} className="text-indigo-500" />
-          Monitoring Temps Réel
+        <CardTitle className="text-[10px] uppercase tracking-widest font-black flex items-center gap-2 text-muted-foreground">
+          <Activity size={14} className="text-primary" />
+          Live Monitoring
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 pt-0 space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <Cpu size={12} /> CPU
+        {/* CPU */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-[11px] font-bold">
+            <span className="flex items-center gap-1.5">
+              <Cpu size={12} className="text-blue-500" /> CPU
             </span>
-            <span className={cpuValue > 80 ? 'text-red-500' : 'text-foreground'}>
-              {cpuValue.toFixed(1)}%
-            </span>
+            <span className={cpuValue > 80 ? 'text-red-500' : ''}>{cpuValue.toFixed(1)}%</span>
           </div>
-          <Progress value={cpuValue} className="h-1.5 bg-muted" indicatorClassName={cpuValue > 80 ? 'bg-red-500' : 'bg-indigo-500'} />
+          <Progress value={cpuValue} className="h-1 bg-muted" indicatorClassName={cpuValue > 85 ? 'bg-red-500' : 'bg-blue-500'} />
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs font-medium">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <HardDrive size={12} /> RAM
+        {/* RAM */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-[11px] font-bold">
+            <span className="flex items-center gap-1.5">
+              <Activity size={12} className="text-emerald-500" /> RAM
             </span>
-            <span className={memValue > 80 ? 'text-red-500' : 'text-foreground'}>
-              {memValue.toFixed(1)}%
-            </span>
+            <span className={memValue > 80 ? 'text-red-500' : ''}>{memValue.toFixed(1)}%</span>
           </div>
-          <Progress value={memValue} className="h-1.5 bg-muted" indicatorClassName={memValue > 80 ? 'bg-red-500' : 'bg-indigo-500'} />
+          <Progress value={memValue} className="h-1 bg-muted" indicatorClassName={memValue > 85 ? 'bg-red-500' : 'bg-emerald-500'} />
+        </div>
+
+        {/* DISK */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-[11px] font-bold">
+            <span className="flex items-center gap-1.5">
+              <HardDrive size={12} className="text-amber-500" /> DISQUE
+            </span>
+            <span className={diskValue > 90 ? 'text-red-500' : ''}>{diskValue.toFixed(1)}%</span>
+          </div>
+          <Progress value={diskValue} className="h-1 bg-muted" indicatorClassName={diskValue > 90 ? 'bg-red-500' : 'bg-amber-500'} />
         </div>
         
         {data.container && (
-           <div className="pt-2 border-t border-border/50 flex items-center justify-between">
-              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Container Usage</span>
-              <span className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+           <div className="pt-2 mt-2 border-t border-border/40 flex items-center justify-between">
+              <span className="text-[9px] text-muted-foreground uppercase font-bold">Container Usage</span>
+              <span className="text-[9px] font-mono bg-muted px-1 rounded text-foreground">
                  {(data.container.memory / 1024 / 1024).toFixed(1)} MB
               </span>
            </div>
