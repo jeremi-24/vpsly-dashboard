@@ -46,7 +46,7 @@ export function AppDetail() {
     const [isDeployingLocal, setIsDeployingLocal] = useState(false)
     const [activeTab, setActiveTab] = useState('console')
     const [currentDeploymentId, setCurrentDeploymentId] = useState<number | null>(null)
-    const [expandedConsole, setExpandedConsole] = useState<'build' | 'runtime' | 'none'>('runtime')
+    const [expandedConsole, setExpandedConsole] = useState<'build' | 'runtime' | 'equal'>('equal')
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
 
@@ -273,13 +273,14 @@ export function AppDetail() {
                             activeTab === 'console' ? "overflow-hidden" : "overflow-y-auto"
                         )}>
                             {activeTab === 'console' && (
-                                <div className="h-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                <div className="h-[calc(100vh-160px)] flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     {/* BUILD CONSOLE */}
                                     <div className={cn(
-                                        "min-h-0 flex flex-col transition-all duration-500 ease-in-out",
-                                        expandedConsole === 'build' ? "flex-[2]" : (expandedConsole === 'runtime' ? "flex-[0.5] opacity-50" : "flex-1")
+                                        "min-h-0 flex flex-col transition-all duration-500 ease-in-out border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]",
+                                        expandedConsole === 'build' ? "flex-[2]" : (expandedConsole === 'runtime' ? "flex-[1]" : "flex-1")
                                     )}>
-                                        <div className="flex items-center justify-between mb-2 flex-none">
+                                        <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5 flex-none cursor-pointer"
+                                             onClick={() => setExpandedConsole(prev => prev === 'build' ? 'equal' : 'build')}>
                                             <div className="flex items-center gap-4">
                                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                                     Console de Build
@@ -288,7 +289,10 @@ export function AppDetail() {
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-5 w-5 hover:bg-white/5"
-                                                    onClick={() => setExpandedConsole(expandedConsole === 'build' ? 'none' : 'build')}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setExpandedConsole(prev => prev === 'build' ? 'equal' : 'build')
+                                                    }}
                                                 >
                                                     {expandedConsole === 'build' ? <Minimize2 size={10} /> : <Maximize2 size={10} />}
                                                 </Button>
@@ -299,7 +303,7 @@ export function AppDetail() {
                                                 </Badge>
                                             )}
                                         </div>
-                                        <div className="flex-1 min-h-0 border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]">
+                                        <div className="flex-1 min-h-0">
                                             {currentDeploymentId ? (
                                                 <DeploymentTerminal
                                                     key={currentDeploymentId}
@@ -307,7 +311,7 @@ export function AppDetail() {
                                                     initialLogs={currentDeploymentId === latestDeployment?.id ? (latestDeployment.logs || []) : []}
                                                 />
                                             ) : (
-                                                <div className="h-full flex items-center justify-center bg-muted/5 text-muted-foreground p-4 text-center">
+                                                <div className="h-full flex items-center justify-center text-muted-foreground p-4 text-center">
                                                     <p className="text-xs italic">Aucun log de build disponible.</p>
                                                 </div>
                                             )}
@@ -316,19 +320,23 @@ export function AppDetail() {
 
                                     {/* RUNTIME CONSOLE */}
                                     <div className={cn(
-                                        "min-h-0 flex flex-col transition-all duration-500 ease-in-out",
-                                        expandedConsole === 'runtime' ? "flex-[2]" : (expandedConsole === 'build' ? "flex-[0.5] opacity-50" : "flex-1")
+                                        "min-h-0 flex flex-col transition-all duration-500 ease-in-out border rounded-lg overflow-hidden border-white/5 bg-[#0a0a0a]",
+                                        expandedConsole === 'runtime' ? "flex-[2]" : (expandedConsole === 'build' ? "flex-[1]" : "flex-1")
                                     )}>
-                                        <div className="flex items-center justify-between mb-2 flex-none">
+                                        <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5 flex-none cursor-pointer"
+                                             onClick={() => setExpandedConsole(prev => prev === 'runtime' ? 'equal' : 'runtime')}>
                                             <div className="flex items-center gap-4">
                                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                                    Logs de l'application
+                                                    Logs de l'application (Runtime)
                                                 </h3>
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-5 w-5 hover:bg-white/5"
-                                                    onClick={() => setExpandedConsole(expandedConsole === 'runtime' ? 'none' : 'runtime')}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setExpandedConsole(prev => prev === 'runtime' ? 'equal' : 'runtime')
+                                                    }}
                                                 >
                                                     {expandedConsole === 'runtime' ? <Minimize2 size={10} /> : <Maximize2 size={10} />}
                                                 </Button>
@@ -401,7 +409,7 @@ export function AppDetail() {
                                         <div className="flex items-center justify-between">
                                             <h2 className="text-lg font-bold">Auto-déploiement (Webhook)</h2>
                                         </div>
-                                        
+
                                         <PlanLock requiredPlan="pro" featureName="GitHub Webhooks" showFullOverlay={false}>
                                             <div className="p-6 rounded-2xl border bg-card/50 relative overflow-hidden">
                                                 <div className="space-y-4">
@@ -466,9 +474,9 @@ export function AppDetail() {
                                                 >
                                                     Ouvrir
                                                 </Button>
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
                                                     className={cn(
                                                         "h-9 text-xs shrink-0 relative overflow-hidden",
                                                         userPlan === 'starter' && "premium-lock-overlay"
@@ -555,41 +563,41 @@ export function AppDetail() {
                                                 </Button>
                                             </div>
                                         )}
- 
-                                         {/* DELETE */}
-                                         <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/[0.04]" >
-                                             <div className="flex items-center gap-3">
-                                                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                                         <rect x="2" y="4" width="12" height="1.2" rx="0.6" fill="#E24B4A" />
-                                                         <path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="#E24B4A" strokeWidth="1.2" />
-                                                         <path d="M6.5 7v4M9.5 7v4" stroke="#E24B4A" strokeWidth="1.2" strokeLinecap="round" />
-                                                         <rect x="3.5" y="5.2" width="9" height="8" rx="1" stroke="#E24B4A" strokeWidth="1.2" />
-                                                     </svg>
-                                                 </div>
-                                                 <div>
-                                                     <p className="text-sm font-medium">Supprimer l'application</p>
-                                                     <p className="text-xs text-muted-foreground mt-0.5">
-                                                         Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard.
-                                                     </p>
-                                                 </div>
-                                             </div>
-                                             <Button
-                                                 variant="outline"
-                                                 size="sm"
-                                                 className="shrink-0 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs"
-                                                 onClick={async () => {
-                                                     if (confirm(`Supprimer "${app.name}" ? Cette action est irréversible.`)) {
-                                                         try {
-                                                             toast.info('Suppression de l\'application...')
-                                                             await apiFetch(`/applications/${appId}`, { method: 'DELETE' })
-                                                             toast.success('Application supprimée avec succès.')
-                                                             window.location.href = '/apps'
-                                                         } catch {
-                                                             toast.error('Échec de la suppression de l\'application')
-                                                         }
-                                                     }
-                                                 }}
+
+                                        {/* DELETE */}
+                                        <div className="flex items-center justify-between gap-4 p-5 rounded-xl border border-red-500/20 bg-red-500/[0.04]" >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
+                                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                        <rect x="2" y="4" width="12" height="1.2" rx="0.6" fill="#E24B4A" />
+                                                        <path d="M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1" stroke="#E24B4A" strokeWidth="1.2" />
+                                                        <path d="M6.5 7v4M9.5 7v4" stroke="#E24B4A" strokeWidth="1.2" strokeLinecap="round" />
+                                                        <rect x="3.5" y="5.2" width="9" height="8" rx="1" stroke="#E24B4A" strokeWidth="1.2" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium">Supprimer l'application</p>
+                                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                                        Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="shrink-0 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-500/10 text-xs"
+                                                onClick={async () => {
+                                                    if (confirm(`Supprimer "${app.name}" ? Cette action est irréversible.`)) {
+                                                        try {
+                                                            toast.info('Suppression de l\'application...')
+                                                            await apiFetch(`/applications/${appId}`, { method: 'DELETE' })
+                                                            toast.success('Application supprimée avec succès.')
+                                                            window.location.href = '/apps'
+                                                        } catch {
+                                                            toast.error('Échec de la suppression de l\'application')
+                                                        }
+                                                    }
+                                                }}
                                             >
                                                 Supprimer
                                             </Button>
@@ -601,12 +609,12 @@ export function AppDetail() {
                     </div>
                 </div>
             </Main>
-            <UpgradeModal 
+            <UpgradeModal
                 open={isUpgradeModalOpen}
                 onOpenChange={setIsUpgradeModalOpen}
             />
 
-            <CreateAppDrawer 
+            <CreateAppDrawer
                 open={isEditDrawerOpen}
                 onOpenChange={setIsEditDrawerOpen}
                 onSuccess={() => {
