@@ -134,7 +134,7 @@ function TermsPage() {
       <div className="terms-container">
         <header className="terms-header">
           <h1 className="terms-h1">Conditions Générales d'Utilisation</h1>
-          <p className="version-tag">Version 1.0 — Dernière mise à jour : 28 avril 2026</p>
+          <p className="version-tag">Version 1.0 — Dernière mise à jour : 3 mai 2026</p>
         </header>
 
         <div className="terms-content">
@@ -154,14 +154,14 @@ function TermsPage() {
             <li><strong>Utilisateur</strong> : toute personne physique ou morale ayant créé un compte VPSly.</li>
             <li><strong>Agent VPSly</strong> : le logiciel installé sur le serveur de l'Utilisateur.</li>
             <li><strong>Application</strong> : tout projet logiciel déployé via le Service.</li>
-            <li><strong>Plan</strong> : l'offre d'abonnement souscrit (Starter, Pro ou Business).</li>
+            <li><strong>Plan</strong> : l'offre d'abonnement souscrit (Starter, Solo ou Pro).</li>
           </ul>
 
           <h2>3. Accès au service</h2>
           <h3>3.1 Création de compte</h3>
           <p>L'accès au Service nécessite la création d'un compte avec une adresse e-mail valide. Un seul compte par personne ou organisation est autorisé.</p>
           <h3>3.2 Sécurité</h3>
-          <p>L'Utilisateur est seul responsable de la confidentialité de ses identifiants. En cas de compromission, contacte-nous à legal@vpsly.io.</p>
+          <p>L'Utilisateur est seul responsable de la confidentialité de ses identifiants. En cas de compromission, contacte-nous à contact@vpsly.tech.</p>
 
 
           <h2>4. Remboursements</h2>
@@ -177,7 +177,7 @@ function TermsPage() {
           <p>L'Utilisateur reste seul propriétaire et administrateur de son serveur. L'Agent VPSly peut être désinstallé à tout moment via la commande <code>vpsly uninstall</code>. La désinstallation dissocie le serveur de votre compte sans supprimer les applications déjà déployées.</p>
 
           <h2>8. Disponibilité</h2>
-          <p>Nous visons une disponibilité du dashboard de 99% par mois. L'état du service est consultable sur status.vpsly.io.</p>
+          <p>Nous visons une disponibilité du dashboard de 99% par mois. L'état du service est consultable sur status.vpsly.tech.</p>
 
           <h2>9. Responsabilité</h2>
           <p>La responsabilité de VPSly est limitée au montant des sommes versées au cours des 3 derniers mois. Nous ne sommes pas responsables des défaillances de votre propre serveur.</p>
@@ -192,8 +192,11 @@ function TermsPage() {
           <p>
             <strong>L'équipe VPSly</strong><br />
             Lomé, Togo<br />
-            <a href="mailto:legal@vpsly.io" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-              <Mail size={14} color="#378ADD" /> legal@vpsly.io
+            <a href="mailto:contact@vpsly.tech" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <Mail size={14} color="#378ADD" /> contact@vpsly.tech
+            </a>
+            <a href="mailto:support@vpsly.tech" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <Mail size={14} color="#378ADD" /> support@vpsly.tech
             </a>
             <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
               <MessageCircle size={14} color="#378ADD" /> WhatsApp : +228 79012470
@@ -202,7 +205,7 @@ function TermsPage() {
         </div>
 
         <div className="footer-mini">
-          VPSly — Lomé, Togo 🇹🇬
+          VPSly.tech — Lomé, Togo 🇹🇬
         </div>
       </div>
     </div>

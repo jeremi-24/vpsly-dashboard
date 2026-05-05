@@ -295,7 +295,7 @@ export default function SettingsBackups() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder="admin@vpsly.io"
+                      placeholder="admin@vpsly.tech"
                       value={settings.notification_email || ''}
                       onChange={(e) => setSettings({ ...settings, notification_email: e.target.value })}
                     />

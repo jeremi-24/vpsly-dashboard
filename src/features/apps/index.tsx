@@ -206,10 +206,6 @@ export function Apps() {
                     <h2 className='text-lg font-bold tracking-tight text-foreground'>{app.name}</h2>
                     <div className='mt-2 space-y-1.5'>
                       <div className='flex items-center gap-2 text-xs text-muted-foreground'>
-                        <FolderGitIcon size={14} />
-                        <span className='truncate'>{app.repo_url?.replace('https://github.com/', '') || 'Application Legacy'}</span>
-                      </div>
-                      <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                         <ServerIcon size={14} />
                         <span>{app.server.name} ({app.server.ip})</span>
                       </div>

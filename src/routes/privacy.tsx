@@ -286,7 +286,7 @@ function PrivacyPage() {
 
           <h2>7. Vos droits</h2>
           <p>Vous disposez des droits suivants : accès, rectification, effacement, portabilité et opposition.</p>
-          <p>Pour exercer ces droits, contacte-nous à : <strong>privacy@vpsly.io</strong></p>
+          <p>Pour exercer ces droits, contacte-nous à : <strong>contact@vpsly.tech</strong></p>
 
           <h2>8. Cookies</h2>
           <p>VPSly utilise uniquement des cookies strictement nécessaires au fonctionnement du service (session, CSRF).</p>
@@ -301,8 +301,11 @@ function PrivacyPage() {
           <p>
             <strong>L'équipe VPSly</strong><br />
             Lomé, Togo<br />
-            <a href="mailto:privacy@vpsly.io" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-              <Mail size={14} color="#378ADD" /> privacy@vpsly.io
+            <a href="mailto:contact@vpsly.tech" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <Mail size={14} color="#378ADD" /> contact@vpsly.tech
+            </a>
+            <a href="mailto:support@vpsly.tech" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <Mail size={14} color="#378ADD" /> support@vpsly.tech
             </a>
             <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
               <MessageCircle size={14} color="#378ADD" /> WhatsApp : +228 79012470

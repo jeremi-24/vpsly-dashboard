@@ -180,14 +180,6 @@ export function AppDetail() {
                             </div>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                                 <span className="flex items-center gap-1"><ServerIcon size={12} /> {app.server?.name}</span>
-                                {app.repo_url && (
-                                    <>
-                                        <Separator orientation="vertical" className="h-3 hidden sm:block" />
-                                        <a href={app.repo_url} target="_blank" className="flex items-center gap-1 hover:text-indigo-400 transition-colors truncate max-w-[150px] sm:max-w-none">
-                                            <FolderGitIcon size={12} /> {app.repo_url?.replace('https://github.com/', '')}
-                                        </a>
-                                    </>
-                                )}
                                 <Separator orientation="vertical" className="h-3 hidden sm:block" />
                                 <Badge variant="outline" className="text-[10px] h-4 font-mono px-1.5">{app.branch}</Badge>
                                 <Separator orientation="vertical" className="h-3 hidden sm:block" />

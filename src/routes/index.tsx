@@ -6,6 +6,7 @@ import { Logo } from '@/assets/logo'
 import logoWhiteBg from '@/assets/logo/logo_white_bg.png'
 import logoBlackBg from '@/assets/logo/logo_black_bg.png'
 import dashboardDark from '@/features/auth/sign-in/assets/dashboard_landing.png'
+import loginScreen from '@/features/auth/sign-in/assets/login screen.png'
 
 export const Route = createFileRoute('/')({
   component: VPSlyConceptA,
@@ -145,24 +146,49 @@ const styles = `
 
   .dashboard-peek-img {
     position: absolute;
-    top: 2%;
-    left: 1%;
-    width: 300%;
+    top: 50%;
+    left: 40%;
+    width: 150%;
     height: auto;
     border-radius: 12px;
-    object-fit: cover;
-    object-position: top left;
-    z-index: 1;
-    opacity: 0;
-    transform: translateX(40px);
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+    z-index: 0;
+    opacity: 0.15;
+    transform: translateY(-50%) rotate(-2deg);
     pointer-events: none;
+    transition: all 1s ease;
   }
-  .dashboard-peek-img.visible {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
+  .hero:hover .dashboard-peek-img {
+    opacity: 0.3;
+    transform: translateY(-52%) rotate(-1deg) scale(1.02);
   }
+
+  /* SHOWCASE */
+  .section-showcase {
+    background: var(--white);
+    padding: clamp(4rem, 8vw, 8rem) clamp(1rem, 4vw, 4rem);
+    border-bottom: var(--rule);
+    text-align: center;
+  }
+  .showcase-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .showcase-img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+  .showcase-caption {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    text-align: left;
+  }
+  .cap-item h4 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; margin-bottom: 0.5rem; }
+  .cap-item p { font-size: 14px; color: var(--gray); line-height: 1.6; }
 
   .hero-content-wrapper { position: relative; width: 100%; z-index: 2; transition: opacity 0.4s; }
   .fade-out { opacity: 0; pointer-events: none; }
@@ -313,8 +339,7 @@ const TERMINAL_LINES = [
   { type: "output", text: "→ Clonage du dépôt GitHub..." },
   { type: "output", text: "→ Installation des dépendances..." },
   { type: "output", text: "→ Génération SSL (Let's Encrypt)..." },
-  { type: "output", text: "✓ Déployé sur https://crm.agence-lome.tg" },
-
+  { type: "output", text: "✓ Déployé sur https://crm.vpsly.tech" },
 ]
 
 function Terminal({ onComplete }: { onComplete?: () => void }) {
@@ -361,49 +386,71 @@ function VPSlyConceptA() {
   const [terminalFinished, setTerminalFinished] = useState(false)
 
   const copy = () => {
-    navigator.clipboard.writeText("curl -fsSL vpsly.io/install | bash")
+    navigator.clipboard.writeText("curl -fsSL vpsly.tech/install | bash")
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const plans = [
     {
-      id: "starter", tag: "01 / Starter", name: "Starter (Pour débuter)",
-      price: "0", period: "",
+      id: "starter", tag: "01 / Starter", name: "Starter",
+      price: "0", period: "FCFA / mois",
       popular: false,
       features: [
-        "1 serveur connecté",
-        "Applications illimitées",
-        "Pas de collaborateur",
-        "Domaine auto (*.sslip.io)",
-        "1 base de données",
-        "Support par email"
+        "SECTION:Infrastructure",
+        "1 serveur VPS",
+        "Usage personnel uniquement",
+        "SECTION:Applications",
+        "1 application · 1 DB",
+        "Déploiement GitHub",
+        "Logs temps réel",
+        "Sous-domaine *.vpsly.tech"
       ],
     },
     {
-      id: "pro", tag: "02 / Pro", name: "Pro (Agence & Freelances)",
-      price: isAnnual ? "59 000" : "5 800",
+      id: "solo", tag: "02 / Solo", name: "Solo",
+      price: isAnnual ? "30 000" : "3 000",
       period: isAnnual ? "FCFA / an" : "FCFA / mois",
       popular: true,
       features: [
-        "3 serveurs connectés",
-        "Applications illimitées",
-        "5 collaborateurs",
-        "Domaines perso + HTTPS",
-        "Backups auto",
-        //"Rollback 1 clic", 
-        //"Logs 90 jours",
-        "Alertes WhatsApp",
-        "Monitoring complet",
-        "WhatsApp 24h"
+        "SECTION:Infrastructure",
+        "2 serveurs VPS",
+        "Apps \u0026 DBs illimitées",
+        "Domaine perso + HTTPS",
+        "SECTION:Déploiement",
+        "GitHub (Docker/Nixpacks)",
+        "Automatisation de vos scripts & commandes",
+        "Crons, volumes, secrets",
+        "SECTION:Sécurité",
+        "Backups manuels (G-Drive)",
+        "Rollback en 1 clic"
+      ],
+    },
+    {
+      id: "pro", tag: "03 / Pro", name: "Pro",
+      price: isAnnual ? "58 000" : "5 800",
+      period: isAnnual ? "FCFA / an" : "FCFA / mois",
+      popular: false,
+      features: [
+        "SECTION:Infrastructure",
+        "Serveurs illimités",
+        "Dashboard Mission Control",
+        "Alertes WhatsApp (24h)",
+        "SECTION:Déploiement",
+        "GitHub Webhook (Auto-push)",
+        "Webhooks par workflow",
+        "SECTION:Sécurité \u0026 Équipe",
+        "Backups auto planifiés",
+        "5 collaborateurs \u0026 Rôles",
+        "Domaines illimités + HTTPS"
       ],
     },
   ]
 
   const features = [
     { icon: <Zap size={32} color="var(--primary)" />, title: "Déploiement auto", text: "Ton app en ligne après chaque push GitHub. Zéro intervention manuelle." },
+    { icon: <Zap size={32} color="var(--primary)" />, title: "Commandes auto", text: "Automatisation complète de vos scripts de déploiement sur le VPS." },
     { icon: <CloudDownload size={32} color="var(--primary)" />, title: "SSL intégré", text: "Certificats HTTPS générés et renouvelés automatiquement." },
-    { icon: <Activity size={32} color="var(--primary)" />, title: "Monitoring live", text: "CPU, RAM, disque — visible en temps réel depuis ton dashboard." },
     { icon: <Database size={32} color="var(--primary)" />, title: "Backups", text: "Sauvegardes quotidiennes. Restauration en un seul clic." },
     { icon: <MessageCircle size={32} color="var(--primary)" />, title: "Alertes WhatsApp", text: "Notification immédiate en cas de crash ou problème critique." },
     { icon: <Layers size={32} color="var(--primary)" />, title: "Multi-client", text: "Plusieurs clients sur un seul VPS, totalement isolés." },
@@ -492,6 +539,8 @@ function VPSlyConceptA() {
       `}</style>
             </defs>
 
+            <image x="20" y="40" width="360" height="640" href={loginScreen} className="dashboard-peek-img" opacity="0.1" />
+            
             {/* Section labels */}
             <text x="200" y="20" fontFamily="'DM Mono',monospace" fontSize="20" fill="#9c9c9cff" letterSpacing="1" textAnchor="middle">VOTRE VPS</text>
 
@@ -526,11 +575,11 @@ function VPSlyConceptA() {
 
             {/* APP cards BOTTOM */}
             {[
-              { x: 20, y: 560, name: "CRM", sub: "crm.tg" },
-              { x: 95, y: 560, name: "SaaS", sub: "app.io" },
-              { x: 170, y: 560, name: "API", sub: "api.com" },
-              { x: 245, y: 560, name: "Web", sub: "site.tg" },
-              { x: 320, y: 560, name: "Blog", sub: "blog.tg" },
+              { x: 20, y: 560, name: "CRM", sub: "crm.vpsly.tech" },
+              { x: 95, y: 560, name: "SaaS", sub: "app.vpsly.tech" },
+              { x: 170, y: 560, name: "API", sub: "api.vpsly.tech" },
+              { x: 245, y: 560, name: "Web", sub: "site.vpsly.tech" },
+              { x: 320, y: 560, name: "Blog", sub: "blog.vpsly.tech" },
             ].map(({ x, y, name, sub }) => (
               <g key={name}>
                 <rect x={x} y={y} width="60" height="70" rx="8" fill="#1a1a1a" stroke="#333" strokeWidth="0.5" />
@@ -574,7 +623,7 @@ function VPSlyConceptA() {
           <div className="solution-list">
             {[
               { t: "Push → Live", d: "Votre app en ligne après chaque commit." },
-              { t: "HTTPS automatique", d: "SSL généré et renouvelé sans intervention." },
+              { t: "Commandes auto", d: "Automatisation complète de vos scripts de déploiement sur le VPS." },
               { t: "Monitoring intégré", d: "CPU, RAM, disque — tout visible en direct." },
               { t: "Backups automatiques", d: "Générer des sauvegardes de votre application." },
             ].map((item, i) => (
@@ -586,6 +635,36 @@ function VPSlyConceptA() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SHOWCASE SECTION */}
+      <section className="section-showcase">
+        <div className="showcase-container">
+          <div className="section-label" style={{ display: 'inline-flex', marginBottom: '1rem' }}>Interface</div>
+          <h2 className="display" style={{ fontSize: 'clamp(48px, 6vw, 80px)', marginBottom: '0', color: 'var(--black)' }}>
+            Contrôlez tout depuis<br /><span className="accent">une interface unique.</span>
+          </h2>
+          <img 
+            src={loginScreen} 
+            alt="VPSly Dashboard Preview" 
+            className="showcase-img"
+            style={{ marginTop: '-4rem', position: 'relative', zIndex: 1 }}
+          />
+          <div className="showcase-caption">
+            <div className="cap-item">
+              <h4>Vision Globale</h4>
+              <p>Visualisez l'état de santé de tous vos serveurs et applications en un coup d'œil.</p>
+            </div>
+            <div className="cap-item">
+              <h4>Logs en temps réel</h4>
+              <p>Consultez les logs de vos applications en direct pour un débogage instantané.</p>
+            </div>
+            <div className="cap-item">
+              <h4>Actions Rapides</h4>
+              <p>Redémarrez, sauvegardez ou déployez vos projets en un seul clic.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -665,7 +744,7 @@ function VPSlyConceptA() {
             <button className={`toggle-btn mono ${isAnnual ? "active" : ""}`} onClick={() => setIsAnnual(true)}>Annuel</button>
           </div>
         </div>
-        <div className="pricing-grid">
+        <div className="pricing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
           {plans.map((plan) => (
             <div key={plan.id} className={`plan-card ${plan.popular ? "popular" : ""}`}>
               <div className="plan-tag mono">{plan.tag}</div>
@@ -687,8 +766,8 @@ function VPSlyConceptA() {
                   );
                 })}
               </div>
-              <a href={plan.id === 'pro' ? "https://wa.me/22879012470" : "#"} className="plan-cta mono">
-                {plan.id === 'pro' ? "Démarrer (WhatsApp)" : "Démarrer maintenant"}
+              <a href={plan.id === 'pro' || plan.id === 'solo' ? "https://wa.me/22879012470" : "#"} className="plan-cta mono">
+                {(plan.id === 'pro' || plan.id === 'solo') ? "Démarrer (WhatsApp)" : "Démarrer maintenant"}
               </a>
             </div>
           ))}
@@ -733,24 +812,21 @@ function VPSlyConceptA() {
           </div>
           <div className="footer-links">
             <div className="footer-col">
-              <h4>Ressources</h4>
-              <a href="#">Documentation</a>
+              <h4>Contact</h4>
+              <a href="mailto:contact@vpsly.tech" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>contact@vpsly.tech</a>
+              <a href="mailto:support@vpsly.tech" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>support@vpsly.tech</a>
               <a href="https://wa.me/22879012470" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MessageCircle size={14} color="var(--primary)" /> WhatsApp
               </a>
               <a href="tel:+22879012470" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Phone size={14} color="var(--primary)" /> +228 79012470
               </a>
-              <a href="#">Communauté</a>
             </div>
             <div className="footer-col">
-              <h4>Technologies</h4>
-              <a href="#">PHP / Laravel</a>
-              <a href="#">Node.js / Next.js</a>
-              <a href="#">Python / Django</a>
-              <a href="#">PostgreSql</a>
-              <a href="#">Mysql</a>
-              <a href="#">Redis</a>
+              <h4>Produit</h4>
+              <a href="#produit">Fonctionnalités</a>
+              <a href="#tarifs">Tarifs</a>
+              <a href="#">Documentation</a>
             </div>
             <div className="footer-col">
               <h4>Légal</h4>
@@ -761,7 +837,7 @@ function VPSlyConceptA() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span className="footer-copy mono">© 2026 VPSly.</span>
+          <span className="footer-copy mono">© 2026 VPSly.tech</span>
           <div className="footer-status">
             <div className="status-dot" />
             <span>Operational</span>
