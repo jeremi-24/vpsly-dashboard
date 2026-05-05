@@ -62,8 +62,8 @@ export function TeamSettings() {
           description: 'Partagez ce lien avec votre membre.'
         })
       }
-    } catch {
-      toast.error('Seul le propriétaire peut inviter des membres')
+    } catch (error: any) {
+      toast.error(error.message || 'Seul le propriétaire peut inviter des membres')
     } finally {
       setIsInviting(false)
     }

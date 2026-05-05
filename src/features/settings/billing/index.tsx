@@ -1,16 +1,25 @@
-import { CreditCard, Zap, Server, Package, ExternalLink } from 'lucide-react'
+import { CreditCard, Zap, Server, Package, ExternalLink, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Link } from '@tanstack/react-router'
+import { PLANS, getPlanById } from '@/config/plans'
 
 export default function BillingPage() {
-  const currentPlan = {
-    name: 'Starter',
+  // En attendant l'intégration API réelle, on simule les données utilisateur
+  const userPlanId = 'starter' 
+  const plan = getPlanById(userPlanId)
+  
+  const usage = {
     appsUsed: 1,
-    appsLimit: 2,
     serversUsed: 1,
-    serversLimit: 1,
   }
+
+  const getUsagePercentage = (used: number, max: number) => {
+    if (max === -1) return 0;
+    return (used / max) * 100;
+  }
+
+  const formatLimit = (limit: number) => limit === -1 ? 'Illimité' : limit;
 
   return (
     <div className='p-4 space-y-8 max-w-4xl'>
@@ -21,57 +30,77 @@ export default function BillingPage() {
         </p>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {/* Usage Card */}
-        <div className='p-6 rounded-2xl border bg-card/50 space-y-6'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        {/* Plan Actuel Card */}
+        <div className='p-6 rounded-3xl border bg-card/50 space-y-6 shadow-sm'>
           <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-2'>
-              <div className='p-2 rounded-lg bg-primary/10 text-primary'>
-                <Zap size={18} />
+            <div className='flex items-center gap-3'>
+              <div className='p-3 rounded-2xl bg-primary/10 text-primary'>
+                <Zap size={20} className='fill-current' />
               </div>
-              <span className='font-bold text-sm'>Plan Actuel : {currentPlan.name}</span>
+              <div>
+                <p className='text-xs font-black uppercase tracking-widest opacity-40'>Plan Actuel</p>
+                <h3 className='font-bold text-lg'>{plan.name}</h3>
+              </div>
             </div>
-            <Button variant='outline' size='sm' className='h-8 text-[11px] font-bold rounded-lg' asChild>
-                <Link to='/pricing'>Voir les offres</Link>
+            <Button variant='outline' size='sm' className='h-9 rounded-xl font-bold text-xs' asChild>
+                <Link to='/pricing'>Changer de plan</Link>
             </Button>
           </div>
 
+          <div className='h-px bg-border' />
+
           <div className='space-y-4'>
             <div className='space-y-2'>
-              <div className='flex justify-between text-xs font-medium'>
-                <div className='flex items-center gap-2 opacity-60'>
+              <div className='flex justify-between text-[11px] font-black uppercase tracking-wider'>
+                <div className='flex items-center gap-2 opacity-50'>
                   <Package size={14} />
                   <span>Applications</span>
                 </div>
-                <span>{currentPlan.appsUsed} / {currentPlan.appsLimit}</span>
+                <span>{usage.appsUsed} / {formatLimit(plan.maxApps)}</span>
               </div>
-              <Progress value={(currentPlan.appsUsed / currentPlan.appsLimit) * 100} className='h-1.5' />
+              <Progress value={getUsagePercentage(usage.appsUsed, plan.maxApps)} className='h-2' />
             </div>
 
             <div className='space-y-2'>
-              <div className='flex justify-between text-xs font-medium'>
-                <div className='flex items-center gap-2 opacity-60'>
+              <div className='flex justify-between text-[11px] font-black uppercase tracking-wider'>
+                <div className='flex items-center gap-2 opacity-50'>
                   <Server size={14} />
                   <span>Serveurs</span>
                 </div>
-                <span>{currentPlan.serversUsed} / {currentPlan.serversLimit}</span>
+                <span>{usage.serversUsed} / {formatLimit(plan.maxServers)}</span>
               </div>
-              <Progress value={(currentPlan.serversUsed / currentPlan.serversLimit) * 100} className='h-1.5' />
+              <Progress value={getUsagePercentage(usage.serversUsed, plan.maxServers)} className='h-2' />
             </div>
           </div>
         </div>
 
+        {/* Facturation Infos */}
+        <div className='p-6 rounded-3xl border border-dashed bg-muted/30 flex flex-col justify-center items-center text-center space-y-4'>
+            <div className='p-4 rounded-full bg-background border'>
+                <CreditCard size={24} className='opacity-20' />
+            </div>
+            <div className='space-y-1'>
+                <p className='text-sm font-bold'>Prochaine facturation</p>
+                <p className='text-xs text-muted-foreground'>Aucune facture en attente pour le plan Starter.</p>
+            </div>
+        </div>
       </div>
 
-      <div className='p-6 rounded-2xl border bg-primary/5 border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4'>
-          <div className='space-y-1'>
-              <p className='text-sm font-bold'>Besoin d'aide pour choisir ?</p>
-              <p className='text-xs text-muted-foreground'>Découvrez notre guide comparatif complet des plans VPSLY.</p>
+      <div className='p-6 rounded-3xl border bg-primary/5 border-primary/10 flex flex-col md:flex-row items-center justify-between gap-6'>
+          <div className='flex items-center gap-4'>
+              <div className='p-3 rounded-2xl bg-primary/10 text-primary'>
+                <HelpCircle size={20} />
+              </div>
+              <div className='space-y-1'>
+                  <p className='text-sm font-bold'>Besoin d'un plan sur mesure ?</p>
+                  <p className='text-xs text-muted-foreground'>Vous gérez plus de 10 serveurs ? Contactez-nous pour une offre agence personnalisée.</p>
+              </div>
           </div>
-          <Button size='sm' variant='ghost' className='text-[11px] font-bold gap-2' asChild>
-            <Link to='/pricing'>
-              Consulter le pricing <ExternalLink size={14} />
-            </Link>
+          <Button size='sm' variant='secondary' className='rounded-xl font-bold gap-2' asChild>
+            <a href="https://wa.me/22879012470" target="_blank" rel="noreferrer">
+              Nous contacter <ExternalLink size={14} />
+            </a>
           </Button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Check, Minus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { PLANS } from '@/config/plans'
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false)
@@ -9,67 +9,54 @@ export default function PricingPage() {
 
   const plans = [
     {
-      id: 'starter',
-      name: 'Starter plan',
-      price: '0',
-      description: 'Idéal pour tester et lancer vos premiers projets.',
+      ...PLANS.starter,
+      label: '01 / Starter',
+      badge: 'Usage personnel',
       features: [
-        '1 Serveur connecté',
-        '2 Applications actives',
-        'Déploiement Git → Online',
-        'Logs & Console en direct',
-        'Domaine auto (*.sslip.io)',
-        'Installation manuelle DB',
+        { cat: 'Infrastructure', items: ['1 serveur VPS', 'Monitoring CPU/RAM/Disque'] },
+        { cat: 'Applications', items: ['1 application · 1 DB', 'Déploiement GitHub', 'Sous-domaine *.vpsly.tech'] },
+        { cat: 'Limites', items: ['1 collaborateur', 'Pas de domaine perso'] }
       ],
     },
     {
-      id: 'pro',
-      name: 'Pro plan',
-      price: isAnnual ? '65 000' : '6 500',
-      period: isAnnual ? '/ an' : '/ mois',
-      description: 'La puissance et la rapidité pour les freelances.',
+      ...PLANS.solo,
+      label: '02 / Solo',
+      badge: 'Populaire',
       popular: true,
       features: [
-        '3 Serveurs connectés',
-        '15 Applications production',
-        'App + Base de données en 1 clic',
-        'Domaines personnalisés + HTTPS',
-        'Rollback instantané',
-        'Support email prioritaire',
+        { cat: 'Infrastructure', items: ['2 serveurs VPS', 'Apps & DBs illimitées', 'Domaine perso + HTTPS'] },
+        { cat: 'Déploiement', items: ['GitHub (déploiment standard)', 'Auto-scripts & Commandes', 'Backups manuels (G-Drive)'] },
+        { cat: 'Équipe', items: ['2 collaborateurs & Rôles'] }
       ],
     },
     {
-      id: 'business',
-      name: 'Business plan',
-      price: isAnnual ? '250 000' : '25 000',
-      period: isAnnual ? '/ an' : '/ mois',
-      description: 'L\'infrastructure complète pour votre agence.',
+      ...PLANS.pro,
+      label: '03 / Pro',
+      badge: 'Infrastructure Agence',
       features: [
-        'Serveurs illimités',
-        'Applications illimitées',
-        'Backups automatiques',
-        'Monitoring & Alertes WhatsApp',
-        'Équipe (jusqu\'à 5 collaborateurs)',
-        'Support dédié 24/7',
+        { cat: 'Premium', items: ['Serveurs illimités', 'Alertes WhatsApp (24h)'] },
+        { cat: 'Déploiement', items: ['GitHub Webhook (Auto-push)', 'Auto-deploy instantané'] },
+        { cat: 'Sécurité & Équipe', items: ['Backups auto planifiés', '5 collaborateurs & Rôles'] }
       ],
     },
   ]
 
   return (
-    <div className='py-20 px-4 max-w-6xl mx-auto space-y-12'>
-      <div className='text-center space-y-4'>
-        <h1 className='text-4xl font-black tracking-tight'>Des prix simples, sans surprise.</h1>
-        <p className='text-muted-foreground'>Choisissez le plan qui correspond à votre ambition.</p>
-      </div>
+    <div className='py-6 px-4 max-w-7xl mx-auto space-y-8'>
+      <div className='flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6'>
+        <div>
+          <h1 className='font-bebas text-5xl md:text-6xl leading-none uppercase'>Tarifs</h1>
+          <p className='font-mono text-[10px] text-muted-foreground uppercase tracking-widest mt-1'>
+            * Serveurs non fournis.
+          </p>
+        </div>
 
-      {/* Header & Toggle */}
-      <div className='flex flex-col items-center space-y-4'>
-        <div className='flex p-1 bg-muted/40 rounded-full w-fit border shadow-sm'>
+        <div className='flex bg-muted/50 border border-border rounded-lg overflow-hidden p-0.5'>
           <button
             onClick={() => setIsAnnual(false)}
             className={cn(
-              'px-6 py-2 rounded-full text-xs font-bold transition-all',
-              !isAnnual ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
+              'px-4 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-all rounded-md',
+              !isAnnual ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             Mensuel
@@ -77,8 +64,8 @@ export default function PricingPage() {
           <button
             onClick={() => setIsAnnual(true)}
             className={cn(
-              'px-6 py-2 rounded-full text-xs font-bold transition-all',
-              isAnnual ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
+              'px-4 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-all rounded-md',
+              isAnnual ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
             )}
           >
             Annuel
@@ -86,82 +73,97 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* Plans Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-        {plans.map((plan) => (
-          <div
-            key={plan.id}
-            className='flex flex-col rounded-3xl border bg-card shadow-sm hover:shadow-md transition-shadow overflow-hidden'
-          >
-            {/* Top Section */}
-            <div className='p-8 space-y-6 relative'>
-              {plan.popular && (
-                <div className='absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter'>
-                  Populaire
-                </div>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-0 border border-border rounded-[1.5rem] overflow-hidden'>
+        {plans.map((plan) => {
+          const displayPrice = isAnnual ? plan.price * 10 : plan.price;
+          const period = isAnnual ? '/ AN' : '/ MOIS';
+
+          return (
+            <div
+              key={plan.id}
+              className={cn(
+                'p-6 md:p-8 flex flex-col transition-all group relative border-r last:border-r-0 border-border',
+                plan.popular
+                  ? 'bg-primary text-primary-foreground z-10 shadow-[0_0_40px_rgba(0,0,0,0.1)]'
+                  : 'bg-background hover:bg-muted/10'
               )}
-              
-              <div className='space-y-1'>
-                <h3 className='font-bold text-lg tracking-tight'>{plan.name}</h3>
-                <div className='flex items-baseline gap-1'>
-                  <span className='text-5xl font-black tracking-tighter'>
-                    {plan.id === 'starter' ? '0' : plan.price}
-                  </span>
-                  <div className='flex flex-col -space-y-1'>
-                    <span className='text-xs font-black opacity-30 uppercase'>FCFA</span>
-                    {plan.id !== 'starter' && <span className='text-xs opacity-30 font-bold'>{plan.period}</span>}
-                  </div>
+            >
+              <div className='flex items-center justify-between mb-6'>
+                <div className={cn(
+                  'px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest rounded',
+                  plan.popular ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
+                )}>
+                  {plan.badge}
                 </div>
+                <div className={cn(
+                  'font-mono text-[9px] uppercase tracking-[0.1em]',
+                  plan.popular ? 'text-white/60' : 'text-muted-foreground'
+                )}>
+                  {plan.id.toUpperCase()}
+                </div>
+              </div>
+
+              <h3 className='font-bebas text-4xl mb-1 uppercase tracking-tight'>{plan.name}</h3>
+
+              <div className='flex items-baseline gap-1 mb-6'>
+                <span className={cn(
+                  'font-bebas text-6xl leading-none',
+                  plan.popular ? 'text-white' : 'text-foreground'
+                )}>
+                  {displayPrice}
+                </span>
+                <span className={cn(
+                  'font-mono text-[10px] uppercase tracking-tighter',
+                  plan.popular ? 'text-white/60' : 'text-muted-foreground'
+                )}>
+                  $ {period}
+                </span>
+              </div>
+
+              <div className={cn(
+                'h-[1px] mb-6',
+                plan.popular ? 'bg-white/20' : 'bg-border'
+              )} />
+
+              <div className='flex-1 space-y-4 mb-8'>
+                {plan.features.map((group, idx) => (
+                  <div key={idx} className='space-y-1.5'>
+                    <div className={cn(
+                      'text-[8px] font-mono uppercase tracking-[0.1em] font-black opacity-50',
+                      plan.popular ? 'text-white' : 'text-primary'
+                    )}>
+                      {group.cat}
+                    </div>
+                    {group.items.map((item, i) => (
+                      <div key={i} className='flex gap-2 items-center text-[13px] font-bold tracking-tight'>
+                        <span className={cn('font-mono text-[10px]', plan.popular ? 'text-white' : 'text-primary')}>→</span>
+                        <span className={plan.popular ? 'text-white/90' : 'text-muted-foreground/80'}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
 
               <Button
-                size="lg"
+                variant={plan.popular ? 'secondary' : 'outline'}
                 className={cn(
-                  'w-full py-6 rounded-2xl font-black text-sm uppercase tracking-wider transition-all',
-                  plan.id === currentPlan
-                    ? 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    : plan.popular
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-xl shadow-primary/20'
-                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  'w-full py-5 font-bebas text-lg uppercase tracking-widest rounded-xl transition-all',
+                  plan.popular
+                    ? 'bg-white text-primary hover:bg-black hover:text-white border-white'
+                    : 'border-border hover:border-primary hover:text-primary'
                 )}
               >
-                {plan.id === currentPlan ? 'Plan actuel' : 'Démarrer maintenant'}
+                {plan.id === currentPlan ? 'Plan actuel' : 'Démarrer'}
               </Button>
             </div>
+          )
+        })}
+      </div>
 
-            <div className='h-px bg-border mx-8' />
-
-            {/* Features Section */}
-            <div className='p-8 flex-1 flex flex-col space-y-6 bg-muted/5'>
-              <div className='space-y-1'>
-                <p className='text-xs font-black uppercase tracking-[0.2em] opacity-40'>Inclus</p>
-                <p className='text-sm text-muted-foreground font-medium'>
-                   {plan.id === 'starter' ? 'Pour découvrir VPSLY...' : `Tout de ${plans[plans.indexOf(plan)-1]?.name} plus...`}
-                </p>
-              </div>
-
-              <div className='space-y-4'>
-                {plan.features.map((feature, i) => (
-                  <div key={i} className='flex items-center gap-3'>
-                    <div className='h-5 w-5 rounded-full bg-primary flex items-center justify-center shrink-0'>
-                      <Check className='h-3 w-3 text-primary-foreground' />
-                    </div>
-                    <span className='text-sm font-bold tracking-tight'>{feature}</span>
-                  </div>
-                ))}
-                
-                {plan.notIncluded?.map((feature, i) => (
-                  <div key={i} className='flex items-center gap-3 opacity-20'>
-                    <div className='h-5 w-5 rounded-full bg-muted flex items-center justify-center shrink-0'>
-                      <Minus className='h-3 w-3' />
-                    </div>
-                    <span className='text-sm font-medium line-through tracking-tight'>{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className='text-center pt-4'>
+        <p className='font-mono text-[9px] text-muted-foreground uppercase tracking-[0.2em]'>
+          Besoin d'une offre agence ? <a href="https://wa.me/22879012470" className='text-primary border-b border-primary/30'>Contactez-nous</a>
+        </p>
       </div>
     </div>
   )

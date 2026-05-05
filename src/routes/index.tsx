@@ -418,7 +418,7 @@ function VPSlyConceptA() {
         "Apps \u0026 DBs illimitées",
         "Domaine perso + HTTPS",
         "SECTION:Déploiement",
-        "GitHub (Docker/Nixpacks)",
+        "GitHub (déploiment standard)",
         "Automatisation de vos scripts & commandes",
         "Crons, volumes, secrets",
         "SECTION:Sécurité",
@@ -540,7 +540,7 @@ function VPSlyConceptA() {
             </defs>
 
             <image x="20" y="40" width="360" height="640" href={loginScreen} className="dashboard-peek-img" opacity="0.1" />
-            
+
             {/* Section labels */}
             <text x="200" y="20" fontFamily="'DM Mono',monospace" fontSize="20" fill="#9c9c9cff" letterSpacing="1" textAnchor="middle">VOTRE VPS</text>
 
@@ -646,9 +646,9 @@ function VPSlyConceptA() {
           <h2 className="display" style={{ fontSize: 'clamp(48px, 6vw, 80px)', marginBottom: '0', color: 'var(--black)' }}>
             Contrôlez tout depuis<br /><span className="accent">une interface unique.</span>
           </h2>
-          <img 
-            src={loginScreen} 
-            alt="VPSly Dashboard Preview" 
+          <img
+            src={loginScreen}
+            alt="VPSly Dashboard Preview"
             className="showcase-img"
             style={{ marginTop: '-4rem', position: 'relative', zIndex: 1 }}
           />

@@ -155,9 +155,9 @@ export function TeamSwitcher() {
             description: 'Partagez ce lien avec votre collaborateur.' 
         })
       }
-    } catch (e) {
-      console.error('Invite error:', e)
-      toast.error('Seul le propriétaire peut inviter des collaborateurs')
+    } catch (error: any) {
+      console.error('Invite error:', error)
+      toast.error(error.message || 'Seul le propriétaire peut inviter des collaborateurs')
     }
   }
 
