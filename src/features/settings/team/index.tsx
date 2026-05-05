@@ -39,10 +39,16 @@ export function TeamSettings() {
   const team = user?.current_team
   const plan = team ? getPlanById(team.plan) : null
   const maxTeamMembers = plan?.maxTeamMembers || 1
+  
+  // Utiliser l'ID du proprio du team pour plus de robustesse (cast en Number pour éviter les soucis de types string/int)
+  const isOwner = !!user && !!team && Number(team.owner_id) === Number(user.id)
   const isLocked = maxTeamMembers !== -1 && members.length >= maxTeamMembers
 
   const fetchMembers = async () => {
-    if (!user?.current_team_id) return
+    if (!user?.current_team_id) {
+      setLoading(false)
+      return
+    }
     try {
       setLoading(true)
       const data = await apiFetch<Member[]>(`/teams/${user.current_team_id}/members`)
@@ -105,8 +111,10 @@ export function TeamSettings() {
     }
   }
 
-  // Source de vérité : le rôle pivot retourné par l'API, pas le store (potentiellement stale)
-  const isOwner = members.find(m => m.id === user?.id)?.role === 'owner'
+  // On s'assure que l'utilisateur actuel est toujours dans la liste pour éviter l'affichage "0 membres"
+  const displayMembers = members.length > 0 
+    ? members 
+    : (user ? [{ id: user.id, name: user.name, email: user.email, role: isOwner ? 'owner' : 'member', created_at: '' }] : [])
 
   return (
     <div className='space-y-8'>
@@ -117,7 +125,7 @@ export function TeamSettings() {
         <p className='text-sm text-muted-foreground mt-0.5'>
           {loading
             ? 'Chargement...'
-            : `${members.length} membre${members.length > 1 ? 's ont' : ' a'} accès à cet espace de travail.`}
+            : `${displayMembers.length} membre${displayMembers.length > 1 ? 's ont' : ' a'} accès à cet espace de travail.`}
         </p>
       </div>
 
@@ -174,7 +182,7 @@ export function TeamSettings() {
       {/* Liste des membres */}
       <div className='space-y-3'>
         <p className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground'>
-          Membres ({loading ? '…' : members.length})
+          Membres ({loading ? '…' : displayMembers.length})
         </p>
         <Separator />
 
@@ -192,7 +200,7 @@ export function TeamSettings() {
           </div>
         ) : (
           <div className='divide-y divide-border/40'>
-            {members.map((member, idx) => (
+            {displayMembers.map((member, idx) => (
               <div key={member.id} className='flex items-center justify-between py-3.5 gap-4'>
                 {/* Avatar + infos */}
                 <div className='flex items-center gap-3 min-w-0'>
@@ -236,8 +244,8 @@ export function TeamSettings() {
         )}
       </div>
 
-      {/* Danger zone — Quitter (uniquement pour les non-owners) */}
-      {!loading && !isOwner && (
+      {/* Danger zone — Quitter (uniquement pour les membres qui ne sont pas propriétaires) */}
+      {!loading && !!team && !isOwner && (
         <div className='flex items-center justify-between rounded-xl bg-rose-950/40 border border-rose-900/50 px-5 py-4 gap-4'>
           <div>
             <p className='text-sm font-semibold text-rose-400'>Quitter l'équipe</p>

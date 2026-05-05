@@ -51,8 +51,8 @@ export default function BillingPage() {
   const plan = getPlanById(userPlanId)
   
   const usage = {
-    appsUsed: user?.current_team?.applications_count || 1, // À dynamiser plus tard si besoin
-    serversUsed: user?.current_team?.servers_count || 1,
+    appsUsed: user?.current_team?.applications_count || 0,
+    serversUsed: user?.current_team?.servers_count || 0,
   }
 
   const getUsagePercentage = (used: number, max: number) => {

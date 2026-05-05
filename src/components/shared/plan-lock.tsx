@@ -18,7 +18,7 @@ interface PlanLockProps {
 
 export function PlanLock({ 
   children, 
-  requiredPlan = 'solo', 
+  requiredPlan = 'starter', 
   featureName,
   checkQuota,
   className,
