@@ -28,18 +28,27 @@ import { LinkedDatabasesCard } from './linked-databases-card'
 import { AppBackupsCard } from './app-backups-card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AppDeploymentsCard } from './app-deployments-card'
+import { PlanLock } from '@/components/shared/plan-lock'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { CreateAppDrawer } from './create-app-drawer'
 
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { useAuthStore } from '@/stores/auth-store'
 
 export function AppDetail() {
     const { appId } = useParams({ from: '/_authenticated/apps/$appId' })
+    const { user } = useAuthStore((state) => state.auth)
+    const userPlan = user?.current_team?.plan || 'starter'
+
     const [app, setApp] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [isDeployingLocal, setIsDeployingLocal] = useState(false)
     const [activeTab, setActiveTab] = useState('console')
     const [currentDeploymentId, setCurrentDeploymentId] = useState<number | null>(null)
     const [expandedConsole, setExpandedConsole] = useState<'build' | 'runtime' | 'none'>('runtime')
+    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+    const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
 
     const fetchApp = async () => {
         try {
@@ -356,11 +365,13 @@ export function AppDetail() {
                             {activeTab === 'resources' && (
                                 <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     <h2 className="text-lg font-bold mb-6">Bases de données liées</h2>
-                                    <LinkedDatabasesCard
-                                        appId={appId}
-                                        serverId={app.server_id}
-                                        onUpdate={fetchApp}
-                                    />
+                                    <PlanLock requiredPlan="solo" featureName="Bases de données gérées" showFullOverlay={false}>
+                                        <LinkedDatabasesCard
+                                            appId={appId}
+                                            serverId={app.server_id}
+                                            onUpdate={fetchApp}
+                                        />
+                                    </PlanLock>
                                 </div>
                             )}
 
@@ -374,18 +385,50 @@ export function AppDetail() {
                             {activeTab === 'backups' && (
                                 <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     <h2 className="text-lg font-bold mb-6">Sauvegardes</h2>
-                                    <AppBackupsCard
-                                        appId={Number(appId)}
-                                        databases={app.databases || []}
-                                        volumes={app.persistent_volumes || []}
-                                    />
+                                    <PlanLock requiredPlan="pro" featureName="Sauvegardes automatiques" showFullOverlay={false}>
+                                        <AppBackupsCard
+                                            appId={Number(appId)}
+                                            databases={app.databases || []}
+                                            volumes={app.persistent_volumes || []}
+                                        />
+                                    </PlanLock>
                                 </div>
                             )}
 
                             {activeTab === 'automations' && (
-                                <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <h2 className="text-lg font-bold mb-6">Tâches Planifiées</h2>
-                                    <AppCronCard appId={Number(appId)} />
+                                <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-lg font-bold">Auto-déploiement (Webhook)</h2>
+                                        </div>
+                                        
+                                        <PlanLock requiredPlan="pro" featureName="GitHub Webhooks" showFullOverlay={false}>
+                                            <div className="p-6 rounded-2xl border bg-card/50 relative overflow-hidden">
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-sm font-medium">Webhook URL</p>
+                                                            <p className="text-xs text-muted-foreground">Copiez cette URL dans les paramètres de votre dépôt GitHub (Webhooks).</p>
+                                                        </div>
+                                                        <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold">Générer</Button>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <div className="flex-1 h-9 bg-background/50 rounded-lg border border-white/5 flex items-center px-3 font-mono text-[10px] text-muted-foreground">
+                                                            https://api.vpsly.tech/webhooks/github/{app?.id}
+                                                        </div>
+                                                        <Button variant="secondary" size="sm" className="h-9 px-3">
+                                                            Copier
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </PlanLock>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h2 className="text-lg font-bold">Tâches Planifiées (Cron)</h2>
+                                        <AppCronCard appId={Number(appId)} />
+                                    </div>
                                 </div>
                             )}
 
@@ -423,8 +466,24 @@ export function AppDetail() {
                                                 >
                                                     Ouvrir
                                                 </Button>
-                                                <Button variant="outline" size="sm" className="h-9 text-xs shrink-0" disabled>
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    className={cn(
+                                                        "h-9 text-xs shrink-0 relative overflow-hidden",
+                                                        userPlan === 'starter' && "premium-lock-overlay"
+                                                    )}
+                                                    onClick={() => {
+                                                        if (userPlan === 'starter') {
+                                                            setIsUpgradeModalOpen(true)
+                                                        } else {
+                                                            setIsEditDrawerOpen(true)
+                                                        }
+                                                    }}
+                                                >
+                                                    {userPlan === 'starter' && <Lock size={12} className="mr-1.5" />}
                                                     Modifier
+                                                    {userPlan === 'starter' && <div className="shimmer-effect" />}
                                                 </Button>
                                             </div>
 
@@ -542,6 +601,20 @@ export function AppDetail() {
                     </div>
                 </div>
             </Main>
+            <UpgradeModal 
+                open={isUpgradeModalOpen}
+                onOpenChange={setIsUpgradeModalOpen}
+            />
+
+            <CreateAppDrawer 
+                open={isEditDrawerOpen}
+                onOpenChange={setIsEditDrawerOpen}
+                onSuccess={() => {
+                    fetchApp()
+                    toast.success("Application mise à jour")
+                }}
+                appToEdit={app}
+            />
         </>
     )
 }

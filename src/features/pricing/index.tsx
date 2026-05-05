@@ -2,12 +2,49 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { PLANS } from '@/config/plans'
+import { apiFetch } from '@/lib/api'
+import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
+
+interface DisplayPlan extends Omit<typeof PLANS.starter, 'features'> {
+  label: string;
+  badge: string;
+  popular?: boolean;
+  features: {
+    cat: string;
+    items: string[];
+  }[];
+}
 
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(false)
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const currentPlan = 'starter'
 
-  const plans = [
+  const handleUpgrade = async (planId: string) => {
+    if (planId === currentPlan) return
+
+    setLoadingPlan(planId)
+    try {
+      const data = await apiFetch('/payments/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ plan_id: planId })
+      })
+
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url
+      } else {
+        toast.error('Erreur lors de la génération du paiement')
+      }
+    } catch (error: any) {
+      toast.error('Une erreur est survenue')
+      console.error(error)
+    } finally {
+      setLoadingPlan(null)
+    }
+  }
+
+  const plans: DisplayPlan[] = [
     {
       ...PLANS.starter,
       label: '01 / Starter',
@@ -146,14 +183,20 @@ export default function PricingPage() {
 
               <Button
                 variant={plan.popular ? 'secondary' : 'outline'}
+                disabled={plan.id === currentPlan || loadingPlan !== null}
+                onClick={() => handleUpgrade(plan.id)}
                 className={cn(
-                  'w-full py-5 font-bebas text-lg uppercase tracking-widest rounded-xl transition-all',
-                  plan.popular
-                    ? 'bg-white text-primary hover:bg-black hover:text-white border-white'
-                    : 'border-border hover:border-primary hover:text-primary'
+                   'w-full py-5 font-bebas text-lg uppercase tracking-widest rounded-xl transition-all',
+                   plan.popular
+                     ? 'bg-white text-primary hover:bg-black hover:text-white border-white'
+                     : 'border-border hover:border-primary hover:text-primary'
                 )}
               >
-                {plan.id === currentPlan ? 'Plan actuel' : 'Démarrer'}
+                {loadingPlan === plan.id ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  plan.id === currentPlan ? 'Plan actuel' : 'Démarrer'
+                )}
               </Button>
             </div>
           )

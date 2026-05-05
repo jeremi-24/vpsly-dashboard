@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearch, useNavigate } from '@tanstack/react-router'
-import { Plus, Search as SearchIcon, SlidersHorizontal, Globe, FolderGitIcon, Server as ServerIcon } from 'lucide-react'
+import { Plus, Search as SearchIcon, SlidersHorizontal, Globe, FolderGitIcon, Server as ServerIcon, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -19,6 +19,9 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { NotificationBell } from '@/components/notification-bell'
 import { apiFetch } from '@/lib/api'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/auth-store'
+import { getPlanById } from '@/config/plans'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
 
 export interface ApplicationInfo {
   id: number
@@ -49,6 +52,13 @@ export function Apps() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingApp, setEditingApp] = useState<any>(null)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
+  const user = useAuthStore((state) => state.auth.user)
+  const team = user?.current_team
+  const plan = team ? getPlanById(team.plan) : null
+  const currentAppsCount = team?.applications_count || 0
+  const isLocked = plan ? (plan.maxApps !== -1 && currentAppsCount >= plan.maxApps) : false
 
   const search = useSearch({ from: '/_authenticated/apps/' }) as any
   const navigate = useNavigate()
@@ -107,12 +117,23 @@ export function Apps() {
             <h1 className='text-2xl font-bold tracking-tight'>Déployez vos applications</h1>
            
           </div>
-          <Link to='/apps/create'>
-            <Button>
-              <Plus className='mr-2 h-4 w-4' />
-              <span>Déployer une application</span>
+          {isLocked ? (
+            <Button 
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className="relative overflow-hidden shimmer-effect group"
+            >
+              <div className="premium-lock-overlay" />
+              <Lock className='mr-2 h-4 w-4 text-white z-20' />
+              <span className="z-20">Déployer une application</span>
             </Button>
-          </Link>
+          ) : (
+            <Link to='/apps/create'>
+              <Button>
+                <Plus className='mr-2 h-4 w-4' />
+                <span>Déployer une application</span>
+              </Button>
+            </Link>
+          )}
         </div>
 
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
@@ -172,8 +193,21 @@ export function Apps() {
                   : 'Commencez par déployer votre premier projet GitHub sur vos serveurs.'}
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button variant='link' className='mt-6' onClick={() => { setEditingApp(null); setIsDrawerOpen(true); }}>
-                  Lancer mon premier déploiement
+                <Button 
+                  variant={isLocked ? 'outline' : 'link'} 
+                  className={`mt-6 ${isLocked ? 'relative overflow-hidden shimmer-effect' : ''}`}
+                  onClick={() => { 
+                    if (isLocked) {
+                      setIsUpgradeModalOpen(true)
+                    } else {
+                      setEditingApp(null); 
+                      setIsDrawerOpen(true); 
+                    }
+                  }}
+                >
+                  {isLocked && <div className="premium-lock-overlay" />}
+                  {isLocked && <Lock className="mr-2 h-4 w-4 z-20" />}
+                  <span className="z-20">Lancer mon premier déploiement</span>
                 </Button>
               )}
             </div>
@@ -238,6 +272,12 @@ export function Apps() {
           onOpenChange={setIsDrawerOpen} 
           onSuccess={fetchApps}
           appToEdit={editingApp}
+        />
+
+        <UpgradeModal 
+          open={isUpgradeModalOpen} 
+          onOpenChange={setIsUpgradeModalOpen}
+          reason={`Vous avez atteint votre limite de ${plan?.maxApps} application${plan?.maxApps && plan.maxApps > 1 ? 's' : ''} avec le plan ${plan?.name}.`}
         />
       </Main>
     </>

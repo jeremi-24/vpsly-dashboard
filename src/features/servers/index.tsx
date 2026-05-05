@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { Server, Search as SearchIcon, SlidersHorizontal, Plus } from 'lucide-react'
+import { Server, Search as SearchIcon, SlidersHorizontal, Plus, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Header } from '@/components/layout/header'
@@ -13,6 +12,10 @@ import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/auth-store'
+import { getPlanById } from '@/config/plans'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { useState, useEffect } from 'react'
 import {
   Select,
   SelectContent,
@@ -44,6 +47,13 @@ export function Servers() {
   const [selectedServer, setSelectedServer] = useState<ServerInfo | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
+  const user = useAuthStore((state) => state.auth.user)
+  const team = user?.current_team
+  const plan = team ? getPlanById(team.plan) : null
+  const currentServersCount = team?.servers_count || 0
+  const isLocked = plan ? (plan.maxServers !== -1 && currentServersCount >= plan.maxServers) : false
 
   const handleAddServer = () => {
     setSelectedServer(null)
@@ -104,10 +114,21 @@ export function Servers() {
             <h1 className='text-2xl font-bold tracking-tight'>Connectez et gérez vos VPS</h1>
            
           </div>
-          <Button onClick={handleAddServer}>
-            <Plus className='mr-2 h-4 w-4' />
-            <span>Connecter un serveur</span>
-          </Button>
+          {isLocked ? (
+            <Button 
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className="relative overflow-hidden shimmer-effect group"
+            >
+              <div className="premium-lock-overlay" />
+              <Lock className='mr-2 h-4 w-4 text-white z-20' />
+              <span className="z-20">Connecter un serveur</span>
+            </Button>
+          ) : (
+            <Button onClick={handleAddServer}>
+              <Plus className='mr-2 h-4 w-4' />
+              <span>Connecter un serveur</span>
+            </Button>
+          )}
         </div>
 
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
@@ -169,11 +190,19 @@ export function Servers() {
               </p>
               {!searchTerm && statusFilter === 'all' && (
                 <Button
-                  variant='link'
-                  className='mt-6'
-                  onClick={handleAddServer}
+                  variant={isLocked ? 'outline' : 'link'}
+                  className={`mt-6 ${isLocked ? 'relative overflow-hidden shimmer-effect' : ''}`}
+                  onClick={() => {
+                    if (isLocked) {
+                      setIsUpgradeModalOpen(true)
+                    } else {
+                      handleAddServer()
+                    }
+                  }}
                 >
-                  Connecter mon premier VPS
+                  {isLocked && <div className="premium-lock-overlay" />}
+                  {isLocked && <Lock className="mr-2 h-4 w-4 z-20" />}
+                  <span className="z-20">Connecter mon premier VPS</span>
                 </Button>
               )}
             </div>
@@ -233,6 +262,12 @@ export function Servers() {
             setDrawerOpen(false)
             fetchServers()
           }}
+        />
+
+        <UpgradeModal 
+          open={isUpgradeModalOpen} 
+          onOpenChange={setIsUpgradeModalOpen}
+          reason={`Vous avez atteint votre limite de ${plan?.maxServers} serveur${plan?.maxServers && plan.maxServers > 1 ? 's' : ''} avec le plan ${plan?.name}.`}
         />
       </Main>
     </>

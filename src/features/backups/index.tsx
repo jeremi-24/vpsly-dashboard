@@ -59,6 +59,9 @@ import {
 import { echo } from '@/lib/echo'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthStore } from '@/stores/auth-store'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { getPlanById } from '@/config/plans'
+import { Lock } from 'lucide-react'
 
 interface GlobalBackup {
   id: number
@@ -105,6 +108,11 @@ export function Backups() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const team = user?.current_team
+  const plan = team ? getPlanById(team.plan) : getPlanById('starter')
+  const isLocked = team?.plan === 'starter'
   
   // Create Backup Modal State
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -352,10 +360,14 @@ export function Backups() {
                </Button>
                <Button 
                  size="sm" 
-                 onClick={() => setShowCreateModal(true)}
-                 className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20"
+                 onClick={() => isLocked ? setShowUpgradeModal(true) : setShowCreateModal(true)}
+                 className={cn(
+                   "h-8 text-xs bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 relative overflow-hidden transition-all",
+                   isLocked && "premium-lock-overlay group/btn"
+                 )}
                >
-                 <Plus className='mr-1.5 h-3.5 w-3.5' />
+                 {isLocked && <div className="shimmer-effect" />}
+                 {isLocked ? <Lock className='mr-1.5 h-3.5 w-3.5 animate-pulse' /> : <Plus className='mr-1.5 h-3.5 w-3.5' />}
                  <span>Nouvelle sauvegarde</span>
                </Button>
             </div>
@@ -429,12 +441,17 @@ export function Backups() {
                                 ? "Aucun archive ne correspond à vos filtres actuels. Essayez d'ajuster vos critères." 
                                 : "Aucune sauvegarde trouvée"}
                         </p>
-                        {!searchTerm && serverFilter === 'all' && appFilter === 'all' && (
+                         {!searchTerm && serverFilter === 'all' && appFilter === 'all' && (
                             <Button 
-                                onClick={() => setShowCreateModal(true)}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-500/20"
+                                onClick={() => isLocked ? setShowUpgradeModal(true) : setShowCreateModal(true)}
+                                className={cn(
+                                    "bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-500/20 relative overflow-hidden",
+                                    isLocked && "premium-lock-overlay group/btn"
+                                )}
                             >
-                                <Plus className="mr-2 h-4 w-4" /> Créer ma première sauvegarde
+                                {isLocked && <div className="shimmer-effect" />}
+                                {isLocked ? <Lock className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+                                {isLocked ? "Débloquer les sauvegardes" : "Créer ma première sauvegarde"}
                             </Button>
                         )}
                     </div>
@@ -716,6 +733,12 @@ export function Backups() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+        reason="La gestion des sauvegardes est une fonctionnalité réservée au plan PRO."
+      />
     </>
   )
 }

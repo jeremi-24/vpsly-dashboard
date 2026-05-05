@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CloudDownload, Server, Bell, Save, Info, Loader } from 'lucide-react'
+import { CloudDownload, Server, Bell, Save, Info, Loader, ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -7,8 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
+import { useAuthStore } from '@/stores/auth-store'
+import { getPlanById } from '@/config/plans'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { Lock } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface BackupSettings {
   frequency: string
@@ -36,6 +42,18 @@ export default function SettingsBackups() {
     notification_email: '',
     active: true
   })
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
+  const user = useAuthStore(state => state.auth.user)
+  const team = user?.current_team
+  const userPlan = team?.plan || 'starter'
+  
+  // Backups auto et planification = PRO uniquement
+  const isAutoLocked = userPlan !== 'pro'
+  // WhatsApp alerts = PRO uniquement
+  const isWhatsAppLocked = userPlan !== 'pro'
+  // Accès complet bloqué pour Starter
+  const isStarter = userPlan === 'starter'
 
   // ... (rest of useEffect and handleSave)
 
@@ -103,11 +121,33 @@ export default function SettingsBackups() {
 
       <div className='grid gap-6'>
         {/* QUAND */}
-        <Card className="border-none shadow-none bg-muted/20">
+        <Card className={cn(
+          "shadow-none bg-muted/20 relative overflow-hidden transition-all",
+          isAutoLocked ? "border-amber-500/50 cursor-pointer" : "border-none"
+        )}
+        onClick={() => isAutoLocked && setIsUpgradeModalOpen(true)}
+        >
+          {isAutoLocked && (
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold shadow-lg shadow-amber-500/20">PRO</Badge>
+            </div>
+          )}
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <CloudDownload className="h-5 w-5 text-indigo-500" />
-              <CardTitle className="text-base font-medium">Fréquence de sauvegardes</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CloudDownload className="h-5 w-5 text-indigo-500" />
+                <CardTitle className="text-base font-medium">Fréquence de sauvegardes</CardTitle>
+              </div>
+              {isAutoLocked && (
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="h-auto p-0 text-[10px] text-amber-600 font-bold uppercase tracking-wider gap-1 hover:no-underline group"
+                  onClick={() => setIsUpgradeModalOpen(true)}
+                >
+                  Passer en PRO <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -115,6 +155,7 @@ export default function SettingsBackups() {
               <div className="space-y-2">
                 <Label>Fréquence automatique</Label>
                 <Select
+                  disabled={isAutoLocked}
                   value={settings.frequency}
                   onValueChange={(val) => setSettings({ ...settings, frequency: val })}
                 >
@@ -132,6 +173,7 @@ export default function SettingsBackups() {
               <div className="space-y-2">
                 <Label>Heure d'exécution (Locale)</Label>
                 <Input
+                  disabled={isAutoLocked}
                   type="time"
                   value={settings.execution_time}
                   onChange={(e) => setSettings({ ...settings, execution_time: e.target.value })}
@@ -226,15 +268,28 @@ export default function SettingsBackups() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* WhatsApp */}
-            <div className="space-y-4">
+            <div className={cn(
+              "space-y-4 relative overflow-hidden rounded-lg p-2 transition-all",
+              isWhatsAppLocked && "bg-amber-500/5 border border-amber-500/10"
+            )}>
               <div className="flex items-center justify-between space-x-2">
                 <div className="flex flex-col space-y-1">
-                  <span className="text-sm font-medium">WhatsApp</span>
-                  <span className="text-xs text-muted-foreground">Message direct sur votre téléphone.</span>
+                  <span className="text-sm font-medium flex items-center gap-2">
+                    WhatsApp
+                    {isWhatsAppLocked && <Lock size={12} className="text-amber-600" />}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {isWhatsAppLocked ? "Réservé au plan Pro" : "Message direct sur votre téléphone."}
+                  </span>
                 </div>
                 <Switch
-                  checked={settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both'}
+                  checked={!isWhatsAppLocked && (settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both')}
+                  disabled={isWhatsAppLocked}
                   onCheckedChange={(checked) => {
+                    if (isWhatsAppLocked) {
+                      setIsUpgradeModalOpen(true)
+                      return
+                    }
                     const current = settings.notification_channel
                     let next: 'email' | 'whatsapp' | 'both' | 'none' = 'none'
                     if (checked) next = current === 'email' ? 'both' : 'whatsapp'
@@ -244,7 +299,7 @@ export default function SettingsBackups() {
                 />
               </div>
 
-              {(settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both') && (
+              {(settings.notification_channel === 'whatsapp' || settings.notification_channel === 'both') && !isWhatsAppLocked && (
                 <div className="grid gap-2 animate-in slide-in-from-top-2 duration-300">
                   <Label htmlFor="whatsapp">Numéro de téléphone</Label>
                   <div className="flex gap-2">
@@ -264,6 +319,16 @@ export default function SettingsBackups() {
                     </Button>
                   </div>
                 </div>
+              )}
+              {isWhatsAppLocked && (
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="h-auto p-0 text-[10px] text-amber-600 font-bold uppercase tracking-wider"
+                  onClick={() => setIsUpgradeModalOpen(true)}
+                >
+                  Upgrade pour activer
+                </Button>
               )}
             </div>
 
@@ -321,6 +386,10 @@ export default function SettingsBackups() {
           </Button>
         </div>
       </div>
+      <UpgradeModal 
+        open={isUpgradeModalOpen}
+        onOpenChange={setIsUpgradeModalOpen}
+      />
     </div>
   )
 }

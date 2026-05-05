@@ -8,6 +8,9 @@ import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { Lock } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +45,10 @@ export function AppCronCard({ appId }: { appId: number }) {
   const [addingTask, setAddingTask] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [newTask, setNewTask] = useState({ command: '', frequency: '* * * * *', description: '' })
+
+  const user = useAuthStore(state => state.auth.user)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const isLocked = user?.current_team?.plan === 'starter'
 
   const fetchCrons = async () => {
     try {
@@ -137,7 +144,11 @@ export function AppCronCard({ appId }: { appId: number }) {
               </p>
             </div>
           </div>
-          <Switch checked={data?.has_laravel_scheduler} onCheckedChange={toggleLaravel} disabled={syncing} />
+          <Switch 
+            checked={data?.has_laravel_scheduler} 
+            onCheckedChange={(val) => isLocked ? setShowUpgradeModal(true) : toggleLaravel(val)} 
+            disabled={syncing} 
+          />
         </div>
       )}
 
@@ -146,12 +157,31 @@ export function AppCronCard({ appId }: { appId: number }) {
         <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
           <p className="text-sm font-medium"></p>
           <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={manualSync} disabled={syncing || loading} className="h-7 text-xs gap-1.5">
-              <RefreshCw className={cn("h-3 w-3", (syncing || loading) && "animate-spin")} />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => isLocked ? setShowUpgradeModal(true) : manualSync()} 
+              disabled={syncing || loading} 
+              className={cn(
+                "h-7 text-xs gap-1.5 relative overflow-hidden",
+                isLocked && "premium-lock-overlay group/btn"
+              )}
+            >
+              {isLocked && <div className="shimmer-effect" />}
+              {isLocked ? <Lock className="h-3 w-3" /> : <RefreshCw className={cn("h-3 w-3", (syncing || loading) && "animate-spin")} />}
               Sync VPS
             </Button>
-            <Button size="sm" onClick={() => setAddingTask(true)} disabled={addingTask || loading} className="h-7 text-xs gap-1.5">
-              <Plus className="h-3 w-3" />
+            <Button 
+              size="sm" 
+              onClick={() => isLocked ? setShowUpgradeModal(true) : setAddingTask(true)} 
+              disabled={addingTask || loading} 
+              className={cn(
+                "h-7 text-xs gap-1.5 relative overflow-hidden",
+                isLocked && "premium-lock-overlay group/btn"
+              )}
+            >
+              {isLocked && <div className="shimmer-effect" />}
+              {isLocked ? <Lock className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
               Ajouter
             </Button>
           </div>
@@ -274,6 +304,12 @@ export function AppCronCard({ appId }: { appId: number }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+        reason="La gestion des tâches planifiées (Cron) est réservée aux membres Solo et Pro."
+      />
     </div>
   )
 }

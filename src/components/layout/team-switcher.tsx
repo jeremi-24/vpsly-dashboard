@@ -33,6 +33,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
 
 interface Team {
   id: number
@@ -53,6 +54,7 @@ export function TeamSwitcher() {
   const [newTeamName, setNewTeamName] = React.useState('')
   const [isCreating, setIsCreating] = React.useState(false)
   const [isLoadingTeams, setIsLoadingTeams] = React.useState(true)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false)
 
   React.useEffect(() => {
     const fetchTeams = async () => {
@@ -128,8 +130,13 @@ export function TeamSwitcher() {
         })
       }
       window.location.reload()
-    } catch (e) {
-      toast.error('Erreur lors de la création')
+    } catch (error: any) {
+      if (error.requires_upgrade) {
+        setShowCreateModal(false)
+        setIsUpgradeModalOpen(true)
+      } else {
+        toast.error(error.message || 'Erreur lors de la création')
+      }
     } finally {
       setIsCreating(false)
     }
@@ -320,6 +327,10 @@ export function TeamSwitcher() {
           </form>
         </DialogContent>
       </Dialog>
+      <UpgradeModal 
+        open={isUpgradeModalOpen} 
+        onOpenChange={setIsUpgradeModalOpen} 
+      />
     </>
   )
 }

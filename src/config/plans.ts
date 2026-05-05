@@ -12,6 +12,7 @@ export interface Plan {
   maxApps: number;
   maxDatabases: number;
   maxTeamMembers: number;
+  popular?: boolean;
   features: {
     customDomains: boolean;
     autoBackups: boolean;
@@ -39,11 +40,12 @@ export const PLANS: Record<string, Plan> = {
   solo: {
     id: 'solo',
     name: 'Solo',
-    price: 5,
+    price: 6,
     maxServers: 2,
     maxApps: -1, // Unlimited
     maxDatabases: -1,
     maxTeamMembers: 2,
+    popular: true,
     features: {
       customDomains: true,
       autoBackups: false,
@@ -54,7 +56,7 @@ export const PLANS: Record<string, Plan> = {
   pro: {
     id: 'pro',
     name: 'Pro',
-    price: 10,
+    price: 12,
     maxServers: -1,
     maxApps: -1,
     maxDatabases: -1,

@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react'
-import { Link } from '@tanstack/react-router'
-import { Plus, Database, Server as ServerIcon, ExternalLink, Shield, Link as LinkIcon, LayoutDashboard } from 'lucide-react'
+import { Plus, Database, Server as ServerIcon, ExternalLink, Shield, Link as LinkIcon, LayoutDashboard, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -14,6 +12,11 @@ import { apiFetch } from '@/lib/api'
 import { CreateDatabaseDrawer } from '@/features/databases/components/create-database-drawer'
 import { DatabaseConnectionModal } from '@/features/databases/components/database-connection-modal'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/auth-store'
+import { getPlanById } from '@/config/plans'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { useState, useEffect } from 'react'
+import { Link } from '@tanstack/react-router'
 
 export interface DatabaseInfo {
   id: number
@@ -61,6 +64,13 @@ export function Databases() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [selectedDb, setSelectedDb] = useState<DatabaseInfo | null>(null)
   const [connectionModalOpen, setConnectionModalOpen] = useState(false)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
+  const user = useAuthStore((state) => state.auth.user)
+  const team = user?.current_team
+  const plan = team ? getPlanById(team.plan) : null
+  const currentDatabasesCount = team?.databases_count || 0
+  const isLocked = plan ? (plan.maxDatabases !== -1 && currentDatabasesCount >= plan.maxDatabases) : false
 
   const fetchDatabases = async () => {
     try {
@@ -102,10 +112,21 @@ export function Databases() {
           <div>
             <h1 className='text-2xl font-bold tracking-tight text-foreground'>Gérez vos Bases de données</h1>
           </div>
-          <Button onClick={() => setDrawerOpen(true)}>
-            <Plus className='mr-2 h-4 w-4' />
-            <span>Nouvelle base de données</span>
-          </Button>
+          {isLocked ? (
+            <Button 
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className="relative overflow-hidden shimmer-effect group"
+            >
+              <div className="premium-lock-overlay" />
+              <Lock className='mr-2 h-4 w-4 text-white z-20' />
+              <span className="z-20">Nouvelle base de données</span>
+            </Button>
+          ) : (
+            <Button onClick={() => setDrawerOpen(true)}>
+              <Plus className='mr-2 h-4 w-4' />
+              <span>Nouvelle base de données</span>
+            </Button>
+          )}
         </div>
 
         <div className='my-4 flex items-center justify-between'>
@@ -156,8 +177,20 @@ export function Databases() {
               <p className='mt-2 text-sm text-muted-foreground max-w-sm'>
                 Commencez par créer votre première instance de base de données managée.
               </p>
-              <Button variant='outline' className='mt-6' onClick={() => setDrawerOpen(true)}>
-                Créer ma première base
+              <Button 
+                variant={isLocked ? 'outline' : 'default'} 
+                className={`mt-6 ${isLocked ? 'relative overflow-hidden shimmer-effect' : ''}`}
+                onClick={() => {
+                  if (isLocked) {
+                    setIsUpgradeModalOpen(true)
+                  } else {
+                    setDrawerOpen(true)
+                  }
+                }}
+              >
+                {isLocked && <div className="premium-lock-overlay" />}
+                {isLocked && <Lock className="mr-2 h-4 w-4 z-20" />}
+                <span className="z-20">Créer ma première base</span>
               </Button>
             </div>
           ) : (
@@ -260,6 +293,12 @@ export function Databases() {
           database={selectedDb}
           open={connectionModalOpen}
           onOpenChange={setConnectionModalOpen}
+        />
+
+        <UpgradeModal 
+          open={isUpgradeModalOpen} 
+          onOpenChange={setIsUpgradeModalOpen}
+          reason={`Vous avez atteint votre limite de ${plan?.maxDatabases} base${plan?.maxDatabases && plan.maxDatabases > 1 ? 's' : ''} de données avec le plan ${plan?.name}.`}
         />
       </Main>
     </>

@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { CheckCircle2, XCircle, ExternalLink } from 'lucide-react'
+import { CheckCircle2, XCircle, ExternalLink, Lock, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/auth-store'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { cn } from '@/lib/utils'
 
 const GithubLogo = ({ className }: { className?: string }) => (
   <svg 
@@ -22,7 +26,12 @@ export function SettingsIntegrations() {
   const [githubUser, setGithubUser] = useState<any>(null)
   const [backupSettings, setBackupSettings] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const navigate = useNavigate()
+
+  const user = useAuthStore(state => state.auth.user)
+  const userPlan = user?.current_team?.plan || 'starter'
+  const isDriveLocked = userPlan === 'starter'
 
   const fetchStatus = async () => {
     try {
@@ -171,7 +180,18 @@ export function SettingsIntegrations() {
         </Card>
 
         {/* Google Drive Card */}
-        <Card className='overflow-hidden border-none shadow-sm bg-muted/20'>
+        <Card className={cn(
+          'overflow-hidden shadow-sm bg-muted/20 relative transition-all',
+          isDriveLocked ? 'border-amber-500/50 cursor-pointer' : 'border-none'
+        )}
+        onClick={() => isDriveLocked && setIsUpgradeModalOpen(true)}
+        >
+          {isDriveLocked && (
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold shadow-lg shadow-amber-500/20">PRO</Badge>
+            </div>
+          )}
+          {isDriveLocked && <div className="shimmer-effect" />}
           <CardHeader className='pb-4'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center gap-4'>
@@ -183,7 +203,10 @@ export function SettingsIntegrations() {
                   />
                 </div>
                 <div>
-                  <CardTitle className='text-lg'>Google Drive</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className='text-lg'>Google Drive</CardTitle>
+                    {isDriveLocked && <Lock size={14} className="text-amber-500" />}
+                  </div>
                   <CardDescription>
                     Sauvegardes automatiques sécurisées.
                   </CardDescription>
@@ -196,10 +219,24 @@ export function SettingsIntegrations() {
                           Actif
                       </div>
                   ) : (
-                      <div className='flex items-center gap-2 text-muted-foreground font-medium text-xs bg-muted px-3 py-1.5 rounded-full border border-border'>
+                      isDriveLocked ? (
+                        <Button 
+                          variant="link" 
+                          size="sm" 
+                          className="h-auto p-0 text-[10px] text-amber-600 font-bold uppercase tracking-wider gap-1 hover:no-underline group"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsUpgradeModalOpen(true);
+                          }}
+                        >
+                          Passer en PRO <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      ) : (
+                        <div className='flex items-center gap-2 text-muted-foreground font-medium text-xs bg-muted px-3 py-1.5 rounded-full border border-border'>
                           <XCircle size={14} />
                           Non configuré
-                      </div>
+                        </div>
+                      )
                   )
               )}
             </div>
@@ -229,19 +266,33 @@ export function SettingsIntegrations() {
             ) : (
               <div className='flex flex-col items-center justify-center py-6 text-center bg-background/30 rounded-xl border border-dashed border-border'>
                  <p className='text-sm text-muted-foreground mb-4 max-w-[300px]'>
-                   Stockez vos bases de données et volumes sur votre cloud personnel.
+                   {isDriveLocked 
+                     ? "Le stockage externe est une fonctionnalité premium pour vos sauvegardes." 
+                     : "Stockez vos bases de données et volumes sur votre cloud personnel."}
                  </p>
-                 <Button onClick={handleConnectDrive} variant='outline' className='gap-2 rounded-lg border-blue-500/20 hover:bg-blue-500/5 hover:text-blue-600 transition-all'>
+                 <Button 
+                   onClick={() => isDriveLocked ? setIsUpgradeModalOpen(true) : handleConnectDrive()} 
+                   variant='outline' 
+                   className={cn(
+                     'gap-2 rounded-lg border-blue-500/20 hover:bg-blue-500/5 hover:text-blue-600 transition-all',
+                     isDriveLocked && 'border-amber-500/50 text-amber-600'
+                   )}
+                 >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
                       <path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5M9.73 15L6.3 21h13.12l3.43-6M18.74 15L12.15 3.5h-6.85L12 14z" />
                     </svg>
-                   Connecter Google Drive
+                   {isDriveLocked ? "Upgrade pour connecter" : "Connecter Google Drive"}
                  </Button>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <UpgradeModal 
+        open={isUpgradeModalOpen}
+        onOpenChange={setIsUpgradeModalOpen}
+      />
     </div>
   )
 }

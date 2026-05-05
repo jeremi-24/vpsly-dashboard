@@ -1,5 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box } from 'lucide-react'
+import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box, Lock } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
 import { Textarea } from '@/components/ui/textarea'
 
 
@@ -27,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { PlanLock } from '@/components/shared/plan-lock'
 
 
 interface CreateAppDrawerProps {
@@ -38,7 +42,11 @@ interface CreateAppDrawerProps {
 
 export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: CreateAppDrawerProps) {
   const [loading, setLoading] = useState(false)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
   const navigate = useNavigate()
+
+  const user = useAuthStore((state) => state.auth.user)
+  const isDomainLocked = user?.current_team?.plan === 'starter'
 
   // State du formulaire (calqué sur l'étape 3 de CreateAppPage)
   const [deploymentMode, setDeploymentMode] = useState<'docker' | 'legacy_existing'>(appToEdit?.deployment_mode || 'docker')
@@ -110,6 +118,12 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='sm:max-w-xl px-0 py-0 flex flex-col h-full border-l bg-background/95 backdrop-blur-md'>
         
+        <PlanLock 
+          checkQuota="apps" 
+          featureName="Création d'application" 
+          isLocked={appToEdit ? false : undefined}
+          className="flex flex-col h-full"
+        >
         {/* Header - Style Premium (Fixe) */}
         <div className='flex-none p-6 border-b flex items-center justify-between bg-card/30'>
           <div className='flex items-center gap-3'>
@@ -132,7 +146,7 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
 
         {/* Zone défilante (Flexible) */}
         <div className='flex-1 min-h-0 overflow-y-auto'>
-          <div className='p-6 space-y-8 pb-10'>
+            <div className='p-6 space-y-8 pb-10'>
             
             {/* Résumé du mode (Badge) */}
             <div className='flex items-center gap-2 mb-2'>
@@ -163,19 +177,37 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
                 />
               </div>
 
-              {deploymentMode === 'docker' && (
+               {deploymentMode === 'docker' && (
                 <div className="space-y-2">
-                  <Label htmlFor="domain" className="text-sm font-medium">Nom de domaine (Optionnel)</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-4 top-3.5 h-4 w-4 text-muted-foreground" />
+                  <Label htmlFor="domain" className={cn("text-sm font-medium", isDomainLocked && "opacity-50")}>Nom de domaine (Optionnel)</Label>
+                  <div 
+                    className={cn("relative", isDomainLocked && "cursor-pointer group")}
+                    onClick={() => isDomainLocked && setIsUpgradeModalOpen(true)}
+                  >
+                    <Globe className="absolute left-4 top-3.5 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     <Input 
                       id="domain" 
                       value={domain} 
                       onChange={e => setDomain(e.target.value)} 
-                      placeholder="app.mondomaine.com" 
-                      className="pl-11 h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20" 
+                      placeholder={isDomainLocked ? "Domaine perso (Solo/Pro)" : "app.mondomaine.com"}
+                      className={cn(
+                        "pl-11 h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20 transition-all",
+                        isDomainLocked && "premium-lock-overlay pr-10 cursor-pointer"
+                      )}
+                      readOnly={isDomainLocked}
                     />
+                    {isDomainLocked && (
+                      <div className="absolute right-4 top-3.5 text-primary animate-pulse">
+                        <Lock size={14} />
+                      </div>
+                    )}
+                    {isDomainLocked && <div className="shimmer-effect rounded-xl" />}
                   </div>
+                  {isDomainLocked && (
+                    <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-1 ml-1 flex items-center gap-1">
+                      <Lock size={10} /> Réservé aux membres Solo & Pro
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -253,7 +285,12 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
             {appToEdit ? 'Enregistrer les modifications' : 'Lancer le déploiement'}
           </Button>
         </div>
+        </PlanLock>
 
+        <UpgradeModal 
+          open={isUpgradeModalOpen}
+          onOpenChange={setIsUpgradeModalOpen}
+        />
       </SheetContent>
     </Sheet>
   )

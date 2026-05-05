@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box } from 'lucide-react'
+import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box, Lock } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +12,10 @@ import { useNavigate, Link } from '@tanstack/react-router'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { PlanLock } from '@/components/shared/plan-lock'
+import { useAuthStore } from '@/stores/auth-store'
+import { getPlanById } from '@/config/plans'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
 import {
   Select,
   SelectContent,
@@ -24,6 +29,15 @@ export default function CreateAppPage() {
   const [deploymentMode, setDeploymentMode] = useState<'docker' | 'legacy_existing' | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
+
+  const user = useAuthStore((state) => state.auth.user)
+  const team = user?.current_team
+  const plan = team ? getPlanById(team.plan) : null
+  const currentAppsCount = team?.applications_count || 0
+  const isLocked = plan ? (plan.maxApps !== -1 && currentAppsCount >= plan.maxApps) : false
+  const isDomainLocked = team?.plan === 'starter'
+  const isLegacyLocked = team?.plan === 'starter'
 
   // Data for selection
   const [repos, setRepos] = useState<any[]>([])
@@ -246,41 +260,75 @@ export default function CreateAppPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                 {/* 1. DOCKER */}
-<button
-  onClick={() => { setDeploymentMode('docker'); setStep(0); }}
-  className="flex items-center gap-5 p-6 rounded-2xl border text-left transition-all hover:border-primary group bg-card hover:bg-primary/5 shadow-sm hover:shadow-lg duration-300"
->
-  <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-    <Box size={24} />
-  </div>
-  <div className="flex-1">
-    <h4 className="font-bold text-base">Nouveau Déploiement</h4>
-    <p className="text-sm text-muted-foreground mt-1">
-      Déployez votre app, base de données et SSL en quelques clics. Zéro configuration serveur.
-    </p>
-  </div>
-  <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all shrink-0" />
-</button>
+                  {/* 1. DOCKER */}
+  <button
+    onClick={() => {
+      if (isLocked) {
+        setIsUpgradeModalOpen(true);
+        return;
+      }
+      setDeploymentMode('docker');
+      setStep(0);
+    }}
+    className={`relative overflow-hidden flex items-center gap-5 p-6 rounded-2xl border text-left transition-all hover:border-primary group bg-card hover:bg-primary/5 shadow-sm hover:shadow-lg duration-300 ${isLocked ? 'border-primary/60 ring-1 ring-primary/20 shadow-primary/10' : 'opacity-80 hover:opacity-100 cursor-pointer'}`}
+  >
+    {isLocked && (
+      <div className="absolute top-3 right-3 flex items-center gap-2">
+        <Badge className="bg-primary text-white text-[10px] h-5 px-1.5 font-bold shadow-lg shadow-primary/20">SOLO & PRO</Badge>
+      </div>
+    )}
+    <div className={`h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform ${isLocked ? 'shimmer-effect' : ''}`}>
+      <Box size={24} />
+    </div>
+    <div className="flex-1">
+      <h4 className="font-bold text-base">Nouveau Déploiement</h4>
+      <p className="text-sm text-muted-foreground mt-1">
+        Déployez votre app, base de données et SSL en quelques clics. Zéro configuration serveur.
+      </p>
+      {isLocked && (
+        <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-2 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+          Passer en SOLO ou PRO <ChevronRight size={12} />
+        </p>
+      )}
+    </div>
+    <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all shrink-0" />
+  </button>
 
 {/* 2. LEGACY EXISTING */}
-<button
-  onClick={() => { setDeploymentMode('legacy_existing'); setStep(2); }}
-  className="flex items-center gap-5 p-6 rounded-2xl border text-left transition-all hover:border-amber-500 group bg-card hover:bg-amber-500/5 shadow-sm hover:shadow-lg duration-300"
->
-  <div className="h-12 w-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-    <Terminal size={24} />
-  </div>
-  <div className="flex-1">
-    <h4 className="font-bold text-base">J'ai déjà mon app sur le serveur</h4>
-    <p className="text-sm text-muted-foreground mt-1">
-      Pointez vers votre dossier existant. Automatisez vos commandes pull, build et pm2 sans toucher à votre stack.
-    </p>
-  </div>
-  <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all shrink-0" />
-</button>
-                </div>
-             </div>
+  <button
+    onClick={() => {
+      if (isLocked || isLegacyLocked) {
+        setIsUpgradeModalOpen(true);
+        return;
+      }
+      setDeploymentMode('legacy_existing');
+      setStep(2);
+    }}
+    className={`relative overflow-hidden flex items-center gap-5 p-6 rounded-2xl border text-left transition-all hover:border-amber-500 group bg-card hover:bg-amber-500/5 shadow-sm hover:shadow-lg duration-300 ${ (isLocked || isLegacyLocked) ? 'border-amber-500/60 ring-1 ring-amber-500/20 shadow-amber-500/10' : 'opacity-80 hover:opacity-100 cursor-pointer'}`}
+  >
+    {(isLocked || isLegacyLocked) && (
+      <div className="absolute top-3 right-3 flex items-center gap-2">
+        <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold shadow-lg shadow-amber-500/20">PRO</Badge>
+      </div>
+    )}
+    <div className={`h-12 w-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform ${ (isLocked || isLegacyLocked) ? 'shimmer-effect' : ''}`}>
+      <Terminal size={24} />
+    </div>
+    <div className="flex-1">
+      <h4 className="font-bold text-base">J'ai déjà mon app sur le serveur</h4>
+      <p className="text-sm text-muted-foreground mt-1">
+        Pointez vers votre dossier existant. Automatisez vos commandes pull, build et pm2 sans toucher à votre stack.
+      </p>
+      {(isLocked || isLegacyLocked) && (
+        <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-2 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+          Passer en PRO <ChevronRight size={12} />
+        </p>
+      )}
+    </div>
+    <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all shrink-0" />
+  </button>
+</div>
+</div>
           )}
 
           {/* STEP 0: PRESETS (Docker only) */}
@@ -430,18 +478,42 @@ export default function CreateAppPage() {
           {step === 3 && (
             <div className='space-y-8 animate-in fade-in slide-in-from-right-4 duration-500'>
                <div className="grid grid-cols-1 gap-6">
-                  <div className="space-y-2">
+<div className="space-y-2">
                     <Label htmlFor="appName">Nom de l'application</Label>
                     <Input id="appName" value={appName} onChange={e => setAppName(e.target.value)} placeholder="mon-projet" className="h-12 rounded-xl" />
                   </div>
 
                   {deploymentMode === 'docker' && (
                     <div className="space-y-2">
-                      <Label htmlFor="domain">Nom de domaine (Optionnel)</Label>
-                      <div className="relative">
-                        <Globe className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground" />
-                        <Input id="domain" value={domain} onChange={e => setDomain(e.target.value)} placeholder="app.mondomaine.com" className="pl-11 h-12 rounded-xl" />
+                      <Label htmlFor="domain" className={cn(isDomainLocked && "opacity-50")}>Nom de domaine (Optionnel)</Label>
+                      <div 
+                        className={cn("relative", isDomainLocked && "cursor-pointer group")}
+                        onClick={() => isDomainLocked && setIsUpgradeModalOpen(true)}
+                      >
+                        <Globe className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <Input 
+                          id="domain" 
+                          value={domain} 
+                          onChange={e => setDomain(e.target.value)} 
+                          placeholder={isDomainLocked ? "Domaine perso (Solo/Pro)" : "app.mondomaine.com"}
+                          className={cn(
+                            "pl-11 h-12 rounded-xl transition-all",
+                            isDomainLocked && "premium-lock-overlay pr-10 cursor-pointer"
+                          )}
+                          readOnly={isDomainLocked}
+                        />
+                        {isDomainLocked && (
+                          <div className="absolute right-4 top-3.5 text-primary animate-pulse">
+                            <Lock size={16} />
+                          </div>
+                        )}
+                        {isDomainLocked && <div className="shimmer-effect rounded-xl" />}
                       </div>
+                      {isDomainLocked && (
+                        <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-1 ml-1 flex items-center gap-1">
+                          <Lock size={10} /> Réservé aux membres Solo & Pro
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -516,9 +588,16 @@ export default function CreateAppPage() {
               <Button
                 size="lg"
                 disabled={loading || !appName}
-                onClick={handleCreate}
-                className="rounded-xl px-12 gap-2 bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25"
+                onClick={() => {
+                  if (isLocked) {
+                    setIsUpgradeModalOpen(true);
+                    return;
+                  }
+                  handleCreate();
+                }}
+                className={`relative overflow-hidden rounded-xl px-12 gap-2 bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 ${isLocked ? 'shimmer-effect' : ''}`}
               >
+                {isLocked && <Lock size={16} className="mr-1" />}
                 {loading ? <Loader className='h-5 w-5 animate-spin' /> : <Globe className='h-5 w-5' />}
                 Lancer le déploiement
               </Button>
@@ -526,6 +605,11 @@ export default function CreateAppPage() {
           </div>
         </footer>
       )}
+
+      <UpgradeModal
+        open={isUpgradeModalOpen}
+        onOpenChange={setIsUpgradeModalOpen}
+      />
     </div>
   )
 }

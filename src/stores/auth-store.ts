@@ -13,6 +13,13 @@ interface AuthUser {
     id: number
     name: string
     owner_id: number
+    plan: 'starter' | 'solo' | 'pro'
+    subscription_status: string
+    last_payment_at?: string
+    expires_at?: string
+    applications_count?: number
+    servers_count?: number
+    databases_count?: number
   }
 }
 

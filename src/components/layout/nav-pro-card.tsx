@@ -7,11 +7,15 @@ import {
 } from '@/components/ui/sidebar'
 import { Link } from '@tanstack/react-router'
 
+import { useAuthStore } from '@/stores/auth-store'
+
 export function NavProCard() {
   const { state } = useSidebar()
+  const { user } = useAuthStore((state) => state.auth)
   const isCollapsed = state === 'collapsed'
+  const plan = user?.current_team?.plan || 'starter'
 
-  if (isCollapsed) return null
+  if (isCollapsed || plan !== 'starter') return null
 
   return (
     <SidebarMenu className='px-2 py-2'>

@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
+import { apiFetch } from '@/lib/api'
 
 const formSchema = z.object({
   email: z.string().email('Veuillez entrer une adresse email valide.'),

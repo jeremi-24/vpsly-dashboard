@@ -7,6 +7,9 @@ import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { echo } from '@/lib/echo'
+import { useAuthStore } from '@/stores/auth-store'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { Lock } from 'lucide-react'
 
 interface Backup {
   id: number
@@ -24,6 +27,10 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
   const [actionLoading, setActionLoading] = useState(false)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  
+  const user = useAuthStore(state => state.auth.user)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const isLocked = user?.current_team?.plan === 'starter'
 
   const fetchBackups = async () => {
     try {
@@ -174,8 +181,17 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
                       <p className="text-[10px] text-muted-foreground">Base de données</p>
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => createBackup(db.id)} disabled={actionLoading} className="h-7 text-[10px]">
-                    Backup
+                  <Button 
+                    size="sm" 
+                    onClick={() => isLocked ? setShowUpgradeModal(true) : createBackup(db.id)} 
+                    disabled={actionLoading} 
+                    className={cn(
+                      "h-7 text-[10px] relative overflow-hidden",
+                      isLocked && "premium-lock-overlay group/btn"
+                    )}
+                  >
+                    {isLocked && <div className="shimmer-effect" />}
+                    {isLocked ? <Lock size={10} className="mr-1" /> : 'Backup'}
                   </Button>
                 </div>
               ))}
@@ -190,8 +206,17 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
                       <p className="text-[10px] text-muted-foreground">Volume</p>
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => createBackup(undefined, vol.id)} disabled={actionLoading} className="h-7 text-[10px]">
-                    Backup
+                  <Button 
+                    size="sm" 
+                    onClick={() => isLocked ? setShowUpgradeModal(true) : createBackup(undefined, vol.id)} 
+                    disabled={actionLoading} 
+                    className={cn(
+                      "h-7 text-[10px] relative overflow-hidden",
+                      isLocked && "premium-lock-overlay group/btn"
+                    )}
+                  >
+                    {isLocked && <div className="shimmer-effect" />}
+                    {isLocked ? <Lock size={10} className="mr-1" /> : 'Backup'}
                   </Button>
                 </div>
               ))}
@@ -287,6 +312,12 @@ export function AppBackupsCard({ appId, databases = [], volumes = [] }: { appId:
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <UpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal}
+        reason="La gestion des sauvegardes est réservée aux membres Solo et Pro."
+      />
     </div>
   )
 }

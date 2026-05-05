@@ -127,3 +127,53 @@
     height: 0;
   }
 }
+
+/* Premium Locked Button Effects */
+@keyframes shimmer-rl {
+  0% {
+    transform: translateX(100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(-200%) skewX(-15deg);
+  }
+}
+
+.premium-lock-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark .premium-lock-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    to left,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
+  );
+  animation: shimmer-rl 3s infinite linear;
+  pointer-events: none;
+  z-index: 11;
+}

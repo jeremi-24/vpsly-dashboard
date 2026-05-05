@@ -2,11 +2,14 @@ import { useAuthStore } from '@/stores/auth-store'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
 import * as React from 'react'
-import { Link, Loader2, LogOut, Trash2 } from 'lucide-react'
+import { Link, Loader2, LogOut, Trash2, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { getPlanById } from '@/config/plans'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { cn } from '@/lib/utils'
 
 interface Member {
   id: number
@@ -31,6 +34,12 @@ export function TeamSettings() {
   const [loading, setLoading] = React.useState(true)
   const [isInviting, setIsInviting] = React.useState(false)
   const [isLeaving, setIsLeaving] = React.useState(false)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false)
+
+  const team = user?.current_team
+  const plan = team ? getPlanById(team.plan) : null
+  const maxTeamMembers = plan?.maxTeamMembers || 1
+  const isLocked = maxTeamMembers !== -1 && members.length >= maxTeamMembers
 
   const fetchMembers = async () => {
     if (!user?.current_team_id) return
@@ -114,26 +123,50 @@ export function TeamSettings() {
 
       {/* Invitation Banner — visible uniquement pour le propriétaire */}
       {isOwner && (
-        <div className='flex items-center justify-between rounded-xl bg-zinc-900 dark:bg-zinc-950 border border-white/8 px-5 py-4 gap-4'>
+        <div className={cn(
+          'flex items-center justify-between rounded-xl bg-zinc-900 dark:bg-zinc-950 border border-white/8 px-5 py-4 gap-4 relative overflow-hidden',
+          isLocked && 'cursor-pointer group/lock'
+        )}
+        onClick={() => {
+          if (isLocked) setIsUpgradeModalOpen(true)
+        }}
+        >
           <div className='flex items-center gap-4'>
             <div className='flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 shadow-lg'>
               <Link className='size-5 text-white' />
             </div>
             <div>
-              <p className='text-sm font-semibold text-white'>Inviter un membre</p>
-              <p className='text-xs text-zinc-400'>Générez un lien à usage unique</p>
+              <p className='text-sm font-semibold text-white flex items-center gap-2'>
+                Inviter un membre 
+                {isLocked && <Lock size={12} className="text-amber-500" />}
+              </p>
+              <p className='text-xs text-zinc-400'>
+                {isLocked 
+                  ? `Limite de ${maxTeamMembers} membre(s) atteinte sur votre plan ${plan?.name}` 
+                  : 'Générez un lien à usage unique'}
+              </p>
             </div>
           </div>
           <Button
-            onClick={handleInvite}
+            onClick={(e) => {
+              if (isLocked) {
+                e.stopPropagation()
+                setIsUpgradeModalOpen(true)
+              } else {
+                handleInvite()
+              }
+            }}
             disabled={isInviting}
             variant='outline'
-            className='shrink-0 border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white font-semibold text-sm gap-2'
+            className={cn(
+              'shrink-0 border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white font-semibold text-sm gap-2',
+              isLocked && 'border-amber-500/30'
+            )}
           >
             {isInviting
               ? <Loader2 className='size-4 animate-spin' />
-              : <Link className='size-4' />}
-            Copier le lien
+              : isLocked ? <Lock className='size-4' /> : <Link className='size-4' />}
+            {isLocked ? 'Upgrade pour inviter' : 'Copier le lien'}
           </Button>
         </div>
       )}
@@ -221,6 +254,11 @@ export function TeamSettings() {
           </Button>
         </div>
       )}
+
+      <UpgradeModal 
+        open={isUpgradeModalOpen}
+        onOpenChange={setIsUpgradeModalOpen}
+      />
     </div>
   )
 }

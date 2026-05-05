@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { apiFetch } from '@/lib/api'
 import { toast } from 'sonner'
+import { PlanLock } from '@/components/shared/plan-lock'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 
@@ -167,6 +168,11 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='sm:max-w-xl px-0 py-0 flex flex-col h-full overflow-hidden'>
 
+        <PlanLock 
+          checkQuota="databases" 
+          featureName="Création de base de données"
+          className="flex flex-col h-full"
+        >
         {/* HEADER FIXED */}
         <SheetHeader className='px-6 pt-6 pb-2 flex-none'>
           <SheetTitle className='flex items-center gap-2 text-indigo-600'>
@@ -196,8 +202,8 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
 
         {/* BODY SCROLLABLE */}
         <div className='flex-1 min-h-0 relative px-6'>
-          <ScrollArea className='h-full py-2'>
-            <div className='pr-4 pb-4'>
+            <ScrollArea className='h-full py-2'>
+              <div className='pr-4 pb-4'>
               {/* STEP 1: ENGINE SELECTION */}
               {step === 1 && (
                 <div className='space-y-4 animate-in fade-in duration-500'>
@@ -397,6 +403,7 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
             )}
           </div>
         </div>
+        </PlanLock>
       </SheetContent>
     </Sheet>
   )
