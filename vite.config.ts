@@ -41,6 +41,10 @@ export default defineConfig({
       }
     })
   ],
+  server: {
+    host: true,
+    allowedHosts: ['app.vpsly.tech'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
