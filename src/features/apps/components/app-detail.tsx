@@ -201,7 +201,7 @@ export function AppDetail() {
                                     <>
                                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
                                         <a
-                                            href={`http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`}
+                                            href={app.domain?.startsWith('http') ? app.domain : `http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`}
                                             target="_blank"
                                             className="hover:underline flex items-center gap-1 text-indigo-400 font-medium truncate max-w-[150px] sm:max-w-none"
                                         >

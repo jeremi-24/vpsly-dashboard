@@ -177,39 +177,31 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
                 />
               </div>
 
-               {deploymentMode === 'docker' && (
-                <div className="space-y-2">
-                  <Label htmlFor="domain" className={cn("text-sm font-medium", isDomainLocked && "opacity-50")}>Nom de domaine (Optionnel)</Label>
-                  <div 
-                    className={cn("relative", isDomainLocked && "cursor-pointer group")}
-                    onClick={() => isDomainLocked && setIsUpgradeModalOpen(true)}
-                  >
-                    <Globe className="absolute left-4 top-3.5 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <Input 
-                      id="domain" 
-                      value={domain} 
-                      onChange={e => setDomain(e.target.value)} 
-                      placeholder={isDomainLocked ? "Domaine perso (Solo/Pro)" : "app.mondomaine.com"}
-                      className={cn(
-                        "pl-11 h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20 transition-all",
-                        isDomainLocked && "premium-lock-overlay pr-10 cursor-pointer"
-                      )}
-                      readOnly={isDomainLocked}
-                    />
-                    {isDomainLocked && (
-                      <div className="absolute right-4 top-3.5 text-primary animate-pulse">
-                        <Lock size={14} />
-                      </div>
-                    )}
-                    {isDomainLocked && <div className="shimmer-effect rounded-xl" />}
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="domain" className={cn("text-sm font-medium", isDomainLocked && "opacity-50")}>Nom de domaine (Optionnel)</Label>
+                <div 
+                  className={cn("relative", isDomainLocked && "group")}
+                >
+                  <Globe className="absolute left-4 top-3.5 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  <Input 
+                    id="domain" 
+                    value={domain} 
+                    onChange={e => setDomain(e.target.value)} 
+                    placeholder="app.mondomaine.com"
+                    className="pl-11 h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20 transition-all"
+                  />
                   {isDomainLocked && (
-                    <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-1 ml-1 flex items-center gap-1">
-                      <Lock size={10} /> Réservé aux membres Solo & Pro
-                    </p>
+                    <div className="absolute right-4 top-3.5 text-amber-500">
+                      <AlertCircle size={14} />
+                    </div>
                   )}
                 </div>
-              )}
+                {isDomainLocked && (
+                  <p className="text-[10px] text-amber-600 font-medium mt-1 ml-1 flex items-center gap-1">
+                    <AlertCircle size={10} /> Affichage dashboard uniquement (Config Nginx manuelle requise sur Starter)
+                  </p>
+                )}
+              </div>
 
               {deploymentMode !== 'docker' && (
                 <div className="space-y-6 pt-2">
