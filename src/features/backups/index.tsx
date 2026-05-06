@@ -1,43 +1,10 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
-import { Link } from '@tanstack/react-router'
-import { 
-  CloudDownload, 
-  Search as SearchIcon, 
-  Download, 
-  RotateCcw, 
-  Trash2, 
-  HardDrive,
-  Database,
-  AlertCircle,
-  Plus,
-  RefreshCw,
-  Loader,
-  CheckCircle2,
-  XCircle,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { ThemeSwitch } from '@/components/theme-switch'
+import { NotificationBell } from '@/components/notification-bell'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
-import { NotificationBell } from '@/components/notification-bell'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { apiFetch, getApiUrl } from '@/lib/api'
-import { toast } from 'sonner'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { ThemeSwitch } from '@/components/theme-switch'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -56,12 +25,43 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { echo } from '@/lib/echo'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/auth-store'
-import { UpgradeModal } from '@/components/shared/upgrade-modal'
 import { getPlanById } from '@/config/plans'
-import { Lock } from 'lucide-react'
+import { apiFetch, getApiUrl } from '@/lib/api'
+import { echo } from '@/lib/echo'
+import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/stores/auth-store'
+import { Link } from '@tanstack/react-router'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  CloudDownload,
+  Database,
+  Download,
+  HardDrive,
+  Loader,
+  Lock,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Search as SearchIcon,
+  Trash2,
+  XCircle
+} from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 interface GlobalBackup {
   id: number

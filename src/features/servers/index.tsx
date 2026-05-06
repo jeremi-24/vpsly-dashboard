@@ -1,21 +1,12 @@
-import { Server, Search as SearchIcon, SlidersHorizontal, Plus, Lock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
+import { NotificationBell } from '@/components/notification-bell'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
-import { NotificationBell } from '@/components/notification-bell'
-import { ConnectServerDrawer } from './components/connect-server-drawer'
-import { apiFetch } from '@/lib/api'
-import { toast } from 'sonner'
-import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/auth-store'
-import { getPlanById } from '@/config/plans'
 import { UpgradeModal } from '@/components/shared/upgrade-modal'
-import { useState, useEffect } from 'react'
+import { ThemeSwitch } from '@/components/theme-switch'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -23,6 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { getPlanById } from '@/config/plans'
+import { apiFetch } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
+import { Lock, Plus, Server } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { ConnectServerDrawer } from './components/connect-server-drawer'
 
 export interface ServerInfo {
   id: number

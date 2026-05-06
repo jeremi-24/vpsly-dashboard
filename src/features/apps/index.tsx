@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react'
-import { Link, useSearch, useNavigate } from '@tanstack/react-router'
-import { Plus, Search as SearchIcon, SlidersHorizontal, Globe, FolderGitIcon, Server as ServerIcon, Lock } from 'lucide-react'
+import { Header } from '@/components/layout/header'
+import { Main } from '@/components/layout/main'
+import { NotificationBell } from '@/components/notification-bell'
+import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Search } from '@/components/search'
+import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { ThemeSwitch } from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -11,17 +15,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Header } from '@/components/layout/header'
-import { Main } from '@/components/layout/main'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
-import { NotificationBell } from '@/components/notification-bell'
-import { apiFetch } from '@/lib/api'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAuthStore } from '@/stores/auth-store'
 import { getPlanById } from '@/config/plans'
-import { UpgradeModal } from '@/components/shared/upgrade-modal'
+import { apiFetch } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { Globe, Lock, Plus, Server as ServerIcon } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export interface ApplicationInfo {
   id: number

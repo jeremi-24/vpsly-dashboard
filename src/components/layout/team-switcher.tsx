@@ -39,6 +39,8 @@ interface Team {
   id: number
   name: string
   owner_id: number
+  plan: 'starter' | 'solo' | 'pro'
+  subscription_status: string
   owner?: {
     id: number
     name: string

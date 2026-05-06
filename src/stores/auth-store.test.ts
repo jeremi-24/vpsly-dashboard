@@ -7,10 +7,9 @@ async function importAuthStore() {
 }
 
 const sampleUser = {
-  accountNo: 'ACC-1',
+  id: 1,
+  name: 'Test User',
   email: 'user@example.com',
-  role: ['user'],
-  exp: 1_700_000_000,
 }
 
 describe('useAuthStore', () => {
@@ -22,7 +21,7 @@ describe('useAuthStore', () => {
   it('starts with an empty access token when nothing is persisted', async () => {
     const useAuthStore = await importAuthStore()
 
-    expect(useAuthStore.getState().auth.accessToken).toBe('')
+    expect(useAuthStore.getState().auth.accessToken).toBeNull()
     expect(useAuthStore.getState().auth.user).toBeNull()
   })
 
@@ -38,15 +37,15 @@ describe('useAuthStore', () => {
     )
   })
 
-  it('clears persisted access token when resetAccessToken is used', async () => {
+  it('clears persisted access token when setAccessToken(null) is used', async () => {
     const useAuthStore = await importAuthStore()
     useAuthStore.getState().auth.setAccessToken('to-clear')
-    useAuthStore.getState().auth.resetAccessToken()
+    useAuthStore.getState().auth.setAccessToken(null)
 
     vi.resetModules()
     const useAuthStoreAfterReload = await importAuthStore()
 
-    expect(useAuthStoreAfterReload.getState().auth.accessToken).toBe('')
+    expect(useAuthStoreAfterReload.getState().auth.accessToken).toBeNull()
   })
 
   it('updates the signed-in user via setUser', async () => {
@@ -65,12 +64,12 @@ describe('useAuthStore', () => {
     useAuthStore.getState().auth.reset()
 
     expect(useAuthStore.getState().auth.user).toBeNull()
-    expect(useAuthStore.getState().auth.accessToken).toBe('')
+    expect(useAuthStore.getState().auth.accessToken).toBeNull()
 
     vi.resetModules()
     const useAuthStoreAfterReload = await importAuthStore()
 
     expect(useAuthStoreAfterReload.getState().auth.user).toBeNull()
-    expect(useAuthStoreAfterReload.getState().auth.accessToken).toBe('')
+    expect(useAuthStoreAfterReload.getState().auth.accessToken).toBeNull()
   })
 })

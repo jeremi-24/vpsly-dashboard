@@ -29,7 +29,7 @@ export function EnvVarCard({ appId }: { appId: string }) {
     const [bulkMode, setBulkMode] = useState(false)
     const [bulkContent, setBulkContent] = useState('')
     const [processingBulk, setProcessingBulk] = useState(false)
-    const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+    const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const fetchVars = async () => {
         try {
