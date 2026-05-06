@@ -52,6 +52,8 @@ export default function SettingsBackups() {
   const isAutoLocked = userPlan !== 'pro'
   // WhatsApp alerts = PRO uniquement
   const isWhatsAppLocked = userPlan !== 'pro'
+  // Google Drive = Solo & Pro uniquement
+  const isGoogleDriveLocked = userPlan === 'starter'
   // Accès complet bloqué pour Starter
   const isStarter = userPlan === 'starter'
 
@@ -193,20 +195,39 @@ export default function SettingsBackups() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Destination</Label>
+              <Label className={cn(isGoogleDriveLocked && "opacity-50")}>Destination</Label>
               <Select
                 value={settings.storage_destination}
-                onValueChange={(val) => setSettings({ ...settings, storage_destination: val })}
+                onValueChange={(val) => {
+                  if (val === 'google_drive' && isGoogleDriveLocked) {
+                    setIsUpgradeModalOpen(true)
+                    return
+                  }
+                  setSettings({ ...settings, storage_destination: val })
+                }}
               >
-                <SelectTrigger>
+                <SelectTrigger className={cn(isGoogleDriveLocked && settings.storage_destination === 'local' && "hover:border-amber-500/50 transition-colors")}>
                   <SelectValue placeholder="Choisir une destination" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="local">Serveur Actuel (Local)</SelectItem>
-                  <SelectItem value="google_drive">Google Drive</SelectItem>
+                  <SelectItem 
+                    value="google_drive" 
+                    disabled={isGoogleDriveLocked}
+                    className={cn(isGoogleDriveLocked && "opacity-50 flex items-center justify-between")}
+                  >
+                    <div className="flex items-center gap-2">
+                      Google Drive {isGoogleDriveLocked && <Lock size={10} className="text-amber-600" />}
+                    </div>
+                  </SelectItem>
                   <SelectItem value="s3" disabled>Amazon S3 (Bientôt)</SelectItem>
                 </SelectContent>
               </Select>
+              {isGoogleDriveLocked && (
+                <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-1 ml-1 flex items-center gap-1">
+                  <Lock size={10} /> Google Drive réservé aux membres Solo & Pro
+                </p>
+              )}
             </div>
 
             {settings.storage_destination === 'google_drive' && (

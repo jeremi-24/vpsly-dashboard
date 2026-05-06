@@ -112,7 +112,7 @@ export function Backups() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const team = user?.current_team
   const plan = team ? getPlanById(team.plan) : getPlanById('starter')
-  const isLocked = team?.plan === 'starter'
+  const isLocked = plan ? team?.plan === 'starter' : false
   
   // Create Backup Modal State
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -361,14 +361,12 @@ export function Backups() {
                <Button 
                  size="sm" 
                  onClick={() => isLocked ? setShowUpgradeModal(true) : setShowCreateModal(true)}
-                 className={cn(
-                   "h-8 text-xs bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 relative overflow-hidden transition-all",
-                   isLocked && "premium-lock-overlay group/btn"
-                 )}
+                 className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 relative overflow-hidden transition-all"
                >
-                 {isLocked && <div className="shimmer-effect" />}
-                 {isLocked ? <Lock className='mr-1.5 h-3.5 w-3.5 animate-pulse' /> : <Plus className='mr-1.5 h-3.5 w-3.5' />}
-                 <span>Nouvelle sauvegarde</span>
+                 {isLocked && <div className="premium-lock-overlay" />}
+                 <Lock className={cn("mr-1.5 h-3.5 w-3.5 z-20", !isLocked && "hidden")} />
+                 <Plus className={cn("mr-1.5 h-3.5 w-3.5 z-20", isLocked && "hidden")} />
+                 <span className="z-20">Nouvelle sauvegarde</span>
                </Button>
             </div>
           </div>
@@ -444,14 +442,13 @@ export function Backups() {
                          {!searchTerm && serverFilter === 'all' && appFilter === 'all' && (
                             <Button 
                                 onClick={() => isLocked ? setShowUpgradeModal(true) : setShowCreateModal(true)}
-                                className={cn(
-                                    "bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-500/20 relative overflow-hidden",
-                                    isLocked && "premium-lock-overlay group/btn"
-                                )}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-lg shadow-indigo-500/20 relative overflow-hidden"
                             >
-                                {isLocked && <div className="shimmer-effect" />}
-                                {isLocked ? <Lock className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
-                                {isLocked ? "Débloquer les sauvegardes" : "Créer ma première sauvegarde"}
+                                {isLocked && <div className="premium-lock-overlay" />}
+                                {isLocked ? <Lock className="mr-2 h-4 w-4 z-20" /> : <Plus className="mr-2 h-4 w-4 z-20" />}
+                                <span className="z-20">
+                                    {isLocked ? "Débloquer les sauvegardes" : "Créer ma première sauvegarde"}
+                                </span>
                             </Button>
                         )}
                     </div>
@@ -501,34 +498,43 @@ export function Backups() {
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => handleDownload(bkp)}
+                                            onClick={() => isLocked ? setShowUpgradeModal(true) : handleDownload(bkp)}
                                             disabled={actionLoading}
-                                            className="h-8 w-8 text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors"
-                                            title="Télécharger"
+                                            className={cn(
+                                                "h-8 w-8 text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors",
+                                                isLocked && "hover:text-amber-500 hover:bg-amber-500/10"
+                                            )}
+                                            title={isLocked ? "Upgrade pour télécharger" : "Télécharger"}
                                         >
-                                            {downloadingId === bkp.id ? <Loader className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                                            {downloadingId === bkp.id ? <Loader className="h-4 w-4 animate-spin" /> : (isLocked ? <Lock className="h-4 w-4 text-amber-600/50" /> : <Download className="h-4 w-4" />)}
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => setConfirmRestore(bkp)}
+                                            onClick={() => isLocked ? setShowUpgradeModal(true) : setConfirmRestore(bkp)}
                                             disabled={actionLoading}
-                                            className="h-8 w-8 text-muted-foreground hover:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors"
-                                            title="Restaurer"
+                                            className={cn(
+                                                "h-8 w-8 text-muted-foreground hover:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors",
+                                                isLocked && "hover:text-amber-500 hover:bg-amber-500/10"
+                                            )}
+                                            title={isLocked ? "Upgrade pour restaurer" : "Restaurer"}
                                         >
-                                            {restoringId === bkp.id ? <Loader className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                                            {restoringId === bkp.id ? <Loader className="h-4 w-4 animate-spin" /> : (isLocked ? <Lock className="h-4 w-4 text-amber-600/50" /> : <RotateCcw className="h-4 w-4" />)}
                                         </Button>
                                     </>
                                 )}
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => setDeleteId(bkp.id)}
+                                    onClick={() => isLocked ? setShowUpgradeModal(true) : setDeleteId(bkp.id)}
                                     disabled={actionLoading}
-                                    className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                                    title="Supprimer"
+                                    className={cn(
+                                        "h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors",
+                                        isLocked && "hover:text-amber-500 hover:bg-amber-500/10"
+                                    )}
+                                    title={isLocked ? "Upgrade pour supprimer" : "Supprimer"}
                                 >
-                                    {deletingId === bkp.id ? <Loader className="h-4 w-4 animate-spin text-red-500" /> : <Trash2 className="h-4 w-4" />}
+                                    {deletingId === bkp.id ? <Loader className="h-4 w-4 animate-spin text-red-500" /> : (isLocked ? <Lock className="h-4 w-4 text-amber-600/50" /> : <Trash2 className="h-4 w-4" />)}
                                 </Button>
                             </div>
                         </div>
