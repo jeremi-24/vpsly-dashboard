@@ -92,6 +92,15 @@ export function Databases() {
     db.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  const refreshUser = async () => {
+    try {
+      const data = await apiFetch<any>('/user')
+      useAuthStore.getState().auth.setUser(data)
+    } catch (e) {
+      console.error('Failed to refresh user data', e)
+    }
+  }
+
   return (
     <>
       <Header>
@@ -286,6 +295,7 @@ export function Databases() {
           onOpenChange={setDrawerOpen}
           onSuccess={() => {
             fetchDatabases()
+            refreshUser()
           }}
         />
 

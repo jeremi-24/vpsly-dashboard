@@ -96,6 +96,15 @@ export function Apps() {
     setIsDrawerOpen(true)
   }
 
+  const refreshUser = async () => {
+    try {
+      const data = await apiFetch<any>('/user')
+      useAuthStore.getState().auth.setUser(data)
+    } catch (e) {
+      console.error('Failed to refresh user data', e)
+    }
+  }
+
   return (
     <>
       <Header>
@@ -270,7 +279,10 @@ export function Apps() {
         <CreateAppDrawer 
           open={isDrawerOpen} 
           onOpenChange={setIsDrawerOpen} 
-          onSuccess={fetchApps}
+          onSuccess={() => {
+            fetchApps()
+            refreshUser()
+          }}
           appToEdit={editingApp}
         />
 

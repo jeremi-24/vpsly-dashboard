@@ -93,6 +93,15 @@ export function Servers() {
     return matchesSearch && matchesStatus
   })
 
+  const refreshUser = async () => {
+    try {
+      const data = await apiFetch<any>('/user')
+      useAuthStore.getState().auth.setUser(data)
+    } catch (e) {
+      console.error('Failed to refresh user data', e)
+    }
+  }
+
   return (
     <>
       <Header>
@@ -210,7 +219,6 @@ export function Servers() {
             <ul className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
               {filteredServers.map((server) => (
                 <li key={server.id} className='overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md'>
-                  {/* Part 1: Header */}
                   <div className='flex items-center justify-between p-4 pb-0'>
                     <div className='flex size-10 items-center justify-center rounded-lg bg-muted p-2'>
                       <Server className='h-6 w-6 text-foreground' />
@@ -233,7 +241,6 @@ export function Servers() {
                     <span className='font-mono text-[10px] text-muted-foreground opacity-60'>{server.ip}</span>
                   </div>
 
-                  {/* Part 3: Footer */}
                   <div className='flex border-t bg-muted/5'>
                     <button
                       className='flex-1 py-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r'
@@ -261,6 +268,7 @@ export function Servers() {
           onSuccess={() => {
             setDrawerOpen(false)
             fetchServers()
+            refreshUser() // <-- MAGIE ICI : On rafraîchit le profil
           }}
         />
 
