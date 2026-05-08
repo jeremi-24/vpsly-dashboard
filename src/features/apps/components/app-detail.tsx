@@ -278,7 +278,7 @@ export function AppDetail() {
                                         expandedConsole === 'build' ? "flex-[2]" : (expandedConsole === 'runtime' ? "flex-[1]" : "flex-1")
                                     )}>
                                         <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5 flex-none cursor-pointer"
-                                             onClick={() => setExpandedConsole(prev => prev === 'build' ? 'equal' : 'build')}>
+                                            onClick={() => setExpandedConsole(prev => prev === 'build' ? 'equal' : 'build')}>
                                             <div className="flex items-center gap-4">
                                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                                     Console de Build
@@ -322,7 +322,7 @@ export function AppDetail() {
                                         expandedConsole === 'runtime' ? "flex-[2]" : (expandedConsole === 'build' ? "flex-[1]" : "flex-1")
                                     )}>
                                         <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5 flex-none cursor-pointer"
-                                             onClick={() => setExpandedConsole(prev => prev === 'runtime' ? 'equal' : 'runtime')}>
+                                            onClick={() => setExpandedConsole(prev => prev === 'runtime' ? 'equal' : 'runtime')}>
                                             <div className="flex items-center gap-4">
                                                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                                                     Logs de l'application (Runtime)
@@ -581,7 +581,7 @@ export function AppDetail() {
                                                 <div>
                                                     <p className="text-sm font-medium">Supprimer l'application</p>
                                                     <p className="text-xs text-muted-foreground mt-0.5">
-                                                        {isLegacy 
+                                                        {isLegacy
                                                             ? "Supprime les fichiers du dossier cible sur le VPS et l'entrée du dashboard."
                                                             : "Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard."
                                                         }
