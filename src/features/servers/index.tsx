@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getPlanById } from '@/config/plans'
 import { apiFetch } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
-import { Lock, Plus, Server } from 'lucide-react'
+import { Lock, Plus, Server, BadgeCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { ConnectServerDrawer } from './components/connect-server-drawer'
@@ -31,6 +31,7 @@ export interface ServerInfo {
   status: 'connected' | 'pending' | 'failed'
   ssh_user: string
   ssh_port: number
+  infrastructure_type: 'clean' | 'legacy'
 }
 
 const statusText = new Map([
@@ -223,17 +224,28 @@ export function Servers() {
                     <div className='flex size-10 items-center justify-center rounded-lg bg-muted p-2'>
                       <Server className='h-6 w-6 text-foreground' />
                     </div>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className={`h-7 px-2 text-[10px] uppercase font-bold
-                        ${server.status === 'connected' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/50 dark:text-green-400' : ''}
-                        ${server.status === 'failed' ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-400' : ''}
-                        ${server.status === 'pending' ? 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/50 dark:text-yellow-400' : ''}
-                      `}
-                    >
-                      {server.status}
-                    </Button>
+                    <div className="flex gap-2">
+                        {/* Infrastructure Badge */}
+                        <div className={`h-7 px-2 flex items-center rounded border text-[10px] font-bold uppercase
+                            ${server.infrastructure_type === 'legacy' 
+                                ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' 
+                                : 'bg-blue-500/10 text-blue-600 border-blue-500/20'}
+                        `}>
+                            {server.infrastructure_type}
+                        </div>
+
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          className={`h-7 px-2 text-[10px] uppercase font-bold
+                            ${server.status === 'connected' ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-950/50 dark:text-green-400' : ''}
+                            ${server.status === 'failed' ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-400' : ''}
+                            ${server.status === 'pending' ? 'border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/50 dark:text-yellow-400' : ''}
+                          `}
+                        >
+                          {server.status}
+                        </Button>
+                    </div>
                   </div>
 
                   <div className='p-4 pt-4'>

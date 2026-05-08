@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Copy, Check, Info, Server as ServerIcon, Loader, ChevronRight } from 'lucide-react'
+import { Copy, Check, Info, Server as ServerIcon, Loader, ChevronRight, Box, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +15,7 @@ import {
 import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api'
 import { PlanLock } from '@/components/shared/plan-lock'
+import { cn } from '@/lib/utils'
 
 interface ConnectServerDrawerProps {
   open: boolean
@@ -34,7 +35,7 @@ interface ServerResponse {
 }
 
 export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: ConnectServerDrawerProps) {
-  const [activeStep, setActiveStep] = useState<1 | 2>(1)
+  const [activeStep, setActiveStep] = useState<0 | 1 | 2>(0)
   const [isCopied, setIsCopied] = useState(false)
   const [isExecuted, setIsExecuted] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -44,6 +45,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
     ip: '',
     ssh_user: 'root',
     ssh_port: '22',
+    infrastructure_type: 'clean' as 'clean' | 'legacy'
   })
 
   useEffect(() => {
@@ -53,7 +55,9 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
         ip: server.ip || '',
         ssh_user: server.ssh_user || 'root',
         ssh_port: server.ssh_port?.toString() || '22',
+        infrastructure_type: server.infrastructure_type || 'clean'
       })
+      setActiveStep(1) // Start at form if editing
     } else if (open) {
       handleReset()
     }
@@ -143,8 +147,8 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
   }
 
   const handleReset = () => {
-    setFormData({ name: '', ip: '', ssh_user: 'root', ssh_port: '22' })
-    setActiveStep(1)
+    setFormData({ name: '', ip: '', ssh_user: 'root', ssh_port: '22', infrastructure_type: 'clean' })
+    setActiveStep(0)
     setSetupData(null)
     setIsExecuted(false)
   }
@@ -154,7 +158,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
       if (!val) handleReset()
       onOpenChange(val)
     }}>
-      <SheetContent className='sm:max-w-md overflow-y-auto px-6'>
+      <SheetContent className='sm:max-w-md overflow-y-auto px-0'>
         <PlanLock 
           checkQuota="servers" 
           featureName="Connecter un VPS" 
@@ -164,19 +168,75 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
           <SheetHeader className='px-6'>
             <SheetTitle className='flex items-center gap-2 text-xl'>
               <ServerIcon className='h-5 w-5 text-primary' />
-              {activeStep === 2 ? 'Configuration SSH' : (server ? 'Modifier le serveur' : 'Connexion serveur')}
+              {activeStep === 0 ? 'Type de serveur' : activeStep === 2 ? 'Configuration SSH' : (server ? 'Modifier le serveur' : 'Connexion serveur')}
             </SheetTitle>
             <SheetDescription>
-              {activeStep === 1
+              {activeStep === 0
+                ? 'Choisissez comment VPSly va gérer votre serveur.'
+                : activeStep === 1
                 ? (server ? 'Modifiez les informations de votre instance.' : 'Renseignez les informations de votre serveur VPS.')
                 : `Finalisation de l'accès pour ${setupData?.server.name}`}
             </SheetDescription>
           </SheetHeader>
 
           <div className='mt-8 px-6 flex-1 overflow-y-auto'>
-              {activeStep === 1 ? (
+              {activeStep === 0 ? (
+                /* STEP 0: INFRASTRUCTURE TYPE */
+                <div className='space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300'>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <button
+                      onClick={() => {
+                        setFormData({ ...formData, infrastructure_type: 'clean' })
+                        setActiveStep(1)
+                      }}
+                      className={cn(
+                        'flex flex-col gap-3 p-5 rounded-2xl border text-left transition-all hover:border-primary group bg-card hover:bg-primary/5',
+                        formData.infrastructure_type === 'clean' && 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                      )}
+                    >
+                      <div className='h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform'>
+                        <Box className='h-6 w-6' />
+                      </div>
+                      <div className='space-y-1.5'>
+                        <h4 className='font-bold text-sm leading-tight'>Nouveau serveur</h4>
+                        <p className='text-[10px] text-muted-foreground leading-relaxed'>
+                          Infrastructure moderne avec gestion automatique des déploiements, SSL, domaines et applications.
+                        </p>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setFormData({ ...formData, infrastructure_type: 'legacy' })
+                        setActiveStep(1)
+                      }}
+                      className={cn(
+                        'flex flex-col gap-3 p-5 rounded-2xl border text-left transition-all hover:border-amber-500 group bg-card hover:bg-amber-500/5',
+                        formData.infrastructure_type === 'legacy' && 'border-amber-500 bg-amber-500/5 ring-2 ring-amber-500/20'
+                      )}
+                    >
+                      <div className='h-12 w-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform'>
+                        <Terminal className='h-6 w-6' />
+                      </div>
+                      <div className='space-y-1.5'>
+                        <h4 className='font-bold text-sm leading-tight'>Serveur existant</h4>
+                        <p className='text-[10px] text-muted-foreground leading-relaxed'>
+                          Déploiement sur un serveur déjà configuré avec vos applications et votre configuration Nginx existante.
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div className='p-4 rounded-xl bg-muted/30 border border-dashed flex gap-3'>
+                    <Info className='h-4 w-4 text-primary shrink-0 mt-0.5' />
+                    <p className='text-[11px] leading-relaxed text-muted-foreground italic'>
+                      Ce choix définit les fonctionnalités disponibles pour ce serveur et ne peut pas être modifié après création.
+                    </p>
+                  </div>
+                </div>
+              ) : activeStep === 1 ? (
               /* STEP 1 FORM */
-              <div className='space-y-6'>
+              <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-300'>
                 <div className='grid gap-4'>
                   <div className='grid gap-1.5'>
                     <Label htmlFor='name'>Nom d'affichage</Label>
@@ -222,15 +282,22 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
                   </div>
                 </div>
 
-                <Button
-                  className='w-full'
-                  onClick={handleSaveServer}
-                  disabled={loading || !formData.name || !formData.ip}
-                >
-                  {loading ? <Loader className='mr-2 h-4 w-4 animate-spin' /> : null}
-                  {server ? 'Mettre à jour' : 'Enregistrer le serveur'}
-                  {!server && <ChevronRight className='ml-2 h-4 w-4' />}
-                </Button>
+                <div className='flex gap-3'>
+                   {!server && (
+                     <Button variant='outline' className='flex-1' onClick={() => setActiveStep(0)}>
+                       Retour
+                     </Button>
+                   )}
+                   <Button
+                    className='flex-[2]'
+                    onClick={handleSaveServer}
+                    disabled={loading || !formData.name || !formData.ip}
+                  >
+                    {loading ? <Loader className='mr-2 h-4 w-4 animate-spin' /> : null}
+                    {server ? 'Mettre à jour' : 'Suivant'}
+                    {!server && <ChevronRight className='ml-2 h-4 w-4' />}
+                  </Button>
+                </div>
               </div>
             ) : (
               /* STEP 2 SETUP */

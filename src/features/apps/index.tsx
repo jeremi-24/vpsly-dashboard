@@ -34,6 +34,7 @@ export interface ApplicationInfo {
     name: string
     ip: string
   }
+  deployment_mode: 'docker_compose' | 'legacy_existing'
 }
 
 const statusText = new Map([
@@ -228,7 +229,17 @@ export function Apps() {
                     <div className='flex size-10 items-center justify-center rounded-lg bg-muted p-2'>
                         <Globe className='h-6 w-6 text-foreground' />
                     </div>
-                    <Button
+                    <div className="flex gap-2">
+                        {/* Mode Badge */}
+                        <div className={`h-8 px-2 flex items-center rounded border text-[10px] font-bold uppercase
+                            ${app.deployment_mode === 'legacy_existing' 
+                                ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' 
+                                : 'bg-blue-500/10 text-blue-600 border-blue-500/20'}
+                        `}>
+                            {app.deployment_mode === 'legacy_existing' ? 'Legacy' : 'Docker'}
+                        </div>
+
+                        <Button
                       variant='outline'
                       size='sm'
                       className={`h-8 px-3 text-xs uppercase font-bold border
@@ -241,8 +252,7 @@ export function Apps() {
                     >
                       {app.status === 'running' ? 'En ligne' : app.status}
                     </Button>
-
-
+                    </div>
                   </div>
 
                   <div className='p-4 pt-4'>

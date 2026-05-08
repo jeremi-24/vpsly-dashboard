@@ -138,6 +138,12 @@ export function Dashboard() {
                             : 'bg-red-500'
                         )} />
                         <span className='text-[13px] font-bold truncate max-w-[120px]'>{server.name}</span>
+                        <Badge variant='outline' className={cn(
+                          'text-[9px] h-4 rounded px-1 uppercase font-bold border-none bg-muted/50',
+                          server.infrastructure_type === 'legacy' ? 'text-amber-500' : 'text-primary'
+                        )}>
+                          {server.infrastructure_type === 'legacy' ? 'Legacy' : 'PaaS'}
+                        </Badge>
                         <span className='text-[11px] font-mono text-muted-foreground'>{server.ip}</span>
                       </div>
                       <Badge variant='outline' className={cn(

@@ -135,19 +135,17 @@ export function AppDetail() {
 
     const currentStatus = statusConfig[app.status] || { label: app.status, color: 'bg-muted text-muted-foreground' }
 
-    const isLegacy = app.deployment_mode === 'legacy_existing'
+    const isLegacy = app.server?.infrastructure_type === 'legacy'
 
     const navItems = [
         { id: 'console', title: 'Console', icon: <Activity size={16} /> },
         { id: 'deployments', title: 'Déploiements', icon: <History size={16} /> },
-        ...(!isLegacy ? [
-            { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
-            { id: 'storage', title: 'Stockage', icon: <HardDrive size={16} /> },
-            { id: 'backups', title: 'Sauvegardes', icon: <HardDrive size={16} className="text-blue-400" /> },
-            { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
-            { id: 'env', title: 'Environnement', icon: <Lock size={16} /> },
-            { id: 'automations', title: 'Crons', icon: <Zap size={16} /> },
-        ] : []),
+        { id: 'networking', title: 'Réseau & Domaine', icon: <Globe size={16} /> },
+        { id: 'env', title: isLegacy ? '.env' : 'Environnement', icon: <Lock size={16} /> },
+        { id: 'automations', title: 'Crons', icon: <Zap size={16} /> },
+        { id: 'resources', title: 'Bases de données', icon: <Database size={16} /> },
+        { id: 'storage', title: isLegacy ? 'Dossiers partagés' : 'Stockage', icon: <HardDrive size={16} /> },
+        { id: 'backups', title: 'Sauvegardes', icon: <HardDrive size={16} className="text-blue-400" /> },
         { id: 'danger', title: 'Zone de Danger', icon: <Trash2 size={16} />, className: 'text-red-500 hover:text-red-600' },
     ]
 
@@ -366,7 +364,7 @@ export function AppDetail() {
 
                             {activeTab === 'env' && (
                                 <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <EnvVarCard appId={appId} />
+                                    <EnvVarCard appId={appId} isLegacy={isLegacy} />
                                 </div>
                             )}
 
@@ -386,7 +384,7 @@ export function AppDetail() {
                             {activeTab === 'storage' && (
                                 <div className="max-w-3xl animate-in fade-in slide-in-from-bottom-2 duration-300">
                                     <h2 className="text-lg font-bold mb-6">Stockage des données</h2>
-                                    <AppVolumesCard appId={appId} />
+                                    <AppVolumesCard appId={appId} isLegacy={isLegacy} />
                                 </div>
                             )}
 
@@ -498,17 +496,22 @@ export function AppDetail() {
                                             {/* Infos réseau */}
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                 {[
-                                                    { label: 'Port conteneur', value: app.container_port || '3000', icon: <Lock className="h-3.5 w-3.5 text-muted-foreground" /> },
-                                                    { label: 'Reverse proxy', value: 'Traefik v3', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
-                                                    { label: 'SSL / HTTPS', value: 'Auto (sslip.io)', icon: <Lock className="h-3.5 w-3.5 text-green-500" /> },
-                                                    { label: 'Réseau Docker', value: 'vpsly', icon: <ServerIcon className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                    ...(isLegacy ? [
+                                                        { label: 'Chemin cible', value: app.target_path || '/var/www/...', icon: <FolderGitIcon className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                        { label: 'Reverse proxy', value: 'Géré par l\'utilisateur (Nginx/Apache)', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                    ] : [
+                                                        { label: 'Port conteneur', value: app.container_port || '3000', icon: <Lock className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                        { label: 'Reverse proxy', value: 'Traefik v3', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                        { label: 'SSL / HTTPS', value: 'Auto (sslip.io)', icon: <Lock className="h-3.5 w-3.5 text-green-500" /> },
+                                                        { label: 'Réseau Docker', value: 'vpsly', icon: <ServerIcon className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                    ])
                                                 ].map(item => (
                                                     <div key={item.label} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-white/5 bg-white/[0.02]">
                                                         <div className="flex items-center gap-2">
                                                             {item.icon}
                                                             <span className="text-xs text-muted-foreground">{item.label}</span>
                                                         </div>
-                                                        <span className="text-xs font-mono">{item.value}</span>
+                                                        <span className="text-xs font-mono truncate max-w-[120px]">{item.value}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -578,7 +581,10 @@ export function AppDetail() {
                                                 <div>
                                                     <p className="text-sm font-medium">Supprimer l'application</p>
                                                     <p className="text-xs text-muted-foreground mt-0.5">
-                                                        Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard.
+                                                        {isLegacy 
+                                                            ? "Supprime les fichiers du dossier cible sur le VPS et l'entrée du dashboard."
+                                                            : "Arrête les containers, efface les fichiers sur le VPS et supprime l'entrée du dashboard."
+                                                        }
                                                     </p>
                                                 </div>
                                             </div>

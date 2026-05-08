@@ -16,7 +16,7 @@ interface EnvVar {
     version: number
 }
 
-export function EnvVarCard({ appId }: { appId: string }) {
+export function EnvVarCard({ appId, isLegacy = false }: { appId: string, isLegacy?: boolean }) {
     const [vars, setVars] = useState<EnvVar[]>([])
     const [loading, setLoading] = useState(true)
     const [newVar, setNewVar] = useState({ key: '', value: '' })
@@ -310,7 +310,9 @@ export function EnvVarCard({ appId }: { appId: string }) {
                 <div className="px-4 py-3 border-t border-white/5 flex items-center justify-between">
                     <p className="text-[10px] text-muted-foreground flex items-center gap-1.5">
                         <AlertCircle className="h-3 w-3" />
-                        Modifications effectives au prochain déploiement
+                        {isLegacy 
+                            ? "Les variables sont synchronisées directement dans le fichier .env du serveur." 
+                            : "Modifications effectives au prochain déploiement (Docker rebuild)."}
                     </p>
                 </div>
             </div>

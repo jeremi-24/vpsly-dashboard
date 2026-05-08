@@ -24,9 +24,10 @@ interface Volume {
 
 interface AppVolumesCardProps {
     appId: string
+    isLegacy?: boolean
 }
 
-export function AppVolumesCard({ appId }: AppVolumesCardProps) {
+export function AppVolumesCard({ appId, isLegacy = false }: AppVolumesCardProps) {
     const [volumes, setVolumes] = useState<Volume[]>([])
     const [loading, setLoading] = useState(true)
     const [adding, setAdding] = useState(false)
@@ -57,16 +58,16 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
 
         try {
             setAdding(true)
-            toast.info('Ajout du volume en cours...')
+            toast.info(`Configuration du ${isLegacy ? 'dossier partagé' : 'volume'}...`)
             await apiFetch(`/applications/${appId}/volumes`, {
                 method: 'POST',
                 body: JSON.stringify(newVolume)
             })
-            toast.success('Volume ajouté avec succès')
+            toast.success(isLegacy ? 'Dossier partagé configuré' : 'Volume ajouté avec succès')
             setNewVolume({ mount_path: '' })
             fetchVolumes()
         } catch (error) {
-            toast.error('Erreur lors de l’ajout du volume')
+            toast.error('Erreur lors de l’opération')
         } finally {
             setAdding(false)
         }
@@ -74,11 +75,11 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
 
     const handleDelete = async (id: number) => {
         try {
-            toast.info('Détachement du volume...')
+            toast.info(isLegacy ? 'Suppression du lien partagé...' : 'Détachement du volume...')
             await apiFetch(`/applications/${appId}/volumes/${id}`, {
                 method: 'DELETE'
             })
-            toast.success('Volume détaché avec succès')
+            toast.success('Opération réussie')
             fetchVolumes()
         } catch (error) {
             toast.error('Erreur lors de la suppression')
@@ -93,18 +94,25 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                         <HardDrive className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                        <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Stockage des données</CardTitle>
-                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">Gardez vos fichiers et données même après un redéploiement</p>
+                        <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                            {isLegacy ? 'Dossiers persistants (Shared)' : 'Volumes Docker'}
+                        </CardTitle>
+                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                            {isLegacy 
+                                ? "Dossiers exclus du système de release pour préserver les données" 
+                                : "Gardez vos fichiers et données même après un redéploiement"
+                            }
+                        </p>
                     </div>
                 </div>
-                <Badge variant="outline" className="text-[10px] h-5 opacity-50">{volumes.length} dossiers configurés</Badge>
+                <Badge variant="outline" className="text-[10px] h-5 opacity-50">{volumes.length} configurés</Badge>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="p-4 bg-muted/20 border-b border-white/5">
                     <form onSubmit={handleAdd} className="flex gap-2">
                         <div className="flex-1">
                             <Input
-                                placeholder="Dossier à sauvegarder (ex: /app/storage)"
+                                placeholder={isLegacy ? "Dossier à partager (ex: /storage)" : "Dossier à sauvegarder (ex: /app/storage)"}
                                 value={newVolume.mount_path}
                                 onChange={e => setNewVolume({ mount_path: e.target.value })}
                                 className="h-8 text-xs bg-background/50 border-white/10"
@@ -112,7 +120,7 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                         </div>
                         <Button type="submit" size="sm" className="h-8 text-[10px] px-3 font-bold" disabled={adding}>
                             {adding ? <Loader className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3 mr-1" />}
-                            Ajouter un dossier
+                            {isLegacy ? 'Partager un dossier' : 'Ajouter un volume'}
                         </Button>
                     </form>
                 </div>
@@ -130,7 +138,9 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                     ) : volumes.length === 0 ? (
                         <div className="py-12 flex flex-col items-center justify-center text-muted-foreground/40 gap-2">
                             <Database className="h-8 w-8 opacity-10" />
-                            <p className="text-[10px] font-bold uppercase tracking-tighter">Aucun stockage configuré pour cette application</p>
+                            <p className="text-[10px] font-bold uppercase tracking-tighter text-center">
+                                Aucun {isLegacy ? 'dossier partagé' : 'volume'} configuré pour cette application
+                            </p>
                         </div>
                     ) : (
                         volumes.map((vol) => (
@@ -138,10 +148,12 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <code className="text-xs font-mono font-bold text-primary">{vol.mount_path}</code>
-                                        <Badge variant="secondary" className="text-[8px] h-3 px-1 leading-none opacity-40">Dossier persistant</Badge>
+                                        <Badge variant="secondary" className="text-[8px] h-3 px-1 leading-none opacity-40">
+                                            {isLegacy ? 'Symlink' : 'Docker Volume'}
+                                        </Badge>
                                     </div>
                                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground opacity-60">
-                                        <span className="font-mono">ID Volume: {vol.name}</span>
+                                        <span className="font-mono">Local: shared{vol.mount_path}</span>
                                     </div>
                                 </div>
                                 <Button
@@ -161,7 +173,10 @@ export function AppVolumesCard({ appId }: AppVolumesCardProps) {
                     <div className="flex items-start gap-2">
                         <AlertCircle className="h-3.5 w-3.5 text-primary mt-0.5" />
                         <p className="text-[10px] leading-relaxed text-muted-foreground">
-                            Les dossiers ajoutés ici permettent de conserver vos fichiers (uploads, stockage, base locale) après chaque déploiement.
+                            {isLegacy 
+                                ? "Les dossiers configurés ici sont déplacés dans le dossier 'shared/' et liés par lien symbolique à chaque déploiement." 
+                                : "Les volumes Docker permettent de persister des données entre les recréations de conteneurs."
+                            }
                             <strong> Attention :</strong> Les changements s'appliquent au prochain déploiement.
                         </p>
                     </div>

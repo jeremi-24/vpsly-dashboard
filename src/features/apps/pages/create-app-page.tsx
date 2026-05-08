@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box, Lock } from 'lucide-react'
+import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, Loader2, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select'
 
 export default function CreateAppPage() {
-  const [step, setStep] = useState(-1)
+  const [step, setStep] = useState(0) // 0: Server, 1: Source, 2: Config
   const [deploymentMode, setDeploymentMode] = useState<'docker' | 'legacy_existing' | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -37,7 +37,6 @@ export default function CreateAppPage() {
   const currentAppsCount = team?.applications_count || 0
   const isLocked = plan ? (plan.maxApps !== -1 && currentAppsCount >= plan.maxApps) : false
   const isDomainLocked = team?.plan === 'starter'
-  const isLegacyLocked = team?.plan === 'starter'
 
   // Data for selection
   const [repos, setRepos] = useState<any[]>([])
@@ -53,51 +52,40 @@ export default function CreateAppPage() {
   const [appName, setAppName] = useState('')
   const [domain, setDomain] = useState('')
   const [targetPath, setTargetPath] = useState('')
-  const [deployScript, setDeployScript] = useState('git pull origin main\nnpm install\nnpm run build\npm2 restart app')
-  const [logCommand, setLogCommand] = useState('pm2 logs --lines 100')
+  const [deployScript, setDeployScript] = useState('git pull origin main\nnpm install\nnpm run build\nnpm restart')
+  const [logCommand, setLogCommand] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const presets = [
-    {
-      id: 'generic',
-      name: 'Web Application',
-      isRecommended: true,
-      icon: <div className="flex items-center justify-center h-10 w-10 bg-primary/10 rounded-xl text-primary shadow-inner"><Globe size={22} /></div>,
-      desc: 'Tout framework, détection automatique'
-    },
-    {
-      id: 'laravel',
-      name: 'Laravel + MySQL',
-      icon: (
-        <div className="flex items-center gap-1.5">
-          <div className="h-10 w-10 rounded-xl bg-white p-2 shadow-sm border border-border flex items-center justify-center">
-            <img src="https://laravel.com/img/logomark.min.svg" className="h-6 w-6" alt="Laravel" />
-          </div>
-          <span className="text-muted-foreground font-bold text-xs">+</span>
-          <div className="h-10 w-10 rounded-xl bg-[#00758f] p-1.5 shadow-sm border border-border flex items-center justify-center">
-            <img src="https://www.mysql.com/common/logos/logo-mysql-170x115.png" className="h-6 w-6 invert brightness-0" alt="MySQL" />
-          </div>
-        </div>
-      ),
-      desc: ''
-    },
-    {
-      id: 'nestjs',
-      name: 'NestJS + Postgres',
-      icon: (
-        <div className="flex items-center gap-1.5">
-          <div className="h-10 w-10 rounded-xl bg-white p-2 shadow-sm border border-border flex items-center justify-center">
-            <img src="https://nestjs.com/img/logo-small.svg" className="h-6 w-6" alt="NestJS" />
-          </div>
-          <span className="text-muted-foreground font-bold text-xs">+</span>
-          <div className="h-10 w-10 rounded-xl bg-[#336791] p-1.5 shadow-sm border border-border flex items-center justify-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg" className="h-6 w-6" alt="Postgres" />
-          </div>
-        </div>
-      ),
-      desc: ''
-    },
-  ]
+  // Watch for server selection to auto-set mode and defaults
+  useEffect(() => {
+    if (selectedServer) {
+        const isLegacy = selectedServer.infrastructure_type === 'legacy';
+        const mode = isLegacy ? 'legacy_existing' : 'docker';
+        setDeploymentMode(mode);
+        
+        // Auto-fill defaults for legacy if empty
+        if (isLegacy) {
+            if (!targetPath) setTargetPath(`/var/www/${appName || 'my-app'}`);
+            if (!logCommand) setLogCommand('pm2 logs');
+        }
+    }
+  }, [selectedServer]);
+
+  // Load servers on mount
+  useEffect(() => {
+    const fetchServers = async () => {
+        try {
+          setLoading(true)
+          const data = await apiFetch<any[]>('/servers')
+          setServers(data.filter(s => s.status === 'connected'))
+        } catch (error) {
+          console.error(error)
+        } finally {
+          setLoading(false)
+        }
+      }
+      fetchServers()
+  }, [])
 
   const filteredRepos = useMemo(() => {
     if (!searchQuery) return repos
@@ -146,23 +134,6 @@ export default function CreateAppPage() {
     }
   }, [selectedRepo])
 
-  useEffect(() => {
-    if (step === 2 && servers.length === 0) {
-      const fetchServers = async () => {
-        try {
-          setLoading(true)
-          const data = await apiFetch<any[]>('/servers')
-          setServers(data.filter(s => s.status === 'connected'))
-        } catch (error) {
-          console.error(error)
-        } finally {
-          setLoading(false)
-        }
-      }
-      fetchServers()
-    }
-  }, [step, servers.length])
-
   const handleCreate = async () => {
     if (!appName || (deploymentMode !== 'legacy_existing' && !selectedRepo) || !selectedServer) {
       toast.error('Champs manquants', { description: 'Veuillez remplir tous les champs obligatoires.' })
@@ -204,17 +175,15 @@ export default function CreateAppPage() {
 
   const getStepTitle = () => {
     switch (step) {
-      case -1: return "Choix du mode de déploiement"
-      case 0: return "Type d'application"
+      case 0: return "Serveur de destination"
       case 1: return "Dépôt GitHub"
-      case 2: return "Serveur de destination"
-      case 3: return "Configuration finale"
+      case 2: return "Configuration finale"
       default: return "Créer une application"
     }
   }
 
   return (
-    <div className="flex flex-col min-h-full bg-background/50">
+    <div className="flex flex-col h-screen bg-background/50">
       {/* Header Wizard */}
       <header className="border-b bg-card/50 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -227,19 +196,17 @@ export default function CreateAppPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            {[-1, 0, 1, 2, 3].map((s) => {
-              // Filter steps based on mode
-              if (deploymentMode === 'legacy_existing' && (s === 0 || s === 1)) return null;
-
+            {[0, 1, 2].map((s, idx) => {
+              const label = s === 0 ? 'Serveur' : s === 1 ? 'Source' : 'Config';
               return (
                 <div key={s} className="flex items-center gap-2">
-                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${step === s ? 'bg-primary text-white ring-4 ring-primary/10' : step > s ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                    {step > s ? <Check size={12} /> : s === -1 ? '0' : s + 1}
+                  <div className={`h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${step === s ? 'bg-primary text-white ring-4 ring-primary/10' : (step > s) ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                    {(step > s) ? <Check size={12} /> : idx + 1}
                   </div>
                   <span className={`text-[10px] font-bold uppercase tracking-widest hidden md:block ${step === s ? 'text-foreground' : 'text-muted-foreground opacity-50'}`}>
-                    {s === -1 ? 'Mode' : s === 0 ? 'Type' : s === 1 ? 'Source' : s === 2 ? 'Serveur' : 'Config'}
+                    {label}
                   </span>
-                  {s < 3 && <ChevronRight size={12} className="text-muted-foreground/30 mx-1 last:hidden" />}
+                  {idx < 2 && <ChevronRight size={12} className="text-muted-foreground/30 mx-1" />}
                 </div>
               )
             })}
@@ -248,115 +215,57 @@ export default function CreateAppPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pt-12 pb-24">
+      <main className="flex-1 overflow-y-auto pt-8 pb-6">
         <div className="max-w-3xl mx-auto px-6">
 
-          {/* STEP -1: MODE */}
-          {step === -1 && (
-            <div className='grid grid-cols-1 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500'>
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold tracking-tight mb-2">Comment voulez-vous déployer ?</h2>
-                <p className="text-muted-foreground">Choisissez la méthode qui correspond le mieux à votre projet.</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                {/* 1. DOCKER */}
-                <button
-                  onClick={() => {
-                    if (isLocked) {
-                      setIsUpgradeModalOpen(true);
-                      return;
-                    }
-                    setDeploymentMode('docker');
-                    setStep(0);
-                  }}
-                  className={`relative overflow-hidden flex items-center gap-5 p-6 rounded-2xl border text-left transition-all hover:border-primary group bg-card hover:bg-primary/5 shadow-sm hover:shadow-lg duration-300 ${isLocked ? 'border-primary/60 ring-1 ring-primary/20 shadow-primary/10' : 'opacity-80 hover:opacity-100 cursor-pointer'}`}
-                >
-                  {isLocked && (
-                    <div className="absolute top-3 right-3 flex items-center gap-2">
-                      <Badge className="bg-primary text-white text-[10px] h-5 px-1.5 font-bold shadow-lg shadow-primary/20">SOLO & PRO</Badge>
-                    </div>
-                  )}
-                  <div className={`h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform ${isLocked ? 'shimmer-effect' : ''}`}>
-                    <Box size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-base">Nouveau Déploiement</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Déployez votre app, base de données et SSL en quelques clics. Zéro configuration serveur.
-                    </p>
-                    {isLocked && (
-                      <p className="text-[10px] text-primary font-bold uppercase tracking-widest mt-2 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        Passer en SOLO ou PRO <ChevronRight size={12} />
-                      </p>
-                    )}
-                  </div>
-                  <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all shrink-0" />
-                </button>
-
-                {/* 2. LEGACY EXISTING */}
-                <button
-                  onClick={() => {
-                    if (isLocked || isLegacyLocked) {
-                      setIsUpgradeModalOpen(true);
-                      return;
-                    }
-                    setDeploymentMode('legacy_existing');
-                    setStep(2);
-                  }}
-                  className={`relative overflow-hidden flex items-center gap-5 p-6 rounded-2xl border text-left transition-all hover:border-amber-500 group bg-card hover:bg-amber-500/5 shadow-sm hover:shadow-lg duration-300 ${(isLocked || isLegacyLocked) ? 'border-amber-500/60 ring-1 ring-amber-500/20 shadow-amber-500/10' : 'opacity-80 hover:opacity-100 cursor-pointer'}`}
-                >
-                  {(isLocked || isLegacyLocked) && (
-                    <div className="absolute top-3 right-3 flex items-center gap-2">
-                      <Badge className="bg-amber-500 text-white text-[10px] h-5 px-1.5 font-bold shadow-lg shadow-amber-500/20">PRO</Badge>
-                    </div>
-                  )}
-                  <div className={`h-12 w-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform ${(isLocked || isLegacyLocked) ? 'shimmer-effect' : ''}`}>
-                    <Terminal size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-base">J'ai déjà mon app sur le serveur</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Pointez vers votre dossier existant. Automatisez vos commandes pull, build et pm2 sans toucher à votre stack.
-                    </p>
-                    {(isLocked || isLegacyLocked) && (
-                      <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest mt-2 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                        Passer en PRO <ChevronRight size={12} />
-                      </p>
-                    )}
-                  </div>
-                  <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all shrink-0" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 0: PRESETS (Docker only) */}
+          {/* STEP 0: SERVER */}
           {step === 0 && (
             <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-500'>
               <div className="grid grid-cols-1 gap-3">
-                {presets.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => { setSelectedPreset(p.id); setStep(1); }}
-                    className={`flex items-center gap-6 p-6 rounded-2xl border text-left transition-all hover:border-primary group bg-card ${selectedPreset === p.id ? 'border-primary ring-1 ring-primary shadow-md' : 'hover:bg-muted/5'}`}
-                  >
-                    {p.icon}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-base">{p.name}</h4>
-                        {p.isRecommended && <Badge className="text-[9px] h-4 bg-primary/10 text-primary">RECOMMANDÉ</Badge>}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">{p.desc}</p>
+                {loading && step === 0 ? (
+                  <div className="flex flex-col items-center justify-center p-12 space-y-4">
+                    <Loader className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-xs text-muted-foreground animate-pulse">Récupération des serveurs...</p>
+                  </div>
+                ) : servers.length === 0 ? (
+                  <div className="p-12 text-center border-2 border-dashed rounded-3xl flex flex-col items-center gap-6">
+                    <div className="h-20 w-20 rounded-3xl bg-muted flex items-center justify-center text-muted-foreground opacity-30">
+                      <ServerIcon size={40} />
                     </div>
-                    <ChevronRight size={18} className="opacity-20 group-hover:opacity-100 transition-all" />
-                  </button>
-                ))}
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-xl">Aucun serveur trouvé</h3>
+                      <p className="text-muted-foreground">Connectez un serveur VPS pour continuer.</p>
+                    </div>
+                    <Button variant="outline" size="lg" onClick={() => navigate({ to: '/servers' })}>Ajouter un serveur</Button>
+                  </div>
+                ) : (
+                  servers.map(server => (
+                    <button
+                      key={server.id}
+                      onClick={() => { setSelectedServer(server); setStep(1); }}
+                      className={`flex items-center gap-6 p-6 rounded-2xl border text-left transition-all hover:border-primary group bg-card ${selectedServer?.id === server.id ? 'border-primary ring-1 ring-primary shadow-md' : 'hover:bg-muted/5'}`}
+                    >
+                      <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors ${selectedServer?.id === server.id ? 'bg-primary text-white' : 'bg-muted text-muted-foreground group-hover:bg-primary/10'}`}>
+                        <ServerIcon size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-base">{server.name}</h4>
+                            <Badge variant="outline" className={`text-[9px] h-4 uppercase ${server.infrastructure_type === 'legacy' ? 'text-amber-500 border-amber-500/20' : 'text-blue-500 border-blue-500/20'}`}>
+                                {server.infrastructure_type}
+                            </Badge>
+                        </div>
+                        <p className="text-xs font-mono opacity-50 mt-0.5">{server.ip}</p>
+                      </div>
+                      {selectedServer?.id === server.id && <Check size={20} className="text-primary" />}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           )}
 
-          {/* STEP 1: SOURCE (Docker & Legacy New) */}
+          {/* STEP 1: SOURCE */}
           {step === 1 && (
             <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-500'>
               <div className='relative'>
@@ -370,7 +279,7 @@ export default function CreateAppPage() {
               </div>
 
               <div className="border rounded-2xl overflow-hidden bg-card shadow-sm">
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[min(400px,calc(100vh-360px))]">
                   {githubConnected === false ? (
                     <div className="p-12 text-center flex flex-col items-center justify-center gap-6">
                       <div className="h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center text-primary">
@@ -437,85 +346,51 @@ export default function CreateAppPage() {
             </div>
           )}
 
-          {/* STEP 2: SERVER */}
+          {/* STEP 2: FINAL CONFIG */}
           {step === 2 && (
-            <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-500'>
-              <div className="grid grid-cols-1 gap-3">
-                {servers.length === 0 ? (
-                  <div className="p-12 text-center border-2 border-dashed rounded-3xl flex flex-col items-center gap-6">
-                    <div className="h-20 w-20 rounded-3xl bg-muted flex items-center justify-center text-muted-foreground opacity-30">
-                      <ServerIcon size={40} />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-bold text-xl">Aucun serveur trouvé</h3>
-                      <p className="text-muted-foreground">Connectez un serveur VPS pour continuer.</p>
-                    </div>
-                    <Button variant="outline" size="lg" onClick={() => navigate({ to: '/servers' })}>Ajouter un serveur</Button>
-                  </div>
-                ) : (
-                  servers.map(server => (
-                    <button
-                      key={server.id}
-                      onClick={() => setSelectedServer(server)}
-                      className={`flex items-center gap-6 p-6 rounded-2xl border text-left transition-all hover:border-primary group bg-card ${selectedServer?.id === server.id ? 'border-primary ring-1 ring-primary shadow-md' : 'hover:bg-muted/5'}`}
-                    >
-                      <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors ${selectedServer?.id === server.id ? 'bg-primary text-white' : 'bg-muted text-muted-foreground group-hover:bg-primary/10'}`}>
-                        <ServerIcon size={24} />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-bold text-base">{server.name}</h4>
-                        <p className="text-xs font-mono opacity-50 mt-0.5">{server.ip}</p>
-                      </div>
-                      {selectedServer?.id === server.id && <Check size={20} className="text-primary" />}
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: FINAL CONFIG */}
-          {step === 3 && (
             <div className='space-y-8 animate-in fade-in slide-in-from-right-4 duration-500'>
               <div className="grid grid-cols-1 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="appName">Nom de l'application</Label>
-                  <Input id="appName" value={appName} onChange={e => setAppName(e.target.value)} placeholder="mon-projet" className="h-12 rounded-xl" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="domain" className={cn(isDomainLocked && "opacity-50")}>Nom de domaine (Optionnel)</Label>
-                  <div
-                    className={cn("relative", isDomainLocked && "group")}
-                  >
-                    <Globe className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                    <Input
-                      id="domain"
-                      value={domain}
-                      onChange={e => setDomain(e.target.value)}
-                      placeholder="app.mondomaine.com"
-                      className="pl-11 h-12 rounded-xl transition-all"
-                    />
-                    {isDomainLocked && (
-                      <div className="absolute right-4 top-3.5 text-amber-500">
-                        <AlertCircle size={16} />
-                      </div>
-                    )}
+                {/* COMMON FIELDS: NAME & DOMAIN */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="appName">Nom de l'application</Label>
+                    <Input id="appName" value={appName} onChange={e => setAppName(e.target.value)} placeholder="mon-projet" className="h-12 rounded-xl" />
                   </div>
-                  {isDomainLocked && (
-                    <p className="text-[10px] text-amber-600 font-medium mt-1 ml-1 flex items-center gap-1">
-                      <AlertCircle size={10} /> Affichage dashboard uniquement (Config Nginx manuelle requise sur Starter)
-                    </p>
-                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="domain" className={cn(isDomainLocked && "opacity-50")}>Nom de domaine (Optionnel)</Label>
+                    <div
+                      className={cn("relative", isDomainLocked && "group cursor-not-allowed")}
+                      onClick={() => isDomainLocked && setIsUpgradeModalOpen(true)}
+                    >
+                      <Globe className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <Input
+                        id="domain"
+                        value={domain}
+                        disabled={isDomainLocked}
+                        onChange={e => setDomain(e.target.value)}
+                        placeholder={isDomainLocked ? "Verrouillé sur le plan Starter" : "app.mondomaine.com"}
+                        className={cn(
+                          "pl-11 h-12 rounded-xl transition-all",
+                          isDomainLocked && "bg-muted/50 cursor-not-allowed opacity-60"
+                        )}
+                      />
+                      {isDomainLocked && (
+                        <div className="absolute right-4 top-3.5 text-muted-foreground">
+                          <Lock size={16} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                {deploymentMode !== 'docker' && (
-                  <div className="space-y-6 pt-6 border-t">
+                {deploymentMode === 'legacy_existing' && (
+                  <div className="space-y-6 pt-6 border-t animate-in fade-in slide-in-from-top-4">
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
                         <FolderGitIcon size={16} /> Chemin du dossier sur le serveur
                       </Label>
-                      <Input value={targetPath} onChange={e => setTargetPath(e.target.value)} placeholder={deploymentMode === 'legacy_existing' ? '/var/www/mon-app' : '/var/www/nouvelle-app'} className="h-12 font-mono text-sm rounded-xl" />
+                      <Input value={targetPath} onChange={e => setTargetPath(e.target.value)} placeholder="/var/www/mon-app" className="h-12 font-mono text-sm rounded-xl" />
                     </div>
 
                     <div className="space-y-2">
@@ -527,6 +402,7 @@ export default function CreateAppPage() {
                         onChange={e => setDeployScript(e.target.value)}
                         className="h-32 font-mono text-sm bg-zinc-950 text-emerald-400 p-4 border-zinc-800 rounded-2xl shadow-2xl"
                       />
+                      <p className="text-[10px] text-muted-foreground italic">Ce script sera exécuté à chaque déploiement via SSH.</p>
                     </div>
 
                     <div className="space-y-2">
@@ -551,26 +427,23 @@ export default function CreateAppPage() {
 
       {/* Footer Navigation */}
       {step !== -1 && (
-        <footer className=" bg-card/80 backdrop-blur-md sticky bottom-0 py-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)]">
+        <footer className="border-t bg-card/80 backdrop-blur-md py-4">
           <div className="max-w-3xl mx-auto px-6 flex items-center justify-between">
             <Button
               variant='ghost'
               size="lg"
               className="rounded-xl px-8"
-              onClick={() => {
-                if (deploymentMode === 'legacy_existing' && step === 2) setStep(-1)
-                else if (deploymentMode === 'docker' && step === 0) setStep(-1)
-                else setStep(step - 1)
-              }}
+              disabled={step === 0}
+              onClick={() => setStep(step - 1)}
             >
               Précédent
             </Button>
 
-            {step < 3 ? (
+            {step < 2 ? (
               <Button
                 size="lg"
                 className="rounded-xl px-12 gap-2 shadow-lg shadow-primary/20"
-                disabled={(step === 1 && !selectedRepo) || (step === 2 && !selectedServer)}
+                disabled={loading || (step === 0 && !selectedServer) || (step === 1 && !selectedRepo)}
                 onClick={() => setStep(step + 1)}
               >
                 Suivant

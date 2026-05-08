@@ -48,29 +48,32 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
   const user = useAuthStore((state) => state.auth.user)
   const isDomainLocked = user?.current_team?.plan === 'starter'
 
-  // State du formulaire (calqué sur l'étape 3 de CreateAppPage)
-  const [deploymentMode, setDeploymentMode] = useState<'docker' | 'legacy_existing'>(appToEdit?.deployment_mode || 'docker')
   const [appName, setAppName] = useState(appToEdit?.name || '')
   const [domain, setDomain] = useState(appToEdit?.domain || '')
   const [targetPath, setTargetPath] = useState(appToEdit?.target_path || '')
   const [deployScript, setDeployScript] = useState(appToEdit?.deploy_script || '')
-  const [logCommand, setLogCommand] = useState(appToEdit?.log_command || 'pm2 logs --lines 100')
-  
+  const [logCommand, setLogCommand] = useState(appToEdit?.log_command || '')
+
   // Ces états restent pour la création initiale si on devait l'utiliser, 
   // mais ici on se concentre sur l'UI "Étape 3" demandée.
   const [selectedServer, setSelectedServer] = useState<any>(appToEdit?.server || null)
   const [selectedRepo, setSelectedRepo] = useState<any>(appToEdit?.repo_url ? { html_url: appToEdit.repo_url } : null)
   const [selectedBranch, setSelectedBranch] = useState(appToEdit?.branch || 'main')
 
+  // Derive deployment mode from server type
+  const deploymentMode = useMemo(() => {
+    if (!selectedServer) return 'docker'
+    return selectedServer.infrastructure_type === 'legacy' ? 'legacy_existing' : 'docker'
+  }, [selectedServer])
+
   // Synchronisation si appToEdit change
   useEffect(() => {
     if (appToEdit && open) {
-      setDeploymentMode(appToEdit.deployment_mode)
       setAppName(appToEdit.name)
       setDomain(appToEdit.domain || '')
       setTargetPath(appToEdit.target_path || '')
       setDeployScript(appToEdit.deploy_script || '')
-      setLogCommand(appToEdit.log_command || 'pm2 logs --lines 100')
+      setLogCommand(appToEdit.log_command || '')
       setSelectedServer(appToEdit.server)
       setSelectedRepo(appToEdit.repo_url ? { html_url: appToEdit.repo_url } : null)
       setSelectedBranch(appToEdit.branch || 'main')
