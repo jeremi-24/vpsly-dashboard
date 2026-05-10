@@ -46,8 +46,22 @@ export function DeploymentTerminal({ deploymentId, initialLogs = [] }: Deploymen
     // 2. Listen for real-time logs
     const channel = echo.private(`deployment.${deploymentId}`)
       .listen('DeploymentLogEvent', (e: any) => {
-        const newLogs = Array.isArray(e.logs) ? e.logs : (e.message ? [e] : [])
-        setLogs((prev) => [...(Array.isArray(prev) ? prev : []), ...newLogs])
+        const newLogs: LogEntry[] = Array.isArray(e.logs) ? e.logs : (e.message ? [e] : [])
+        
+        setLogs((prev) => {
+          const currentLogs = Array.isArray(prev) ? prev : []
+          // Déduplication stricte sur les 20 dernières lignes uniquement
+          // Évite les faux positifs sur des messages répétitifs légitimes
+          const filteredNewLogs = newLogs.filter(n => 
+            !currentLogs.slice(-20).some(existing => 
+              existing.message === n.message && 
+              existing.type === n.type
+            )
+          )
+          
+          if (filteredNewLogs.length === 0) return currentLogs
+          return [...currentLogs, ...filteredNewLogs]
+        })
       })
 
     return () => {

@@ -60,11 +60,12 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
   const [selectedRepo, setSelectedRepo] = useState<any>(appToEdit?.repo_url ? { html_url: appToEdit.repo_url } : null)
   const [selectedBranch, setSelectedBranch] = useState(appToEdit?.branch || 'main')
 
-  // Derive deployment mode from server type
+  // Derive deployment mode from server type or existing app
   const deploymentMode = useMemo(() => {
+    if (appToEdit?.deployment_mode) return appToEdit.deployment_mode
     if (!selectedServer) return 'docker'
     return selectedServer.infrastructure_type === 'legacy' ? 'legacy_existing' : 'docker'
-  }, [selectedServer])
+  }, [selectedServer, appToEdit])
 
   // Synchronisation si appToEdit change
   useEffect(() => {
@@ -178,6 +179,31 @@ export function CreateAppDrawer({ open, onOpenChange, onSuccess, appToEdit }: Cr
                   placeholder="mon-projet" 
                   className="h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20" 
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <FolderGitIcon size={14} className="text-muted-foreground" /> Dépôt Git
+                  </Label>
+                  <Input 
+                    value={selectedRepo?.html_url || ''} 
+                    onChange={e => setSelectedRepo({ html_url: e.target.value })} 
+                    placeholder="https://github.com/user/repo" 
+                    className="h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20 text-xs" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <Terminal size={14} className="text-muted-foreground" /> Branche
+                  </Label>
+                  <Input 
+                    value={selectedBranch} 
+                    onChange={e => setSelectedBranch(e.target.value)} 
+                    placeholder="main" 
+                    className="h-11 rounded-xl bg-muted/20 border-border/50 focus:ring-primary/20 text-xs" 
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">

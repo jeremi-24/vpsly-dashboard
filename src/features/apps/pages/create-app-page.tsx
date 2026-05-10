@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, Loader2, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box, Lock } from 'lucide-react'
+import { FolderGitIcon, Server as ServerIcon, Settings, Check, Loader, Loader2, ChevronRight, ChevronLeft, Globe, Plus, Search, AlertCircle, X, Terminal, Box, Lock, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,12 @@ import { useAuthStore } from '@/stores/auth-store'
 import { getPlanById } from '@/config/plans'
 import { UpgradeModal } from '@/components/shared/upgrade-modal'
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,7 +32,7 @@ import {
 
 export default function CreateAppPage() {
   const [step, setStep] = useState(0) // 0: Server, 1: Source, 2: Config
-  const [deploymentMode, setDeploymentMode] = useState<'docker' | 'legacy_existing' | null>(null)
+  const [deploymentMode, setDeploymentMode] = useState<'docker' | 'legacy_existing' | 'legacy_new' | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
@@ -52,7 +58,7 @@ export default function CreateAppPage() {
   const [appName, setAppName] = useState('')
   const [domain, setDomain] = useState('')
   const [targetPath, setTargetPath] = useState('')
-  const [deployScript, setDeployScript] = useState('git pull origin main\nnpm install\nnpm run build\nnpm restart')
+  const [deployScript, setDeployScript] = useState('')
   const [logCommand, setLogCommand] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -60,16 +66,26 @@ export default function CreateAppPage() {
   useEffect(() => {
     if (selectedServer) {
         const isLegacy = selectedServer.infrastructure_type === 'legacy';
-        const mode = isLegacy ? 'legacy_existing' : 'docker';
-        setDeploymentMode(mode);
+        
+        // Only auto-set if mode is not set or if switching between docker/legacy
+        if (!deploymentMode || (isLegacy && deploymentMode === 'docker') || (!isLegacy && deploymentMode !== 'docker')) {
+            const mode = isLegacy ? 'legacy_existing' : 'docker';
+            setDeploymentMode(mode);
+        }
         
         // Auto-fill defaults for legacy if empty
         if (isLegacy) {
-            if (!targetPath) setTargetPath(`/var/www/${appName || 'my-app'}`);
-            if (!logCommand) setLogCommand('pm2 logs');
+            // logCommand and deployScript are now handled via placeholders
         }
     }
   }, [selectedServer]);
+
+  // Force targetPath to stay in sync with appName for legacy
+  useEffect(() => {
+    if (selectedServer?.infrastructure_type === 'legacy' && appName) {
+        setTargetPath(`/var/www/${appName}`);
+    }
+  }, [appName, selectedServer]);
 
   // Load servers on mount
   useEffect(() => {
@@ -135,7 +151,7 @@ export default function CreateAppPage() {
   }, [selectedRepo])
 
   const handleCreate = async () => {
-    if (!appName || (deploymentMode !== 'legacy_existing' && !selectedRepo) || !selectedServer) {
+    if (!appName || (deploymentMode === 'docker' && !selectedRepo) || (deploymentMode === 'legacy_new' && !selectedRepo) || !selectedServer) {
       toast.error('Champs manquants', { description: 'Veuillez remplir tous les champs obligatoires.' })
       return
     }
@@ -302,7 +318,15 @@ export default function CreateAppPage() {
                       {filteredRepos.map(repo => (
                         <button
                           key={repo.id}
-                          onClick={() => { setSelectedRepo(repo); if (!appName) setAppName(repo.name); }}
+                          onClick={() => { 
+                            const isNewRepo = selectedRepo?.id !== repo.id
+                            setSelectedRepo(repo)
+                            if (isNewRepo) {
+                              setAppName(repo.name)
+                              setBranches([]) // Clear old branches
+                              setSelectedBranch('') // Reset branch
+                            }
+                          }}
                           className={`w-full flex items-center justify-between p-5 text-left transition-all hover:bg-muted/30 ${selectedRepo?.id === repo.id ? 'bg-primary/5' : ''}`}
                         >
                           <div className="flex items-center gap-4">
@@ -384,7 +408,48 @@ export default function CreateAppPage() {
                   </div>
                 </div>
 
-                {deploymentMode === 'legacy_existing' && (
+                {selectedServer?.infrastructure_type === 'legacy' && (
+                  <div className="space-y-4 pt-4 animate-in fade-in zoom-in-95">
+                    <Label className="text-xs font-bold uppercase tracking-wider opacity-50">Stratégie de déploiement</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setDeploymentMode('legacy_existing')}
+                        className={cn(
+                          "flex flex-col gap-2 p-4 rounded-2xl border text-left transition-all hover:bg-muted/50",
+                          deploymentMode === 'legacy_existing' ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="font-bold text-sm">Mode Miroir (Existant)</div>
+                          {deploymentMode === 'legacy_existing' && <Check size={14} className="text-primary" />}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground leading-relaxed">
+                          VPSly se synchronise avec une application déjà configurée sur votre serveur. (Plus sécurisé, respecte vos réglages)
+                        </p>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeploymentMode('legacy_new')}
+                        className={cn(
+                          "flex flex-col gap-2 p-4 rounded-2xl border text-left transition-all hover:bg-muted/50",
+                          deploymentMode === 'legacy_new' ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="font-bold text-sm text-primary">Mode Automatisé (PaaS)</div>
+                          {deploymentMode === 'legacy_new' && <Check size={14} className="text-primary" />}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground leading-relaxed">
+                          VPSly s'occupe de tout : détection de stack, Nginx, SSL et Build. (Nouveau projet ou migration totale)
+                        </p>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {(deploymentMode === 'legacy_existing' || deploymentMode === 'legacy_new') && (
                   <div className="space-y-6 pt-6 border-t animate-in fade-in slide-in-from-top-4">
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2">
@@ -394,12 +459,55 @@ export default function CreateAppPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="flex items-center gap-2 text-indigo-500 font-bold">
-                        <Terminal size={16} /> Workflow (Script de déploiement)
-                      </Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="flex items-center gap-2 text-indigo-500 font-bold">
+                          <Terminal size={16} /> Workflow (Script de déploiement)
+                        </Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-indigo-500">
+                                <Info size={14} className='text-orange-400' />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="w-80 p-4 bg-zinc-900 border-zinc-800 text-zinc-300">
+                              <div className="space-y-4">
+                                <p className="text-xs font-bold text-white border-b border-white/10 pb-1">Exemples de scripts</p>
+                                
+                                <div className="space-y-1">
+                                  <p className="text-[10px] font-bold text-indigo-400">Laravel</p>
+                                  <code className="block text-[9px] bg-black/50 p-2 rounded border border-white/5 leading-relaxed">
+                                    composer install --no-dev --optimize-autoloader<br/>
+                                    php artisan migrate --force<br/>
+                                    php artisan config:cache
+                                  </code>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <p className="text-[10px] font-bold text-emerald-400">Node.js / Next.js</p>
+                                  <code className="block text-[9px] bg-black/50 p-2 rounded border border-white/5 leading-relaxed">
+                                    npm install<br/>
+                                    npm run build<br/>
+                                    pm2 reload app || pm2 start npm --name "app" -- start
+                                  </code>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <p className="text-[10px] font-bold text-amber-400">Python</p>
+                                  <code className="block text-[9px] bg-black/50 p-2 rounded border border-white/5 leading-relaxed">
+                                    pip install -r requirements.txt<br/>
+                                    systemctl restart myapp
+                                  </code>
+                                </div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                       <Textarea
                         value={deployScript}
                         onChange={e => setDeployScript(e.target.value)}
+                        placeholder="Ex: npm install && npm run build && pm2 reload app"
                         className="h-32 font-mono text-sm bg-zinc-950 text-emerald-400 p-4 border-zinc-800 rounded-2xl shadow-2xl"
                       />
                       <p className="text-[10px] text-muted-foreground italic">Ce script sera exécuté à chaque déploiement via SSH.</p>
@@ -410,7 +518,7 @@ export default function CreateAppPage() {
                         <Terminal size={16} /> Commande de logs (SSH)
                       </Label>
                       <Input
-                        placeholder="ex: pm2 logs portfolio --lines 100"
+                        placeholder="Ex: pm2 logs portfolio --lines 100"
                         value={logCommand}
                         onChange={(e) => setLogCommand(e.target.value)}
                         className="h-12 bg-background border-border font-mono text-sm rounded-xl"
@@ -443,10 +551,16 @@ export default function CreateAppPage() {
               <Button
                 size="lg"
                 className="rounded-xl px-12 gap-2 shadow-lg shadow-primary/20"
-                disabled={loading || (step === 0 && !selectedServer) || (step === 1 && !selectedRepo)}
-                onClick={() => setStep(step + 1)}
+                disabled={
+                  loading || 
+                  (step === 0 && !selectedServer) || 
+                  (step === 1 && deploymentMode !== 'legacy_existing' && (!selectedRepo || !selectedBranch))
+                }
+                onClick={() => {
+                  setStep(step + 1);
+                }}
               >
-                Suivant
+                {step === 1 && !selectedRepo && deploymentMode === 'legacy_existing' ? 'Passer l\'étape' : 'Suivant'}
                 <ChevronRight size={18} />
               </Button>
             ) : (

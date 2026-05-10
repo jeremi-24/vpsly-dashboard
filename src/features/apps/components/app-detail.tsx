@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from '@tanstack/react-router'
-import { Globe, Server as ServerIcon, FolderGitIcon, Loader, ChevronLeft, ExternalLink, RefreshCw, ChevronDown, Trash2, Activity, Lock, HardDrive } from 'lucide-react'
+import { Globe, Server as ServerIcon, FolderGitIcon, Loader, ChevronLeft, ExternalLink, RefreshCw, ChevronDown, Trash2, Activity, Lock, HardDrive, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { apiFetch } from '@/lib/api'
 import { Header } from '@/components/layout/header'
@@ -49,6 +49,8 @@ export function AppDetail() {
     const [expandedConsole, setExpandedConsole] = useState<'build' | 'runtime' | 'equal'>('equal')
     const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false)
+
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const fetchApp = async () => {
         try {
@@ -211,6 +213,16 @@ export function AppDetail() {
                         </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setIsEditDrawerOpen(true)}
+                                className="h-8 text-xs font-bold w-full sm:w-auto"
+                            >
+                                <Settings size={14} className="mr-2" />
+                                Modifier
+                            </Button>
+
                             <Button
                                 variant="default"
                                 size="sm"
@@ -498,7 +510,7 @@ export function AppDetail() {
                                                 {[
                                                     ...(isLegacy ? [
                                                         { label: 'Chemin cible', value: app.target_path || '/var/www/...', icon: <FolderGitIcon className="h-3.5 w-3.5 text-muted-foreground" /> },
-                                                        { label: 'Reverse proxy', value: 'Géré par l\'utilisateur (Nginx/Apache)', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
+                                                        { label: 'Reverse proxy', value: app.deployment_mode === 'legacy_new' ? 'Géré par VPSly (Nginx)' : 'Géré par l\'utilisateur (Nginx/Apache)', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
                                                     ] : [
                                                         { label: 'Port conteneur', value: app.container_port || '3000', icon: <Lock className="h-3.5 w-3.5 text-muted-foreground" /> },
                                                         { label: 'Reverse proxy', value: 'Traefik v3', icon: <Globe className="h-3.5 w-3.5 text-muted-foreground" /> },
@@ -595,12 +607,14 @@ export function AppDetail() {
                                                 onClick={async () => {
                                                     if (confirm(`Supprimer "${app.name}" ? Cette action est irréversible.`)) {
                                                         try {
+                                                            setIsDeleting(true)
                                                             toast.info('Suppression de l\'application...')
                                                             await apiFetch(`/applications/${appId}`, { method: 'DELETE' })
                                                             toast.success('Application supprimée avec succès.')
                                                             window.location.href = '/apps'
                                                         } catch {
                                                             toast.error('Échec de la suppression de l\'application')
+                                                            setIsDeleting(false)
                                                         }
                                                     }
                                                 }}
@@ -629,6 +643,34 @@ export function AppDetail() {
                 }}
                 appToEdit={app}
             />
+
+            {/* OVERLAY DE SUPPRESSION (BLUR + LOADER) */}
+            {isDeleting && (
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/60 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="relative">
+                        {/* Spinner externe animé */}
+                        <div className="h-24 w-24 rounded-full border-t-2 border-r-2 border-indigo-500 animate-spin" />
+                        {/* Logo/Icon central fixe */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="h-16 w-16 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+                                <Trash2 className="h-8 w-8 text-indigo-500 animate-pulse" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-8 text-center space-y-2">
+                        <h3 className="text-xl font-bold tracking-tight">Suppression en cours</h3>
+                        <p className="text-sm text-muted-foreground animate-pulse">
+                            Nettoyage des ressources serveurs et des bases de données...
+                        </p>
+                    </div>
+
+                    {/* Barre de progression subtile indéterminée */}
+                    <div className="mt-8 w-48 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full w-full bg-indigo-500 origin-left animate-progress-indeterminate" />
+                    </div>
+                </div>
+            )}
         </>
     )
 }

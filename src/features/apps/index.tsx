@@ -34,7 +34,7 @@ export interface ApplicationInfo {
     name: string
     ip: string
   }
-  deployment_mode: 'docker_compose' | 'legacy_existing'
+  deployment_mode: 'docker' | 'legacy_existing' | 'legacy_new'
 }
 
 const statusText = new Map([
@@ -232,11 +232,11 @@ export function Apps() {
                     <div className="flex gap-2">
                         {/* Mode Badge */}
                         <div className={`h-8 px-2 flex items-center rounded border text-[10px] font-bold uppercase
-                            ${app.deployment_mode === 'legacy_existing' 
-                                ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' 
-                                : 'bg-blue-500/10 text-blue-600 border-blue-500/20'}
+                            ${app.deployment_mode === 'docker' 
+                                ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' 
+                                : 'bg-amber-500/10 text-amber-600 border-amber-500/20'}
                         `}>
-                            {app.deployment_mode === 'legacy_existing' ? 'Legacy' : 'Docker'}
+                            {app.deployment_mode === 'docker' ? 'Docker' : 'Legacy'}
                         </div>
 
                         <Button
