@@ -35,6 +35,7 @@ export interface DatabaseInfo {
     id: number
     name: string
     ip: string
+    infrastructure_type: string
   }
 }
 
@@ -239,7 +240,7 @@ export function Databases() {
                           <code className='px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground border'>
                              user: {db.db_user}
                           </code>
-                          {db.has_adminer && (
+                          {db.has_adminer && db.server.infrastructure_type !== 'legacy' && (
                              <div className='px-2 py-0.5 bg-indigo-500/10 text-indigo-500 rounded text-[10px] font-bold border border-indigo-500/20'>
                                 Adminer
                              </div>
@@ -261,7 +262,7 @@ export function Databases() {
                       Connexion
                     </Button>
                     
-                    {db.has_adminer && db.adminer_url && (
+                    {db.has_adminer && db.adminer_url && db.server.infrastructure_type !== 'legacy' && (
                       <a 
                         href={`http://${db.adminer_url}`}
                         target="_blank"

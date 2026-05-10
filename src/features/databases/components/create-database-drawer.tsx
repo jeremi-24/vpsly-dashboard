@@ -103,6 +103,13 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
     }
   }, [selectedEngine])
 
+  // Désactiver Adminer si le serveur est Legacy
+  useEffect(() => {
+    if (selectedServer?.infrastructure_type === 'legacy') {
+      setHasAdminer(false)
+    }
+  }, [selectedServer])
+
   // Fetch servers
   useEffect(() => {
     if (open && step === 2 && servers.length === 0) {
@@ -341,7 +348,7 @@ export function CreateDatabaseDrawer({ open, onOpenChange, onSuccess }: CreateDa
                       </Button>
                     </div>
 
-                    {selectedEngine.id !== 'redis' && (
+                    {selectedEngine.id !== 'redis' && selectedServer?.infrastructure_type !== 'legacy' && (
                       <div className='flex items-center justify-between p-3 rounded-lg border bg-muted/20'>
                         <div className='flex items-center gap-3'>
                           <div className='h-8 w-8 rounded bg-indigo-500/10 flex items-center justify-center text-indigo-500'>

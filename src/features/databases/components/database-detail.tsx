@@ -269,7 +269,7 @@ export function DatabaseDetail() {
                     </div>
 
                     <div className="flex items-center gap-2 w-full sm:w-auto">
-                        {database.has_adminer && database.adminer_url && (
+                        {database.has_adminer && database.adminer_url && database.server?.infrastructure_type !== 'legacy' && (
                             <Button
                                 variant="outline"
                                 size="sm"
