@@ -203,22 +203,23 @@ export function Apps() {
                   : 'Commencez par déployer votre premier projet GitHub sur vos serveurs.'}
               </p>
               {!searchTerm && statusFilter === 'all' && (
-                <Button 
-                  variant={isLocked ? 'outline' : 'link'} 
-                  className={`mt-6 ${isLocked ? 'relative overflow-hidden shimmer-effect' : ''}`}
-                  onClick={() => { 
-                    if (isLocked) {
-                      setIsUpgradeModalOpen(true)
-                    } else {
-                      setEditingApp(null); 
-                      setIsDrawerOpen(true); 
-                    }
-                  }}
-                >
-                  {isLocked && <div className="premium-lock-overlay" />}
-                  {isLocked && <Lock className="mr-2 h-4 w-4 z-20" />}
-                  <span className="z-20">Lancer mon premier déploiement</span>
-                </Button>
+                isLocked ? (
+                  <Button 
+                    variant='outline' 
+                    className='mt-6 relative overflow-hidden shimmer-effect'
+                    onClick={() => setIsUpgradeModalOpen(true)}
+                  >
+                    <div className="premium-lock-overlay" />
+                    <Lock className="mr-2 h-4 w-4 z-20" />
+                    <span className="z-20">Lancer mon premier déploiement</span>
+                  </Button>
+                ) : (
+                  <Link to='/apps/create' className="mt-6">
+                    <Button variant='link'>
+                      <span>Lancer mon premier déploiement</span>
+                    </Button>
+                  </Link>
+                )
               )}
             </div>
           ) : (

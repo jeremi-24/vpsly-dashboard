@@ -420,13 +420,10 @@ export default function CreateAppPage() {
                           deploymentMode === 'legacy_existing' ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card"
                         )}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="font-bold text-sm">Mode Miroir (Existant)</div>
-                          {deploymentMode === 'legacy_existing' && <Check size={14} className="text-primary" />}
+                        <div className="flex items-center justify-center relative min-h-[40px]">
+                          <div className="font-bold text-sm text-foreground text-center">L'application existe déjà</div>
+                          {deploymentMode === 'legacy_existing' && <Check size={14} className="text-primary absolute right-0" />}
                         </div>
-                        <p className="text-[10px] text-muted-foreground leading-relaxed">
-                          VPSly se synchronise avec une application déjà configurée sur votre serveur. (Plus sécurisé, respecte vos réglages)
-                        </p>
                       </button>
 
                       <button
@@ -437,13 +434,10 @@ export default function CreateAppPage() {
                           deploymentMode === 'legacy_new' ? "border-primary bg-primary/5 ring-1 ring-primary" : "bg-card"
                         )}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="font-bold text-sm text-primary">Mode Automatisé (PaaS)</div>
-                          {deploymentMode === 'legacy_new' && <Check size={14} className="text-primary" />}
+                        <div className="flex items-center justify-center relative min-h-[40px]">
+                          <div className="font-bold text-sm text-primary text-center">L'application n'existe pas encore</div>
+                          {deploymentMode === 'legacy_new' && <Check size={14} className="text-primary absolute right-0" />}
                         </div>
-                        <p className="text-[10px] text-muted-foreground leading-relaxed">
-                          VPSly s'occupe de tout : détection de stack, Nginx, SSL et Build. (Nouveau projet ou migration totale)
-                        </p>
                       </button>
                     </div>
                   </div>
