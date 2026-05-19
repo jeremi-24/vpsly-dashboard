@@ -267,6 +267,15 @@ export function Apps() {
                   </div>
 
                   <div className='flex border-t bg-muted/5'>
+                    <a 
+                      href={`http://${app.app_url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className='flex-1 py-3 text-xs text-center font-bold text-indigo-500 transition-colors hover:bg-indigo-500/10 border-r flex items-center justify-center gap-2'
+                    >
+                      <Globe size={14} />
+                      Ouvrir
+                    </a>
                     <button 
                       onClick={() => handleEdit(app)}
                       className='flex-1 py-3 text-xs text-center font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground border-r'

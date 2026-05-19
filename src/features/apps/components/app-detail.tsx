@@ -197,15 +197,16 @@ export function AppDetail() {
                                         ? `${formatDistanceToNow(new Date(app.last_deployed_at), { addSuffix: true, locale: fr })}`
                                         : 'Jamais déployé'}
                                 </span>
-                                {((!isLegacy && (app.domain || app.server?.ip)) || (isLegacy && app.domain)) && (
+                                {app.app_url && (
                                     <>
                                         <Separator orientation="vertical" className="h-3 hidden sm:block" />
                                         <a
-                                            href={app.domain?.startsWith('http') ? app.domain : `http://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`}
+                                            href={`http://${app.app_url}`}
                                             target="_blank"
+                                            rel="noopener noreferrer"
                                             className="hover:underline flex items-center gap-1 text-indigo-400 font-medium truncate max-w-[150px] sm:max-w-none"
                                         >
-                                            <Globe size={12} /> {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
+                                            <Globe size={12} /> {app.app_url}
                                         </a>
                                     </>
                                 )}
@@ -473,14 +474,14 @@ export function AppDetail() {
                                                 <div className="flex-1 h-9 bg-background/50 rounded-lg border border-white/5 flex items-center gap-2 px-3">
                                                     <Globe className="h-3.5 w-3.5 text-green-500 shrink-0" />
                                                     <span className="text-xs font-mono truncate">
-                                                        {app.domain || `${app.name}.${app.server?.ip}.sslip.io`}
+                                                        {app.app_url}
                                                     </span>
                                                 </div>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
                                                     className="h-9 text-xs shrink-0"
-                                                    onClick={() => window.open(`https://${app.domain || `${app.name}.${app.server?.ip}.sslip.io`}`, '_blank')}
+                                                    onClick={() => window.open(`http://${app.app_url}`, '_blank')}
                                                 >
                                                     Ouvrir
                                                 </Button>
