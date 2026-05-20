@@ -50,7 +50,7 @@ export default function PricingPage() {
       label: '01 / Starter',
       badge: 'Usage personnel',
       features: [
-        { cat: 'Infrastructure', items: ['1 serveur VPS', 'Monitoring CPU/RAM/Disque'] },
+        { cat: 'Infrastructure', items: ['Connecter jusqu\'à 1 serveur VPS', 'Monitoring CPU/RAM/Disque'] },
         { cat: 'Applications', items: ['1 application · 1 DB', 'Déploiement GitHub', 'Sous-domaine *.vpsly.tech'] },
         { cat: 'Limites', items: ['1 collaborateur', 'Pas de domaine perso'] }
       ],
@@ -61,7 +61,7 @@ export default function PricingPage() {
       badge: 'Populaire',
       popular: true,
       features: [
-        { cat: 'Infrastructure', items: ['2 serveurs VPS', 'Apps & DBs illimitées', 'Domaine perso + HTTPS'] },
+        { cat: 'Infrastructure', items: ['Connecter jusqu\'à 2 serveurs VPS', 'Apps & DBs illimitées', 'Domaine perso + HTTPS'] },
         { cat: 'Déploiement', items: ['GitHub (déploiment standard)', 'Auto-scripts & Commandes', 'Backups manuels (G-Drive)'] },
         { cat: 'Équipe', items: ['2 collaborateurs & Rôles'] }
       ],
@@ -71,7 +71,7 @@ export default function PricingPage() {
       label: '03 / Pro',
       badge: 'Infrastructure Agence',
       features: [
-        { cat: 'Premium', items: ['Serveurs illimités', 'Alertes WhatsApp (24h)'] },
+        { cat: 'Premium', items: ['Connecter plusieurs serveurs VPS', 'Alertes WhatsApp (24h)'] },
         { cat: 'Déploiement', items: ['GitHub Webhook (Auto-push)', 'Auto-deploy instantané'] },
         { cat: 'Sécurité & Équipe', items: ['Backups auto planifiés', '5 collaborateurs & Rôles'] }
       ],

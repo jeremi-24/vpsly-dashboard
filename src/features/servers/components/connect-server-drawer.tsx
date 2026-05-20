@@ -198,9 +198,9 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
                         <Box className='h-6 w-6' />
                       </div>
                       <div className='space-y-1.5'>
-                        <h4 className='font-bold text-sm leading-tight'>Nouveau serveur</h4>
+                        <h4 className='font-bold text-sm leading-tight'>Serveur vierge</h4>
                         <p className='text-[10px] text-muted-foreground leading-relaxed'>
-                          Infrastructure moderne avec gestion automatique des déploiements, SSL, domaines et applications.
+                          VPSly installera tous les outils nécessaires sur votre serveur.
                         </p>
                       </div>
                     </button>
@@ -221,7 +221,7 @@ export function ConnectServerDrawer({ open, onOpenChange, onSuccess, server }: C
                       <div className='space-y-1.5'>
                         <h4 className='font-bold text-sm leading-tight'>Serveur existant</h4>
                         <p className='text-[10px] text-muted-foreground leading-relaxed'>
-                          Déploiement sur un serveur déjà configuré avec vos applications et votre configuration Nginx existante.
+                          VPSly s'adaptera à la configuration déjà existante.
                         </p>
                       </div>
                     </button>

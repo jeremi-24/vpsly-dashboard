@@ -46,7 +46,7 @@ export function UpgradeModal({ open, onOpenChange, reason }: UpgradeModalProps) 
       badge: 'Populaire',
       popular: true,
       features: [
-        { cat: 'Infra', items: ['2 serveurs VPS', 'Apps & DBs illimitées'] },
+        { cat: 'Infra', items: ['Connecter jusqu\'à 2 serveurs VPS', 'Apps & DBs illimitées'] },
         { cat: 'Features', items: ['Domaine perso + HTTPS', 'Auto-scripts'] }
       ],
     },
@@ -55,7 +55,7 @@ export function UpgradeModal({ open, onOpenChange, reason }: UpgradeModalProps) 
       label: 'PRO',
       badge: 'Infrastructure Agence',
       features: [
-        { cat: 'Premium', items: ['Serveurs illimités', 'Auto-deploy Webhook'] },
+        { cat: 'Premium', items: ['Tout SOLO inclu', 'Connecter plusieurs serveurs VPS'] },
         { cat: 'Backup', items: ['Backups auto planifiés', 'Alertes WhatsApp'] }
       ],
     },

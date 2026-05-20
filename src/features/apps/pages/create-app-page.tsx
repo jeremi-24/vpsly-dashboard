@@ -174,7 +174,7 @@ export default function CreateAppPage() {
         })
       })
 
-      toast.success('Application créée', { description: 'Déploiement en cours...' })
+      toast.info('Déploiement en cours....')
 
       if (result.application?.id) {
         navigate({
